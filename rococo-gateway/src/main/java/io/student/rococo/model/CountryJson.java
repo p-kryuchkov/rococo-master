@@ -1,4 +1,6 @@
 package io.student.rococo.model;
 
-public record CountryJson() {
+import java.util.UUID;
+
+public record CountryJson(UUID id, String name) {
 }

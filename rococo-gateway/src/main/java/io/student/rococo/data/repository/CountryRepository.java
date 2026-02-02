@@ -1,4 +1,10 @@
 package io.student.rococo.data.repository;
 
-public class CountryRepository {
+import io.student.rococo.data.entity.ArtistEntity;
+import io.student.rococo.data.entity.CountryEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface CountryRepository extends JpaRepository<CountryEntity, UUID> {
 }
