@@ -10,8 +10,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.util.Base64;
 import java.util.UUID;
+
+import static io.student.rococo.utils.Base64Utils.decodeImageFromB64ToBytes;
 
 @Component
 public class ArtistDbService implements ArtistService {
@@ -48,7 +49,7 @@ public class ArtistDbService implements ArtistService {
         artistEntity.setName(artistJson.name());
         artistEntity.setBiography(artistJson.biography());
         if (artistJson.photo() != null) {
-            artistEntity.setPhoto(Base64.getDecoder().decode(artistJson.photo()));
+            artistEntity.setPhoto(decodeImageFromB64ToBytes(artistJson.photo()));
         }
         return ArtistJson.fromEntity(
                 artistRepository.save(artistEntity));
@@ -62,7 +63,7 @@ public class ArtistDbService implements ArtistService {
 
         if (artistJson.name() != null) resultEntity.setName(artistJson.name());
         if (artistJson.biography() != null) resultEntity.setBiography(artistJson.biography());
-        if (artistJson.photo() != null) resultEntity.setPhoto(Base64.getDecoder().decode(artistJson.photo()));
+        if (artistJson.photo() != null) resultEntity.setPhoto(decodeImageFromB64ToBytes(artistJson.photo()));
 
         return ArtistJson.fromEntity(
                 artistRepository.save(resultEntity));

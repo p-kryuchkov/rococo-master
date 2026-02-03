@@ -30,10 +30,10 @@ public class CountriesDbService implements CountryService {
     @Override
     public CountryJson getCountryById(UUID id) {
         return countryRepository.findById(id).map(countryEntity -> {
-            return new CountryJson(countryEntity.getId(), countryEntity.getName());
-        })
+                    return new CountryJson(countryEntity.getId(), countryEntity.getName());
+                })
                 .orElseThrow(() -> new EntityNotFoundException(
-                "Country not found, id=" + id
-        ));
+                        "Country not found, id=" + id
+                ));
     }
 }

@@ -3,8 +3,9 @@ package io.student.rococo.model;
 import io.student.rococo.data.entity.CountryEntity;
 import io.student.rococo.data.entity.MuseumEntity;
 
-import java.util.Base64;
 import java.util.UUID;
+
+import static io.student.rococo.utils.Base64Utils.encodeImageFromBytesToB64;
 
 public record MuseumJson(UUID id,
                          String description,
@@ -21,7 +22,7 @@ public record MuseumJson(UUID id,
                 museumEntity.getCity(),
                 museumEntity.getPhoto() == null
                         ? null
-                        : Base64.getEncoder().encodeToString(museumEntity.getPhoto()),
+                        : encodeImageFromBytesToB64(museumEntity.getPhoto()),
                 new CountryJson(country.getId(),
                         country.getName())
         );

@@ -23,7 +23,7 @@ public class PaintingEntity {
     private ArtistEntity artist;
     @ManyToOne
     @JoinColumn(name = "museum_id", referencedColumnName = "id")
-    private ArtistEntity museum;
+    private MuseumEntity museum;
 
     public UUID getId() {
         return id;
@@ -65,11 +65,11 @@ public class PaintingEntity {
         this.artist = artist;
     }
 
-    public ArtistEntity getMuseum() {
+    public MuseumEntity getMuseum() {
         return museum;
     }
 
-    public void setMuseum(ArtistEntity museum) {
+    public void setMuseum(MuseumEntity museum) {
         this.museum = museum;
     }
 

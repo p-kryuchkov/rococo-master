@@ -11,8 +11,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
-import java.util.Base64;
 import java.util.UUID;
+
+import static io.student.rococo.utils.Base64Utils.decodeImageFromB64ToBytes;
 
 @Component
 public class MuseumDbService implements MuseumService {
@@ -48,7 +49,7 @@ public class MuseumDbService implements MuseumService {
         museumEntity.setCity(museumJson.city());
         museumEntity.setDescription(museumJson.description());
         if (museumJson.photo() != null) {
-            museumEntity.setPhoto(Base64.getDecoder().decode(museumJson.photo()));
+            museumEntity.setPhoto(decodeImageFromB64ToBytes(museumJson.photo()));
         }
         countryEntity.setId(museumJson.country().id());
         countryEntity.setName(museumJson.country().name());
@@ -61,13 +62,13 @@ public class MuseumDbService implements MuseumService {
     public MuseumJson updateMuseum(MuseumJson museumJson) {
         MuseumEntity museumEntity = museumRepository.findById(museumJson.id())
                 .orElseThrow(() -> new EntityNotFoundException("Museum not found"));
-        CountryEntity countryEntity = new CountryEntity();
+        CountryEntity countryEntity = museumEntity.getCountry();
 
         if (museumJson.title() != null) museumEntity.setTitle(museumJson.title());
         if (museumJson.city() != null) museumEntity.setCity(museumJson.city());
         if (museumJson.description() != null) museumEntity.setDescription(museumJson.description());
         if (museumJson.photo() != null) {
-            museumEntity.setPhoto(Base64.getDecoder().decode(museumJson.photo()));
+            museumEntity.setPhoto(decodeImageFromB64ToBytes(museumJson.photo()));
         }
         if (museumJson.country() != null) {
             countryEntity.setId(museumJson.country().id());

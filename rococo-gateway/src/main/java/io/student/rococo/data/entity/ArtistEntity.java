@@ -19,6 +19,7 @@ public class ArtistEntity {
     private UUID id;
     private String name;
     private String biography;
+    @Column(columnDefinition = "LONGBLOB")
     private byte[] photo;
 
     public UUID getId() {
