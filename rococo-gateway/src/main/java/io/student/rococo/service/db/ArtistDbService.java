@@ -1,10 +1,10 @@
 package io.student.rococo.service.db;
 
+import io.student.rococo.exception.ArtistNotFoundException;
 import io.student.rococo.data.entity.ArtistEntity;
 import io.student.rococo.data.repository.ArtistRepository;
 import io.student.rococo.model.ArtistJson;
 import io.student.rococo.service.ArtistService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +35,7 @@ public class ArtistDbService implements ArtistService {
     public ArtistJson getArtistById(UUID id) {
         return ArtistJson.fromEntity(
                 artistRepository.findById(id)
-                        .orElseThrow(() -> new EntityNotFoundException(
+                        .orElseThrow(() -> new ArtistNotFoundException(
                                 "Artist not found, id=" + id
                         ))
         );
@@ -59,7 +59,7 @@ public class ArtistDbService implements ArtistService {
     public ArtistJson updateArtist(ArtistJson artistJson) {
 
         ArtistEntity resultEntity = artistRepository.findById(artistJson.id())
-                .orElseThrow(() -> new EntityNotFoundException("Artist not found"));
+                .orElseThrow(() -> new ArtistNotFoundException("Artist not found id=" + artistJson.id()));
 
         if (artistJson.name() != null) resultEntity.setName(artistJson.name());
         if (artistJson.biography() != null) resultEntity.setBiography(artistJson.biography());
