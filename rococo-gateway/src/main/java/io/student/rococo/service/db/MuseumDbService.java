@@ -46,13 +46,13 @@ public class MuseumDbService implements MuseumService {
             throw new IllegalArgumentException("Museum with this name exists");
         }
         museumEntity.setTitle(museumJson.title());
-        museumEntity.setCity(museumJson.city());
+        museumEntity.setCity(museumJson.geo().city());
         museumEntity.setDescription(museumJson.description());
         if (museumJson.photo() != null) {
             museumEntity.setPhoto(decodeImageFromB64ToBytes(museumJson.photo()));
         }
-        countryEntity.setId(museumJson.country().id());
-        countryEntity.setName(museumJson.country().name());
+        countryEntity.setId(museumJson.geo().country().id());
+        countryEntity.setName(museumJson.geo().country().name());
         museumEntity.setCountry(countryEntity);
 
         return MuseumJson.fromEntity(museumRepository.save(museumEntity));
@@ -65,14 +65,14 @@ public class MuseumDbService implements MuseumService {
         CountryEntity countryEntity = museumEntity.getCountry();
 
         if (museumJson.title() != null) museumEntity.setTitle(museumJson.title());
-        if (museumJson.city() != null) museumEntity.setCity(museumJson.city());
+        if (museumJson.geo().city() != null) museumEntity.setCity(museumJson.geo().city());
         if (museumJson.description() != null) museumEntity.setDescription(museumJson.description());
         if (museumJson.photo() != null) {
             museumEntity.setPhoto(decodeImageFromB64ToBytes(museumJson.photo()));
         }
-        if (museumJson.country() != null) {
-            countryEntity.setId(museumJson.country().id());
-            countryEntity.setName(museumJson.country().name());
+        if (museumJson.geo().country() != null) {
+            countryEntity.setId(museumJson.geo().country().id());
+            countryEntity.setName(museumJson.geo().country().name());
             museumEntity.setCountry(countryEntity);
         }
         return MuseumJson.fromEntity(museumRepository.save(museumEntity));
