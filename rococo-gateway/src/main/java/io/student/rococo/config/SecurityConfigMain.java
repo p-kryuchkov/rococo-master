@@ -34,7 +34,7 @@ public class SecurityConfigMain {
                                 .requestMatchers(GET, "/api/artist/**").permitAll()
                                 .requestMatchers(GET, "/api/museum/**").permitAll()
                                 .requestMatchers(GET, "/api/painting/**").permitAll()
-                                .anyRequest().permitAll() //ToDO Поменяй на authenticated() чтобы просило авторизацию!!!
+                                .anyRequest().authenticated() //ToDO Поменяй на authenticated() чтобы просило авторизацию!!!
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();

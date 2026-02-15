@@ -44,6 +44,7 @@ public class UserService {
     writeAuthorityEntity.setAuthority(Authority.write);
 
     userEntity.addAuthorities(readAuthorityEntity, writeAuthorityEntity);
+    // ToDo сюда делаем создание юзердаты
     return userRepository.save(userEntity).getUsername();
   }
 }
