@@ -4,7 +4,6 @@ package io.student.rococo.data.entity;
 import jakarta.persistence.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.util.Base64;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -19,7 +18,7 @@ public class ArtistEntity {
     private UUID id;
     @Column(name = "name", nullable = false, unique = true)
     private String name;
-    @Column(name = "title", nullable = false)
+    @Column(name = "biography", nullable = false)
     private String biography;
     @Column(columnDefinition = "LONGBLOB")
     private byte[] photo;

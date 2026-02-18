@@ -20,7 +20,7 @@ public class GrpcCountryService extends CountriesServiceGrpc.CountriesServiceImp
     }
 
     @Override
-    public void allCountriesRequest(PageableRequest request, StreamObserver<CountriesResponse> responseObserver) {
+    public void allCountries(PageableRequest request, StreamObserver<CountriesResponse> responseObserver) {
         int page = request.hasPage() ? request.getPage() : 0;
         int size = request.hasSize() ? request.getSize() : 20;
         PageRequest pageRequest = PageRequest.of(page, size);

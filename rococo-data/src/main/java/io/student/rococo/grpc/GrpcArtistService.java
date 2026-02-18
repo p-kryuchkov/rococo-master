@@ -25,7 +25,7 @@ public class GrpcArtistService extends ArtistServiceGrpc.ArtistServiceImplBase {
     }
 
     @Override
-    public void allArtistsRequest(PageableRequest request, StreamObserver<ArtistsResponse> responseObserver) {
+    public void allArtists(PageableRequest request, StreamObserver<ArtistsResponse> responseObserver) {
         int page = request.hasPage() ? request.getPage() : 0;
         int size = request.hasSize() ? request.getSize() : 10;
         PageRequest pageRequest = PageRequest.of(page, size);
@@ -74,7 +74,7 @@ public class GrpcArtistService extends ArtistServiceGrpc.ArtistServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private static ArtistResponse artistEntityToArtistProtoResponse(ArtistEntity artistEntity) {
+    public static ArtistResponse artistEntityToArtistProtoResponse(ArtistEntity artistEntity) {
         return ArtistResponse.newBuilder()
                 .setId(null == artistEntity.getId()
                         ? ""

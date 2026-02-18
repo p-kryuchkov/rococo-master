@@ -7,7 +7,7 @@ option  java_package = "io.student.rococo.grpc";
 option  java_outer_classname = "RococoDataArtistProto";
 
 service ArtistService{
-  rpc AllArtistsRequest(PageableRequest) returns (ArtistsResponse);
+  rpc AllArtists(PageableRequest) returns (ArtistsResponse);
   rpc CreateArtist(CreateArtistRequest) returns (ArtistResponse);
   rpc UpdateArtist(UpdateArtistRequest) returns (ArtistResponse);
 }

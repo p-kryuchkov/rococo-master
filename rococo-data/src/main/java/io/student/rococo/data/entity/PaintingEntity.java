@@ -16,12 +16,13 @@ public class PaintingEntity {
     @Column(name = "id", nullable = false, columnDefinition = "UUID default gen_random_uuid()")
     private UUID id;
     private String description;
+    @Column(name = "title", nullable = false)
     private String title;
     private byte[] content;
     @ManyToOne
     @JoinColumn(name = "artist_id", referencedColumnName = "id")
     private ArtistEntity artist;
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "museum_id", referencedColumnName = "id")
     private MuseumEntity museum;
 

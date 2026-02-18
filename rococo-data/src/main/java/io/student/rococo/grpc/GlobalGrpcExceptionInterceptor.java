@@ -1,10 +1,7 @@
 package io.student.rococo.grpc;
 
 import io.grpc.*;
-import io.student.rococo.exception.ArtistNotFoundException;
-import io.student.rococo.exception.CountryNotFoundException;
-import io.student.rococo.exception.FieldValidationException;
-import io.student.rococo.exception.MuseumNotFoundException;
+import io.student.rococo.exception.*;
 import jakarta.persistence.EntityExistsException;
 
 public class GlobalGrpcExceptionInterceptor implements ServerInterceptor {
@@ -30,7 +27,7 @@ public class GlobalGrpcExceptionInterceptor implements ServerInterceptor {
                 } catch (EntityExistsException e) {
                     call.close(Status.ALREADY_EXISTS
                             .withDescription(e.getMessage()), new Metadata());
-                } catch (ArtistNotFoundException | MuseumNotFoundException | CountryNotFoundException e) {
+                } catch (ArtistNotFoundException | MuseumNotFoundException | CountryNotFoundException | PaintingNotFoundException e) {
                     call.close(Status.NOT_FOUND
                             .withDescription(e.getMessage()), new Metadata());
                 }  catch (RuntimeException e) {

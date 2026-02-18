@@ -6,11 +6,9 @@ import io.student.rococo.data.entity.CountryEntity;
 import io.student.rococo.data.entity.MuseumEntity;
 import io.student.rococo.data.repository.CountryRepository;
 import io.student.rococo.data.repository.MuseumRepository;
-import io.student.rococo.exception.ArtistNotFoundException;
 import io.student.rococo.exception.CountryNotFoundException;
 import io.student.rococo.exception.FieldValidationException;
 import io.student.rococo.exception.MuseumNotFoundException;
-import jakarta.persistence.EntityExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,7 +28,7 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
     }
 
     @Override
-    public void allMuseumsRequest(PageableRequest request, StreamObserver<MuseumsResponse> responseObserver) {
+    public void allMuseums(PageableRequest request, StreamObserver<MuseumsResponse> responseObserver) {
         int page = request.hasPage() ? request.getPage() : 0;
         int size = request.hasSize() ? request.getSize() : 10;
         PageRequest pageRequest = PageRequest.of(page, size);
@@ -68,7 +66,7 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
         museumEntity.setCity(request.getGeo().getCity());
         if (request.getGeo().getCountry().isBlank()) throw new FieldValidationException("Country Id must not be null");
         CountryEntity countryEntity = countryRepository.findById(UUID.fromString(request.getGeo().getCountry()))
-                .orElseThrow(()-> new CountryNotFoundException("Country  not found with id: " + request.getGeo().getCountry()));
+                .orElseThrow(() -> new CountryNotFoundException("Country not found with id: " + request.getGeo().getCountry()));
         museumEntity.setCountry(countryEntity);
         if (!request.getPhoto().isEmpty()) museumEntity.setPhoto(request.getPhoto().toByteArray());
         MuseumEntity result = museumRepository.save(museumEntity);
@@ -80,14 +78,14 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
     @Override
     public void updateMuseum(UpdateMuseumRequest request, StreamObserver<MuseumResponse> responseObserver) {
         MuseumEntity museumEntity = museumRepository.findById(UUID.fromString(request.getId()))
-                .orElseThrow(() -> new MuseumNotFoundException("Museum  not found with id: " + request.getId()));
+                .orElseThrow(() -> new MuseumNotFoundException("Museum not found with id: " + request.getId()));
         if (request.getTitle().isBlank()) throw new FieldValidationException("Title must not be null");
         museumEntity.setTitle(request.getTitle());
         museumEntity.setDescription(request.getDescription());
         museumEntity.setCity(request.getGeo().getCity());
         if (request.getGeo().getCountry().isBlank()) throw new FieldValidationException("Country Id must not be null");
         CountryEntity countryEntity = countryRepository.findById(UUID.fromString(request.getGeo().getCountry()))
-                .orElseThrow(()-> new CountryNotFoundException("Country  not found with id: " + request.getGeo().getCountry()));
+                .orElseThrow(() -> new CountryNotFoundException("Country not found with id: " + request.getGeo().getCountry()));
         museumEntity.setCountry(countryEntity);
         if (!request.getPhoto().isEmpty()) museumEntity.setPhoto(request.getPhoto().toByteArray());
         MuseumEntity result = museumRepository.save(museumEntity);
@@ -96,14 +94,12 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    private static MuseumResponse museumEntityToMuseumProtoResponse(MuseumEntity museumEntity) {
-
+    public static MuseumResponse museumEntityToMuseumProtoResponse(MuseumEntity museumEntity) {
         Geo geo = Geo.newBuilder()
                 .setCity(museumEntity.getCity())
                 .setCountry(museumEntity.getCountry().getId().toString())
                 .build();
-MuseumResponse response =
-         MuseumResponse.newBuilder()
+        return MuseumResponse.newBuilder()
                 .setId(museumEntity.getId().toString())
                 .setTitle(museumEntity.getTitle())
                 .setDescription(museumEntity.getDescription())
@@ -112,6 +108,5 @@ MuseumResponse response =
                         : ByteString.copyFrom(museumEntity.getPhoto()))
                 .setGeo(geo)
                 .build();
-return response;
     }
 }

@@ -7,7 +7,7 @@ option  java_package = "io.student.rococo.grpc";
 option  java_outer_classname = "RococoDataMuseumProto";
 
 service MuseumService{
-  rpc AllMuseumsRequest(PageableRequest) returns (MuseumsResponse);
+  rpc AllMuseums(PageableRequest) returns (MuseumsResponse);
   rpc FindMuseumById(IdRequest) returns (MuseumResponse);
   rpc CreateMuseum(CreateMuseumRequest) returns (MuseumResponse);
   rpc UpdateMuseum(UpdateMuseumRequest) returns (MuseumResponse);
