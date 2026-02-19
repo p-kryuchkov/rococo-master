@@ -38,6 +38,7 @@ dependencies {
     implementation "org.flywaydb:flyway-core:${project.ext.flywayVersion}"
     implementation "org.flywaydb:flyway-mysql:${project.ext.flywayVersion}"
     implementation 'org.projectlombok:lombok:1.18.30'
+    implementation 'org.springframework.grpc:spring-grpc-spring-boot-starter'
     implementation("io.grpc:grpc-protobuf:1.75.0") {
         exclude group: 'com.google.protobuf'
     }
@@ -62,6 +63,7 @@ protobuf {
         }
     }
 }
+
 tasks.named('test') {
 	useJUnitPlatform()
 }

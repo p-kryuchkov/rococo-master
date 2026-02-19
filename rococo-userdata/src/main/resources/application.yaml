@@ -1,16 +1,20 @@
 server:
-  port: 8093
-
+  port: 8084
 spring:
+  grpc:
+    server:
+      port: 8094
+      servlet:
+        enabled: false
   application:
-    name: rococo-data
+    name: rococo-userdata
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: 'http://localhost:9000'
   datasource:
-    url: 'jdbc:mysql://localhost:3306/rococo-data?serverTimezone=UTC&createDatabaseIfNotExist=true'
+    url: 'jdbc:mysql://localhost:3306/rococo-userdata?serverTimezone=UTC&createDatabaseIfNotExist=true'
     hikari:
       connection-timeout: 20000
       minimum-idle: 10
@@ -24,8 +28,8 @@ spring:
     enabled: true
     baseline-on-migrate: true
     baseline-version: 0
-    schemas: rococo-data
-    locations: classpath:db/migration/rococo-data
+    schemas: rococo-userdata
+    locations: classpath:db/migration/rococo-userdata
   jpa:
     hibernate:
       ddl-auto: none

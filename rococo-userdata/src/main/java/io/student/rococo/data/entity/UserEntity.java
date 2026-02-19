@@ -15,6 +15,7 @@ public class UserEntity {
     @GeneratedValue(strategy = AUTO)
     @Column(name = "id", nullable = false, columnDefinition = "UUID default gen_random_uuid()")
     private UUID id;
+    @Column(name = "username", unique = true, nullable = false)
     private String username;
     private String firstname;
     private String lastname;
