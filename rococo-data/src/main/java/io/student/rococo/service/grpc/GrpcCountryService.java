@@ -3,7 +3,6 @@ package io.student.rococo.service.grpc;
 import io.grpc.stub.StreamObserver;
 
 import io.student.rococo.data.entity.CountryEntity;
-import io.student.rococo.data.repository.CountryRepository;
 import io.student.rococo.grpc.CountriesResponse;
 import io.student.rococo.grpc.CountriesServiceGrpc;
 import io.student.rococo.grpc.CountryResponse;

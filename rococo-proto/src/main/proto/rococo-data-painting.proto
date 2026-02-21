@@ -32,9 +32,9 @@ message CreatePaintingRequest{
 
 message UpdatePaintingRequest{
   string id = 1;
-  string description = 2;
-  string title = 3;
-  bytes content = 4;
+  optional string description = 2;
+  optional string title = 3;
+  optional bytes content = 4;
   ArtistRequest artist = 5;
   MuseumRequest museum = 6;
 }
@@ -44,7 +44,7 @@ message ArtistRequest{
 }
 
 message MuseumRequest{
- optional string id = 1;
+  optional string id = 1;
 }
 
 message PaintingResponse{

@@ -1,11 +1,11 @@
 server:
   port: 8084
+grpc:
+  server:
+    port: 8094
+    servlet:
+      enabled: false
 spring:
-  grpc:
-    server:
-      port: 8094
-      servlet:
-        enabled: false
   application:
     name: rococo-userdata
   security:
