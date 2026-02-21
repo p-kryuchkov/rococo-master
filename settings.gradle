@@ -3,3 +3,5 @@ include 'rococo-gateway'
 include 'rococo-auth'
 include 'rococo-data'
 include 'rococo-userdata'
+include 'rococo-proto'
+

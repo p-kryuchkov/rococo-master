@@ -1,7 +1,7 @@
 package io.student.rococo.config;
 
 import io.grpc.ServerInterceptor;
-import io.student.rococo.grpc.GlobalGrpcExceptionInterceptor;
+import io.student.rococo.service.grpc.GlobalGrpcExceptionInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

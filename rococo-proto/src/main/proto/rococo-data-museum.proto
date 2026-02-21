@@ -22,9 +22,9 @@ message CreateMuseumRequest{
 
 message UpdateMuseumRequest{
   string id = 1;
-  string description = 2;
-  string title = 3;
-  bytes photo = 4;
+ optional string description = 2;
+ optional string title = 3;
+ optional bytes photo = 4;
   Geo geo= 5;
 }
 

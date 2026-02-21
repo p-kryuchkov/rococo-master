@@ -38,6 +38,11 @@ spring:
     show-sql: false
     generate-ddl: false
     open-in-view: false
+  grpc:
+    client:
+      grpcCurrencyClient:
+        address: 'static://localhost:8083'
+        negotiationType: PLAINTEXT
 
 logging:
   level:

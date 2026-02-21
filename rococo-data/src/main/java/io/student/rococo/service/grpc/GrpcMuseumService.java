@@ -1,0 +1,108 @@
+package io.student.rococo.service.grpc;
+
+import com.google.protobuf.ByteString;
+import io.grpc.stub.StreamObserver;
+import io.student.rococo.data.entity.MuseumEntity;
+import io.student.rococo.grpc.*;
+import io.student.rococo.service.db.MuseumDbService;
+import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
+@GrpcService(interceptors = GlobalGrpcExceptionInterceptor.class)
+public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
+
+    private final MuseumDbService museumDbService;
+
+    @Autowired
+    public GrpcMuseumService(MuseumDbService museumDbService) {
+        this.museumDbService = museumDbService;
+    }
+
+    @Override
+    public void allMuseums(PageableRequest request, StreamObserver<MuseumsResponse> responseObserver) {
+        int page = request.hasPage() ? request.getPage() : 0;
+        int size = request.hasSize() ? request.getSize() : 10;
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<MuseumEntity> result = museumDbService.getAll(pageRequest);
+
+        responseObserver.onNext(MuseumsResponse.newBuilder()
+                .addAllMuseums(result.stream()
+                        .map(GrpcMuseumService::museumEntityToMuseumProtoResponse)
+                        .toList())
+                .setPage(result.getNumber())
+                .setSize(result.getSize())
+                .setTotalElements(result.getTotalElements())
+                .setTotalPages(result.getTotalPages())
+                .build());
+
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void findMuseumById(IdRequest request, StreamObserver<MuseumResponse> responseObserver) {
+        MuseumEntity entity = museumDbService.getById(request.getId());
+        responseObserver.onNext(museumEntityToMuseumProtoResponse(entity));
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void createMuseum(CreateMuseumRequest request, StreamObserver<MuseumResponse> responseObserver) {
+        byte[] photo = request.getPhoto().isEmpty() ? null : request.getPhoto().toByteArray();
+
+        MuseumEntity created = museumDbService.create(
+                request.getTitle(),
+                request.getDescription(),
+                request.getGeo().getCity(),
+                request.getGeo().getCountry(),
+                photo
+        );
+
+        responseObserver.onNext(museumEntityToMuseumProtoResponse(created));
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void updateMuseum(UpdateMuseumRequest request, StreamObserver<MuseumResponse> responseObserver) {
+        // PATCH: передаём null, если поле НЕ было прислано
+        String title = request.hasTitle() ? request.getTitle() : null;
+        String description = request.hasDescription() ? request.getDescription() : null;
+
+        String city = null;
+        String countryId = null;
+        if (request.hasGeo()) {
+            city = request.getGeo().getCity();
+            countryId = request.getGeo().getCountry();
+        }
+
+        byte[] photo = request.hasPhoto() ? request.getPhoto().toByteArray() : null;
+
+        MuseumEntity updated = museumDbService.update(
+                request.getId(),
+                title,
+                description,
+                city,
+                countryId,
+                photo
+        );
+
+        responseObserver.onNext(museumEntityToMuseumProtoResponse(updated));
+        responseObserver.onCompleted();
+    }
+
+    public static MuseumResponse museumEntityToMuseumProtoResponse(MuseumEntity museumEntity) {
+        Geo geo = Geo.newBuilder()
+                .setCity(museumEntity.getCity() == null ? "" : museumEntity.getCity())
+                .setCountry(museumEntity.getCountry() == null ? "" : museumEntity.getCountry().getId().toString())
+                .build();
+
+        return MuseumResponse.newBuilder()
+                .setId(museumEntity.getId() == null ? "" : museumEntity.getId().toString())
+                .setTitle(museumEntity.getTitle() == null ? "" : museumEntity.getTitle())
+                .setDescription(museumEntity.getDescription() == null ? "" : museumEntity.getDescription())
+                .setPhoto(museumEntity.getPhoto() == null ? ByteString.EMPTY : ByteString.copyFrom(museumEntity.getPhoto()))
+                .setGeo(geo)
+                .build();
+    }
+}

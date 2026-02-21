@@ -1,6 +1,7 @@
 package io.student.rococo.model;
 
 import io.student.rococo.data.entity.ArtistEntity;
+import io.student.rococo.grpc.ArtistResponse;
 
 import java.util.UUID;
 
@@ -17,6 +18,19 @@ public record ArtistJson(UUID id, String name, String biography, String photo) {
                 entity.getPhoto() == null
                         ? null
                         : encodeImageFromBytesToB64(entity.getPhoto())
+        );
+    }
+
+    public static ArtistJson fromGrpcMessage(ArtistResponse response) {
+
+
+        return new ArtistJson(
+                UUID.fromString(response.getId()),
+                response.getName(),
+                response.getBiography(),
+                response.getPhoto().isEmpty()
+                ? null
+                : encodeImageFromBytesToB64(response.getPhoto().toByteArray())
         );
     }
 }

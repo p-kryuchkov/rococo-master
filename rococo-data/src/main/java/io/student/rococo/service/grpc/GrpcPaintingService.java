@@ -1,4 +1,4 @@
-package io.student.rococo.grpc;
+package io.student.rococo.service.grpc;
 
 import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
@@ -12,10 +12,12 @@ import io.student.rococo.exception.ArtistNotFoundException;
 import io.student.rococo.exception.FieldValidationException;
 import io.student.rococo.exception.MuseumNotFoundException;
 import io.student.rococo.exception.PaintingNotFoundException;
+
+import io.student.rococo.grpc.*;
+import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.grpc.server.service.GrpcService;
 
 import java.util.UUID;
 

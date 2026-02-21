@@ -1,34 +1,20 @@
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.10'
-	id 'io.spring.dependency-management' version '1.1.7'
-    id 'com.google.protobuf' version '0.9.4'
 }
 
 group = 'io.student'
 version = '0.0.1-SNAPSHOT'
 description = 'rococo-data'
 
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
-}
-
-dependencyManagement {
-    imports {
-        mavenBom 'org.springframework.grpc:spring-grpc-dependencies:0.4.0-SNAPSHOT'
-    }
-}
 
 repositories {
     mavenLocal()
-    mavenCentral()
-    maven { url 'https://repo.spring.io/milestone' }
-    maven { url 'https://repo.spring.io/snapshot' }
 }
 
 dependencies {
+    implementation project(':rococo-proto')
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation('org.springframework.boot:spring-boot-starter-web-services') {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
@@ -38,30 +24,16 @@ dependencies {
     implementation "org.flywaydb:flyway-core:${project.ext.flywayVersion}"
     implementation "org.flywaydb:flyway-mysql:${project.ext.flywayVersion}"
     implementation 'org.projectlombok:lombok:1.18.30'
-    implementation 'org.springframework.grpc:spring-grpc-spring-boot-starter'
-    implementation("io.grpc:grpc-protobuf:1.75.0") {
+    implementation("net.devh:grpc-server-spring-boot-starter:${project.ext.springGrpcVersion}") {
+        exclude group: 'io.grpc'
         exclude group: 'com.google.protobuf'
     }
-    implementation "com.google.protobuf:protobuf-java-util:${dependencyManagement.importedProperties['protobuf-java.version']}"
+    implementation "com.google.protobuf:protobuf-java-util:${project.ext.protobufVersion}"
+    implementation "io.grpc:grpc-netty-shaded:${project.ext.grpcVersion}"
+    implementation "io.grpc:grpc-services:${project.ext.grpcVersion}"
+
     runtimeOnly "mysql:mysql-connector-java:${project.ext.mysqlDriverVersion}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:${dependencyManagement.importedProperties['protobuf-java.version']}"
-    }
-    plugins {
-        grpc {
-            artifact = "io.grpc:protoc-gen-grpc-java:${dependencyManagement.importedProperties['grpc.version']}"
-        }
-    }
-    generateProtoTasks {
-        all()*.plugins {
-            grpc {
-                option '@generated=omit'
-            }
-        }
-    }
 }
 
 tasks.named('test') {
