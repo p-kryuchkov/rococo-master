@@ -1,8 +1,6 @@
 package io.student.rococo.model;
 
-import io.student.rococo.data.entity.ArtistEntity;
-import io.student.rococo.data.entity.MuseumEntity;
-import io.student.rococo.data.entity.PaintingEntity;
+import io.student.rococo.grpc.PaintingResponse;
 
 import java.util.UUID;
 
@@ -15,17 +13,31 @@ public record PaintingJson(UUID id,
                            ArtistJson artist,
                            MuseumJson museum
 ) {
-    public static PaintingJson fromEntity(PaintingEntity paintingEntity) {
-        final ArtistEntity artistEntity = paintingEntity.getArtist();
-        final MuseumEntity museumEntity = paintingEntity.getMuseum();
-        return new PaintingJson(paintingEntity.getId(),
-                paintingEntity.getDescription(),
-                paintingEntity.getTitle(),
-                paintingEntity.getContent() == null
-                        ? null
-                        : encodeImageFromBytesToB64(paintingEntity.getContent()),
-                ArtistJson.fromEntity(artistEntity),
-                MuseumJson.fromEntity(museumEntity));
-    }
+    public static PaintingJson fromGrpcMessage(PaintingResponse paintingResponse) {
 
+        UUID uuid = (paintingResponse.getId().isBlank())
+                ? null
+                : UUID.fromString(paintingResponse.getId());
+
+        String contentB64 = paintingResponse.getContent().isEmpty()
+                ? null
+                : encodeImageFromBytesToB64(paintingResponse.getContent().toByteArray());
+
+        ArtistJson artistJson = paintingResponse.hasArtist()
+                ? ArtistJson.fromGrpcMessage(paintingResponse.getArtist())
+                : null;
+
+        MuseumJson museumJson = paintingResponse.hasMuseum()
+                ? MuseumJson.fromGrpcMessage(paintingResponse.getMuseum())
+                : null;
+
+        return new PaintingJson(
+                uuid,
+                paintingResponse.getDescription(),
+                paintingResponse.getTitle(),
+                contentB64,
+                artistJson,
+                museumJson
+        );
+    }
 }

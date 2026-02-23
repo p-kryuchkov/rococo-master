@@ -1,7 +1,7 @@
 package io.student.rococo.controller;
 
 import io.student.rococo.model.PaintingJson;
-import io.student.rococo.service.PaintingService;
+import io.student.rococo.service.grpc.GrpcPaintingClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,36 +13,36 @@ import java.util.UUID;
 @RestController
 @RequestMapping("api/painting")
 public class PaintingController {
-    private final PaintingService paintingService;
+    private final GrpcPaintingClient paintingClient;
 
-    @Autowired
-    public PaintingController(PaintingService paintingService) {
-        this.paintingService = paintingService;
-
+@Autowired
+    public PaintingController(GrpcPaintingClient paintingClient) {
+        this.paintingClient = paintingClient;
     }
+
 
     @GetMapping
     public Page<PaintingJson> getAllPaintings(@PageableDefault Pageable pageable) {
-        return paintingService.getAllPaintings(pageable);
+        return paintingClient.getAllPaintings(pageable);
     }
 
     @GetMapping("author/{id}")
     public Page<PaintingJson> getAllPaintingsByArtist(@PathVariable UUID id, @PageableDefault Pageable pageable) {
-        return paintingService.getPaintingByArist(id, pageable);
+        return paintingClient.getPaintingsByArtist(id, pageable);
     }
 
     @GetMapping("{id}")
     public PaintingJson getPaintingById(@PathVariable UUID id) {
-        return paintingService.getPaintingById(id);
+        return paintingClient.getPaintingById(id);
     }
 
     @PostMapping()
     public PaintingJson createPainting(@RequestBody PaintingJson paintingJson) {
-        return paintingService.createPainting(paintingJson);
+        return paintingClient.createPainting(paintingJson);
     }
 
     @PatchMapping()
     public PaintingJson updatePainting(@RequestBody PaintingJson paintingJson) {
-        return paintingService.updatePainting(paintingJson);
+        return paintingClient.updatePainting(paintingJson);
     }
 }

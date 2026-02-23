@@ -6,29 +6,12 @@ option  java_multiple_files = true;
 option  java_package = "io.student.rococo.grpc";
 option  java_outer_classname = "RococoUserDataProto";
 
-service UserdataService{
+service UserdataReadService{
   rpc GetUserByUsername(UsernameRequest) returns (UserResponse);
-  rpc CreateUser(CreateUserRequest) returns (UserResponse);
-  rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
 }
 
 message UsernameRequest{
   string username = 1;
-}
-
-message CreateUserRequest{
-  optional string username = 1;
-  string firstname = 2;
-  string lastname = 3;
-  optional bytes avatar = 4;
-}
-
-message UpdateUserRequest{
-  string id = 1;
-  optional string username = 2;
-  string firstname = 3;
-  string lastname = 4;
-  bytes avatar = 5;
 }
 
 message UserResponse{

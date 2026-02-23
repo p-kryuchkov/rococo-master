@@ -2,10 +2,8 @@ package io.student.rococo.service.grpc;
 
 import com.google.protobuf.ByteString;
 import io.grpc.StatusRuntimeException;
-import io.student.rococo.grpc.ArtistServiceGrpc;
-import io.student.rococo.grpc.ArtistsResponse;
-import io.student.rococo.grpc.CreateArtistRequest;
-import io.student.rococo.grpc.UpdateArtistRequest;
+import io.student.rococo.exception.GrpcStatusException;
+import io.student.rococo.grpc.*;
 import io.student.rococo.model.ArtistJson;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.data.domain.Page;
@@ -16,29 +14,40 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.UUID;
 
 import static io.student.rococo.utils.Base64Utils.decodeImageFromB64ToBytes;
+import static io.student.rococo.utils.GrpcUtils.springPageableToGrpcPageableRequest;
 
 @Component
 public class GrpcArtistClient {
-    @GrpcClient("grpcArtistClient")
-    private ArtistServiceGrpc.ArtistServiceBlockingStub grpcArtistServiceBlockingStub;
+
+    @GrpcClient("grpcDataClient")
+    private ArtistServiceGrpc.ArtistServiceBlockingStub stub;
+
+    public ArtistJson getArtistById(UUID id) {
+        try {
+            IdRequest idRequest = IdRequest.newBuilder()
+                    .setId(id.toString())
+                    .build();
+            return ArtistJson.fromGrpcMessage(stub.getArtistById(idRequest));
+        } catch (StatusRuntimeException e) {
+            throw new GrpcStatusException(e);
+        }
+    }
 
     public Page<ArtistJson> getAllArtists(Pageable pageable) {
         try {
-            io.student.rococo.grpc.PageableRequest pageRequest = io.student.rococo.grpc.PageableRequest.newBuilder()
-                    .setPage(pageable.getPageNumber())
-                    .setSize(pageable.getPageSize())
-                    .build();
-            ArtistsResponse response = grpcArtistServiceBlockingStub.allArtists(pageRequest);
-            List<ArtistJson> artistJsonList = response
-                    .getArtistsList()
-                    .stream()
+            PageableRequest pageRequest = springPageableToGrpcPageableRequest(pageable);
+            ArtistsResponse response = stub.allArtists(pageRequest);
+
+            List<ArtistJson> list = response.getArtistsList().stream()
                     .map(ArtistJson::fromGrpcMessage)
                     .toList();
-            return new PageImpl<>(artistJsonList, pageable, response.getTotalElements());
+
+            return new PageImpl<>(list, pageable, response.getTotalElements());
         } catch (StatusRuntimeException e) {
-            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "The gRPC operation was cancelled", e);
+            throw new GrpcStatusException(e);
         }
     }
 
@@ -49,37 +58,33 @@ public class GrpcArtistClient {
                     .setBiography(artist.biography());
 
             if (artist.photo() != null) {
-                builder.setPhoto(
-                        ByteString.copyFrom(decodeImageFromB64ToBytes(artist.photo()))
-                );
+                builder.setPhoto(ByteString.copyFrom(decodeImageFromB64ToBytes(artist.photo())));
             }
 
-            CreateArtistRequest request = builder.build();
-            return ArtistJson.fromGrpcMessage(grpcArtistServiceBlockingStub.createArtist(request));
+            return ArtistJson.fromGrpcMessage(stub.createArtist(builder.build()));
         } catch (StatusRuntimeException e) {
-            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "The gRPC operation was cancelled", e);
+            throw new GrpcStatusException(e);
         }
     }
 
     public ArtistJson updateArtist(ArtistJson artist) {
         try {
+            if (artist.id() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Artist id is required");
+            }
+
             UpdateArtistRequest.Builder builder = UpdateArtistRequest.newBuilder()
                     .setId(artist.id().toString())
                     .setName(artist.name())
                     .setBiography(artist.biography());
 
             if (artist.photo() != null) {
-                builder.setPhoto(
-                        ByteString.copyFrom(decodeImageFromB64ToBytes(artist.photo()))
-                );
+                builder.setPhoto(ByteString.copyFrom(decodeImageFromB64ToBytes(artist.photo())));
             }
 
-            UpdateArtistRequest request = builder.build();
-            return ArtistJson.fromGrpcMessage(grpcArtistServiceBlockingStub.updateArtist(request));
+            return ArtistJson.fromGrpcMessage(stub.updateArtist(builder.build()));
         } catch (StatusRuntimeException e) {
-            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "The gRPC operation was cancelled", e);
+            throw new GrpcStatusException(e);
         }
     }
 }
-
-

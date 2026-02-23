@@ -1,6 +1,5 @@
 package io.student.rococo.model;
-
-import io.student.rococo.data.entity.UserEntity;
+import io.student.rococo.grpc.UserResponse;
 
 import java.util.UUID;
 
@@ -11,15 +10,22 @@ public record UserJson(UUID id,
                        String firstname,
                        String lastname,
                        String avatar) {
-    public static UserJson fromEntity(UserEntity userEntity){
+    public static UserJson fromGrpcMessage(UserResponse grpc) {
+
+        UUID uuid = (grpc.getId().isBlank())
+                ? null
+                : UUID.fromString(grpc.getId());
+
+        String avatar = grpc.getAvatar().isEmpty()
+                ? null
+                : encodeImageFromBytesToB64(grpc.getAvatar().toByteArray());
+
         return new UserJson(
-                userEntity.getId(),
-                userEntity.getUsername(),
-                userEntity.getFirstname(),
-                userEntity.getLastname(),
-                userEntity.getAvatar()  == null
-                        ? null
-                        : encodeImageFromBytesToB64(userEntity.getAvatar())
+                uuid,
+                grpc.getUsername(),
+                grpc.getFirstname(),
+                grpc.getLastname(),
+                avatar
         );
     }
 }

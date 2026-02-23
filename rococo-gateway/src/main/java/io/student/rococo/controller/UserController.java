@@ -1,7 +1,7 @@
 package io.student.rococo.controller;
 
 import io.student.rococo.model.UserJson;
-import io.student.rococo.service.UserService;
+import io.student.rococo.service.grpc.GrpcUserdataClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -12,15 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/user")
 public class UserController {
-   private final UserService userService;
+    private final GrpcUserdataClient userdataClient;
 
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(GrpcUserdataClient userdataClient) {
+        this.userdataClient = userdataClient;
     }
 
     @GetMapping
     public UserJson getCurrentUser(@AuthenticationPrincipal Jwt principal) {
-        return userService.getUserByUsername(principal.getClaim("sub"));
+        return userdataClient.getUserByUsername(principal.getClaim("sub"));
     }
 }

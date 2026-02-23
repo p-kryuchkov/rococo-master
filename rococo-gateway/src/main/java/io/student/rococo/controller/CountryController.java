@@ -1,7 +1,7 @@
 package io.student.rococo.controller;
 
 import io.student.rococo.model.CountryJson;
-import io.student.rococo.service.CountryService;
+import io.student.rococo.service.grpc.GrpcCountryClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/country")
 public class CountryController {
-    private final CountryService countryService;
+    private final GrpcCountryClient countryClient;
 
     @Autowired
-    public CountryController(CountryService countryService) {
-        this.countryService = countryService;
+    public CountryController(GrpcCountryClient countryClient) {
+        this.countryClient = countryClient;
     }
 
     @GetMapping
     public Page<CountryJson> getAllCountries(@PageableDefault Pageable pageable) {
-        return countryService.getAllCountries(pageable);
+        return countryClient.getAllCountries(pageable);
     }
 }

@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import static io.student.rococo.utils.GrpcUtils.grpcPageableRequestToSpringPageRequest;
+
 
 @GrpcService(interceptors = GlobalGrpcExceptionInterceptor.class)
 public class GrpcArtistService extends ArtistServiceGrpc.ArtistServiceImplBase {
@@ -21,12 +23,10 @@ public class GrpcArtistService extends ArtistServiceGrpc.ArtistServiceImplBase {
     }
 
     @Override
-    public void getAristById(IdRequest request, StreamObserver<ArtistsResponse> responseObserver) {
+    public void getArtistById(IdRequest request, StreamObserver<ArtistResponse> responseObserver) {
         ArtistEntity entity = artistDbService.getById(request.getId());
 
-        ArtistsResponse response = ArtistsResponse.newBuilder()
-                .addArtists(artistEntityToArtistProtoResponse(entity))
-                .build();
+        ArtistResponse response = artistEntityToArtistProtoResponse(entity);
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();
@@ -34,9 +34,7 @@ public class GrpcArtistService extends ArtistServiceGrpc.ArtistServiceImplBase {
 
     @Override
     public void allArtists(PageableRequest request, StreamObserver<ArtistsResponse> responseObserver) {
-        int page = request.hasPage() ? request.getPage() : 0;
-        int size = request.hasSize() ? request.getSize() : 10;
-        PageRequest pageRequest = PageRequest.of(page, size);
+        PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request);
         Page<ArtistEntity> result = artistDbService.getAll(pageRequest);
 
         ArtistsResponse response = ArtistsResponse.newBuilder()

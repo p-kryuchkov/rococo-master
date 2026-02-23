@@ -40,10 +40,13 @@ spring:
     open-in-view: false
   grpc:
     client:
-      grpcCurrencyClient:
-        address: 'static://localhost:8083'
+      grpcDataClient:
+        address: "static://localhost:8093"
         negotiationType: PLAINTEXT
 
+      grpcUserdataReadClient:
+        address: "static://localhost:8094"
+        negotiationType: PLAINTEXT
 logging:
   level:
     root: INFO

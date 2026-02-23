@@ -1,7 +1,7 @@
 package io.student.rococo.controller;
 
 import io.student.rococo.model.ArtistJson;
-import io.student.rococo.service.ArtistService;
+import io.student.rococo.service.grpc.GrpcArtistClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,31 +13,31 @@ import java.util.UUID;
 @RestController
 @RequestMapping("api/artist")
 public class ArtistController {
-    private final ArtistService artistService;
+    private final GrpcArtistClient grpcArtistClient;
 
     @Autowired
-    public ArtistController(ArtistService artistService) {
-        this.artistService = artistService;
+    public ArtistController(GrpcArtistClient grpcArtistClient) {
+        this.grpcArtistClient = grpcArtistClient;
 
     }
 
     @GetMapping
     public Page<ArtistJson> getAllArtists(@PageableDefault Pageable pageable) {
-        return artistService.getAllArtists(pageable);
+        return grpcArtistClient.getAllArtists(pageable);
     }
 
     @GetMapping("{id}")
     public ArtistJson getArtistById(@PathVariable UUID id) {
-        return artistService.getArtistById(id);
+        return grpcArtistClient.getArtistById(id);
     }
 
     @PostMapping()
     public ArtistJson createArtist(@RequestBody ArtistJson artistJson) {
-        return artistService.createArtist(artistJson);
+        return grpcArtistClient.createArtist(artistJson);
     }
 
     @PatchMapping()
     public ArtistJson updateArtist(@RequestBody ArtistJson artistJson) {
-        return artistService.updateArtist(artistJson);
+        return grpcArtistClient.updateArtist(artistJson);
     }
 }

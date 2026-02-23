@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import static io.student.rococo.utils.GrpcUtils.grpcPageableRequestToSpringPageRequest;
+
 @GrpcService(interceptors = GlobalGrpcExceptionInterceptor.class)
 public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
 
@@ -22,9 +24,7 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
 
     @Override
     public void allMuseums(PageableRequest request, StreamObserver<MuseumsResponse> responseObserver) {
-        int page = request.hasPage() ? request.getPage() : 0;
-        int size = request.hasSize() ? request.getSize() : 10;
-        PageRequest pageRequest = PageRequest.of(page, size);
+        PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request);
         Page<MuseumEntity> result = museumDbService.getAll(pageRequest);
 
         responseObserver.onNext(MuseumsResponse.newBuilder()

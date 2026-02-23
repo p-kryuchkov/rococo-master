@@ -6,27 +6,21 @@ import io.student.rococo.data.entity.UserEntity;
 import io.student.rococo.data.repository.UserRepository;
 import io.student.rococo.exception.FieldValidationException;
 import io.student.rococo.exception.UserNotFoundException;
+import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.grpc.server.service.GrpcService;
+import static io.student.rococo.util.UserResponseUtil.userEntityToUserProtoResponse;
 
 import java.util.UUID;
 
 @GrpcService(interceptors = GlobalGrpcExceptionInterceptor.class)
-public class GrpcUserdataService extends UserdataServiceGrpc.UserdataServiceImplBase {
+public class GrpcUserdataCreateUpdateService extends UserdataCreateUpdateServiceGrpc.UserdataCreateUpdateServiceImplBase {
     private final UserRepository userRepository;
 
     @Autowired
-    public GrpcUserdataService(UserRepository userRepository) {
+    public GrpcUserdataCreateUpdateService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
-    @Override
-    public void getUserByUsername(UsernameRequest request, StreamObserver<UserResponse> responseObserver) {
-        UserEntity userEntity = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new UserNotFoundException("User not found by username: " + request.getUsername()));
-        responseObserver.onNext(userEntityToUserProtoResponse(userEntity));
-        responseObserver.onCompleted();
-    }
+//ToDO напиши слой работы с базой
 
     @Override
     public void createUser(CreateUserRequest request, StreamObserver<UserResponse> responseObserver) {
@@ -60,17 +54,5 @@ public class GrpcUserdataService extends UserdataServiceGrpc.UserdataServiceImpl
         userRepository.save(userEntity);
         responseObserver.onNext(userEntityToUserProtoResponse(userEntity));
         responseObserver.onCompleted();
-    }
-
-    private static UserResponse userEntityToUserProtoResponse(UserEntity userEntity) {
-        return UserResponse.newBuilder()
-                .setId(userEntity.getId().toString())
-                .setUsername(userEntity.getUsername())
-                .setFirstname(userEntity.getFirstname())
-                .setLastname(userEntity.getLastname())
-                .setAvatar(null == userEntity.getAvatar()
-                        ? ByteString.EMPTY
-                        : ByteString.copyFrom(userEntity.getAvatar()))
-                .build();
     }
 }

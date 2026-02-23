@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package io.student.grpc.rococo;
+
+import "rococo-userdata-read.proto";
+option  java_multiple_files = true;
+option  java_package = "io.student.rococo.grpc";
+option  java_outer_classname = "RococoUserDataProto";
+
+service UserdataCreateUpdateService{
+  rpc CreateUser(CreateUserRequest) returns (UserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
+}
+
+message CreateUserRequest{
+  optional string username = 1;
+  string firstname = 2;
+  string lastname = 3;
+  optional bytes avatar = 4;
+}
+
+message UpdateUserRequest{
+  string id = 1;
+  optional string username = 2;
+  string firstname = 3;
+  string lastname = 4;
+  bytes avatar = 5;
+}

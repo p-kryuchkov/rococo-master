@@ -12,11 +12,11 @@ message IdRequest{
 message PageableRequest{
   optional  int32 page = 1;
   optional  int32 size = 2;
-  string sort_by = 3;
-  SortArtistDirection sort_dir = 4;
+  optional string sort_by = 3;
+  optional SortDirection sort_dir = 4;
 }
 
-enum SortArtistDirection {
+enum SortDirection {
   SORT_DIRECTION_UNSPECIFIED = 0;
   ASC = 1;
   DESC = 2;

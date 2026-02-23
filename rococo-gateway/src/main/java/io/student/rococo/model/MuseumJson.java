@@ -1,7 +1,6 @@
 package io.student.rococo.model;
 
-import io.student.rococo.data.entity.CountryEntity;
-import io.student.rococo.data.entity.MuseumEntity;
+import io.student.rococo.grpc.MuseumResponse;
 
 import java.util.UUID;
 
@@ -12,21 +11,32 @@ public record MuseumJson(UUID id,
                          String title,
                          String photo,
                          GeoJson geo) {
-    public static MuseumJson fromEntity(MuseumEntity museumEntity) {
-        final CountryEntity country = museumEntity.getCountry();
+    public static MuseumJson fromGrpcMessage(MuseumResponse museumResponse) {
+        String photo = museumResponse.getPhoto().isEmpty()
+                ? null
+                : encodeImageFromBytesToB64(museumResponse.getPhoto().toByteArray());
+        UUID uuid = (museumResponse.getId().isBlank())
+                ? null
+                : UUID.fromString(museumResponse.getId());
+        GeoJson geoJson = null;
+        if (museumResponse.hasGeo()) {
+            geoJson = new GeoJson(
+                    museumResponse.getGeo().getCity(),
+                    museumResponse.getGeo().getCountry().isBlank()
+                            ? null
+                            : new CountryJson(
+                            UUID.fromString(museumResponse.getGeo().getCountry()),
+                            null
+                    )
+            );
+        }
+
         return new MuseumJson(
-                museumEntity.getId(),
-                museumEntity.getDescription(),
-                museumEntity.getTitle(),
-                museumEntity.getPhoto() == null
-                        ? null
-                        : encodeImageFromBytesToB64(museumEntity.getPhoto()),
-                new GeoJson(
-                        museumEntity.getCity(),
-                        country == null ? null
-                                : new CountryJson(
-                                country.getId(),
-                                country.getName()))
+                uuid,
+                museumResponse.getDescription(),
+                museumResponse.getTitle(),
+                photo,
+                geoJson
         );
     }
 }

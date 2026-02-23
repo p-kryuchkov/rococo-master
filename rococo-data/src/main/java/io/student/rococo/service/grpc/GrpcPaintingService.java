@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import static io.student.rococo.utils.GrpcUtils.grpcPageableRequestToSpringPageRequest;
+
 @GrpcService(interceptors = GlobalGrpcExceptionInterceptor.class)
 public class GrpcPaintingService extends PaintingServiceGrpc.PaintingServiceImplBase {
 
@@ -22,9 +24,7 @@ public class GrpcPaintingService extends PaintingServiceGrpc.PaintingServiceImpl
 
     @Override
     public void allPaintings(PageableRequest request, StreamObserver<PaintingsResponse> responseObserver) {
-        int page = request.hasPage() ? request.getPage() : 0;
-        int size = request.hasSize() ? request.getSize() : 10;
-        PageRequest pageRequest = PageRequest.of(page, size);
+        PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request);
         Page<PaintingEntity> result = paintingDbService.getAll(pageRequest);
         responseObserver.onNext(PaintingsResponse.newBuilder()
                 .addAllPaintings(result.stream().map(GrpcPaintingService::paintingEntityToPaintingProtoResponse).toList())
@@ -45,9 +45,8 @@ public class GrpcPaintingService extends PaintingServiceGrpc.PaintingServiceImpl
 
     @Override
     public void findPaintingByArtist(PaintingsByArtistRequest request, StreamObserver<PaintingsResponse> responseObserver) {
-        int page = (request.hasPageable() && request.getPageable().hasPage()) ? request.getPageable().getPage() : 0;
-        int size = (request.hasPageable() && request.getPageable().hasSize()) ? request.getPageable().getSize() : 10;
-        PageRequest pageRequest = PageRequest.of(page, size);
+        PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request.getPageable());
+
         Page<PaintingEntity> result = paintingDbService.getByArtistId(
                 request.getArtistId(),
                 pageRequest
