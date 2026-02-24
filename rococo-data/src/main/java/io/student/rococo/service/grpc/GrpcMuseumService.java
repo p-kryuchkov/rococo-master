@@ -55,7 +55,7 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
                 request.getTitle(),
                 request.getDescription(),
                 request.getGeo().getCity(),
-                request.getGeo().getCountry(),
+                request.getGeo().getCountryId(),
                 photo
         );
 
@@ -65,7 +65,6 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
 
     @Override
     public void updateMuseum(UpdateMuseumRequest request, StreamObserver<MuseumResponse> responseObserver) {
-        // PATCH: передаём null, если поле НЕ было прислано
         String title = request.hasTitle() ? request.getTitle() : null;
         String description = request.hasDescription() ? request.getDescription() : null;
 
@@ -73,7 +72,7 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
         String countryId = null;
         if (request.hasGeo()) {
             city = request.getGeo().getCity();
-            countryId = request.getGeo().getCountry();
+            countryId = request.getGeo().getCountryId();
         }
 
         byte[] photo = request.hasPhoto() ? request.getPhoto().toByteArray() : null;
@@ -94,7 +93,8 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
     public static MuseumResponse museumEntityToMuseumProtoResponse(MuseumEntity museumEntity) {
         Geo geo = Geo.newBuilder()
                 .setCity(museumEntity.getCity() == null ? "" : museumEntity.getCity())
-                .setCountry(museumEntity.getCountry() == null ? "" : museumEntity.getCountry().getId().toString())
+                .setCountryId(museumEntity.getCountry() == null ? "" : museumEntity.getCountry().getId().toString())
+                .setCountryName(museumEntity.getCountry() == null? "" : museumEntity.getCountry().getName())
                 .build();
 
         return MuseumResponse.newBuilder()

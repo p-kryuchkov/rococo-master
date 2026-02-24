@@ -8,6 +8,7 @@ option  java_outer_classname = "RococoUserDataProto";
 
 service UserdataReadService{
   rpc GetUserByUsername(UsernameRequest) returns (UserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UserResponse);
 }
 
 message UsernameRequest{
@@ -17,6 +18,14 @@ message UsernameRequest{
 message UserResponse{
   string id = 1;
   string username = 2;
+  string firstname = 3;
+  string lastname = 4;
+  bytes avatar = 5;
+}
+
+message UpdateUserRequest{
+  string id = 1;
+  optional string username = 2;
   string firstname = 3;
   string lastname = 4;
   bytes avatar = 5;

@@ -30,7 +30,8 @@ message UpdateMuseumRequest{
 
 message Geo{
   string city = 1;
-  string country = 2;
+  string countryId = 2;
+  string countryName = 3;
 }
 
 message MuseumResponse{

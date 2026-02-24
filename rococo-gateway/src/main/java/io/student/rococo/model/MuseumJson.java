@@ -22,11 +22,11 @@ public record MuseumJson(UUID id,
         if (museumResponse.hasGeo()) {
             geoJson = new GeoJson(
                     museumResponse.getGeo().getCity(),
-                    museumResponse.getGeo().getCountry().isBlank()
+                    museumResponse.getGeo().getCountryId().isBlank()
                             ? null
                             : new CountryJson(
-                            UUID.fromString(museumResponse.getGeo().getCountry()),
-                            null
+                            UUID.fromString(museumResponse.getGeo().getCountryId()),
+                            museumResponse.getGeo().getCountryName()
                     )
             );
         }

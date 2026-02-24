@@ -10,7 +10,7 @@ import static jakarta.persistence.GenerationType.AUTO;
 
 @Entity
 @Table(name = "user")
-public class UserEntity {
+public class UserDataEntity {
     @Id
     @GeneratedValue(strategy = AUTO)
     @Column(name = "id", nullable = false, columnDefinition = "UUID default gen_random_uuid()")
@@ -68,7 +68,7 @@ public class UserEntity {
         Class<?> oEffectiveClass = o instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        UserEntity that = (UserEntity) o;
+        UserDataEntity that = (UserDataEntity) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
 

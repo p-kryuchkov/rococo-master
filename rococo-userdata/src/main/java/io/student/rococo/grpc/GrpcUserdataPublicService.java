@@ -1,6 +1,5 @@
 package io.student.rococo.grpc;
 
-import com.google.protobuf.Empty;
 import io.grpc.stub.StreamObserver;
 import io.student.rococo.data.entity.UserDataEntity;
 import io.student.rococo.data.repository.UserRepository;
@@ -8,25 +7,34 @@ import io.student.rococo.exception.FieldValidationException;
 import io.student.rococo.exception.UserNotFoundException;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
-import static io.student.rococo.util.UserResponseUtil.userEntityToUserProtoResponse;
 
 import java.util.UUID;
 
+import static io.student.rococo.util.UserResponseUtil.userEntityToUserProtoResponse;
+
 @GrpcService(interceptors = GlobalGrpcExceptionInterceptor.class)
-public class GrpcUserdataCreateUpdateService extends UserdataCreateUpdateServiceGrpc.UserdataCreateUpdateServiceImplBase {
+public class GrpcUserdataPublicService extends UserdataReadServiceGrpc.UserdataReadServiceImplBase {
     private final UserRepository userRepository;
 
     @Autowired
-    public GrpcUserdataCreateUpdateService(UserRepository userRepository) {
+    public GrpcUserdataPublicService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 //ToDO напиши слой работы с базой
-
     @Override
-    public void createUser(CreateUserRequest request, StreamObserver<Empty> responseObserver) {
-        UserDataEntity userEntity = new UserDataEntity();
+    public void getUserByUsername(UsernameRequest request, StreamObserver<UserResponse> responseObserver) {
+        UserDataEntity userEntity = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new UserNotFoundException("User not found by username: " + request.getUsername()));
+        responseObserver.onNext(userEntityToUserProtoResponse(userEntity));
+        responseObserver.onCompleted();
+    }
+    @Override
+    public void updateUser(UpdateUserRequest request, StreamObserver<UserResponse> responseObserver) {
+        UserDataEntity userEntity = userRepository.findById(UUID.fromString(request.getId()))
+                .orElseThrow(() -> new UserNotFoundException("User not found by id: " + request.getId()));
         if (!request.hasUsername()) throw new FieldValidationException("Username must not be null");
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+        if (!request.getUsername().equals(userEntity.getUsername())
+                && userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new FieldValidationException("This username exists: " + request.getUsername());
         }
         userEntity.setUsername(request.getUsername());
@@ -34,7 +42,7 @@ public class GrpcUserdataCreateUpdateService extends UserdataCreateUpdateService
         userEntity.setLastname(request.getLastname());
         if (!request.getAvatar().isEmpty()) userEntity.setAvatar(request.getAvatar().toByteArray());
         userRepository.save(userEntity);
-        responseObserver.onNext(Empty.getDefaultInstance());
+        responseObserver.onNext(userEntityToUserProtoResponse(userEntity));
         responseObserver.onCompleted();
     }
 }

@@ -81,7 +81,11 @@ logging:
     org.springframework.web: DEBUG
     org.springframework.security: DEBUG
     org.springframework.security.oauth2: DEBUG
-
+grpc:
+  client:
+    grpcUserdataCreateUpdateClient:
+      address: "static://localhost:8094"
+      negotiationType: PLAINTEXT
 rococo-front:
   base-uri: 'http://localhost:3000'
 rococo-auth:

@@ -65,7 +65,7 @@ public class GrpcMuseumClient {
 
             Geo geo = Geo.newBuilder()
                     .setCity(museumJson.geo().city() == null ? "" : museumJson.geo().city() )
-                    .setCountry(museumJson.geo().country().id() == null ? "" : museumJson.geo().country().id().toString())
+                    .setCountryId(museumJson.geo().country().id() == null ? "" : museumJson.geo().country().id().toString())
                     .build();
             builder.setGeo(geo);
 
@@ -99,7 +99,7 @@ public class GrpcMuseumClient {
             if (museumJson.geo().city() != null || museumJson.geo().country().id() != null) {
                 Geo.Builder geoBuilder = Geo.newBuilder();
                 geoBuilder.setCity(museumJson.geo().city() == null ? "" : museumJson.geo().city());
-                geoBuilder.setCountry(museumJson.geo().country().id()  == null ? "" : museumJson.geo().country().id().toString());
+                geoBuilder.setCountryId(museumJson.geo().country().id()  == null ? "" : museumJson.geo().country().id().toString());
                 builder.setGeo(geoBuilder.build());
             }
 
