@@ -1,4 +1,4 @@
-package io.student.rococo.grpc;
+package io.student.rococo.service.grpc;
 
 import io.grpc.*;
 import io.student.rococo.exception.FieldValidationException;

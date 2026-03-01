@@ -83,7 +83,7 @@ logging:
     org.springframework.security.oauth2: DEBUG
 grpc:
   client:
-    grpcUserdataCreateUpdateClient:
+    grpcUserdataCreateUserClient:
       address: "static://localhost:8094"
       negotiationType: PLAINTEXT
 rococo-front:

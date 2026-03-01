@@ -2,7 +2,7 @@ package io.student.rococo.service.grpc;
 
 import io.grpc.StatusRuntimeException;
 import io.student.rococo.grpc.CreateUserRequest;
-import io.student.rococo.grpc.UserdataCreateUpdateServiceGrpc;
+import io.student.rococo.grpc.UserdataCreateUserServiceGrpc;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -11,8 +11,8 @@ import org.springframework.web.server.ResponseStatusException;
 @Component
 public class UserDataCreateUpdateClient {
     //ToDo перепиши под кафку
-    @GrpcClient("grpcUserdataCreateUpdateClient")
-    private UserdataCreateUpdateServiceGrpc.UserdataCreateUpdateServiceBlockingStub stub;
+    @GrpcClient("grpcUserdataCreateUserClient")
+    private UserdataCreateUserServiceGrpc.UserdataCreateUserServiceBlockingStub stub;
 
     public void createUser(String username) {
         try {
