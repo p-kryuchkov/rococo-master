@@ -4,4 +4,5 @@ include 'rococo-auth'
 include 'rococo-data'
 include 'rococo-userdata'
 include 'rococo-proto'
+include 'rococo-storage'
 

@@ -4,6 +4,7 @@ import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import io.student.rococo.data.entity.ArtistEntity;
 import io.student.rococo.grpc.*;
+import io.student.rococo.service.FileStorageService;
 import io.student.rococo.service.db.ArtistDbService;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +17,13 @@ import static io.student.rococo.utils.GrpcUtils.grpcPageableRequestToSpringPageR
 @GrpcService(interceptors = GlobalGrpcExceptionInterceptor.class)
 public class GrpcArtistService extends ArtistServiceGrpc.ArtistServiceImplBase {
     private final ArtistDbService artistDbService;
+    private final FileStorageService fileStorageService;
+
 
     @Autowired
-    public GrpcArtistService(ArtistDbService artistDbService) {
+    public GrpcArtistService(ArtistDbService artistDbService, FileStorageService fileStorageService) {
         this.artistDbService = artistDbService;
+        this.fileStorageService = fileStorageService;
     }
 
     @Override

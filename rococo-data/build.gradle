@@ -14,6 +14,7 @@ repositories {
 
 dependencies {
     implementation project(':rococo-proto')
+    implementation project(':rococo-storage')
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation('org.springframework.boot:spring-boot-starter-web-services') {

@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: rococo-storage
+app:
+  storage:
+    root: ./data

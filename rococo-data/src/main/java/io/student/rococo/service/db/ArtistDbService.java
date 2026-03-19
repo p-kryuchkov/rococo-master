@@ -4,6 +4,7 @@ import io.student.rococo.data.entity.ArtistEntity;
 import io.student.rococo.data.repository.ArtistRepository;
 import io.student.rococo.exception.ArtistNotFoundException;
 import io.student.rococo.exception.FieldValidationException;
+import io.student.rococo.service.FileStorageService;
 import jakarta.persistence.EntityExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -86,6 +87,7 @@ public class ArtistDbService {
         }
 
         if (photo != null) {
+
             if (photo.length == 0) {
                 entity.setPhoto(null); // очищение
             } else {
