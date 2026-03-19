@@ -25,7 +25,7 @@ public class UserdataDbService {
     }
 
     @Transactional
-    public void createUser(String username, String firstname, String lastname, byte[] avatarOrNull) {
+    public void createUser(String username, String firstname, String lastname, byte[] avatar) {
 
         if (username == null) {
             throw new FieldValidationException("Username must not be null");
@@ -40,8 +40,8 @@ public class UserdataDbService {
         userEntity.setFirstname(firstname);
         userEntity.setLastname(lastname);
 
-        if (avatarOrNull != null) {
-            userEntity.setAvatar(avatarOrNull);
+        if (avatar != null) {
+            userEntity.setAvatar(avatar);
         }
 
         userRepository.save(userEntity);
@@ -52,24 +52,22 @@ public class UserdataDbService {
 
         UserDataEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found by id: " + id));
-
-        if (username == null) {
-            throw new FieldValidationException("Username must not be null");
+        if (username != null) {
+            if (!username.equals(userEntity.getUsername())
+                    && userRepository.findByUsername(username).isPresent()) {
+                throw new FieldValidationException("This username exists: " + username);
+            }
+            userEntity.setUsername(username);
         }
-
-        if (!username.equals(userEntity.getUsername())
-                && userRepository.findByUsername(username).isPresent()) {
-            throw new FieldValidationException("This username exists: " + username);
+        if (firstname != null) {
+            userEntity.setFirstname(firstname);
         }
-
-        userEntity.setUsername(username);
-        userEntity.setFirstname(firstname);
-        userEntity.setLastname(lastname);
-
+        if (lastname != null) {
+            userEntity.setLastname(lastname);
+        }
         if (avatar != null) {
             userEntity.setAvatar(avatar);
         }
-
         return userRepository.save(userEntity);
     }
 }

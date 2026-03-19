@@ -47,7 +47,6 @@ public class UserService {
         writeAuthorityEntity.setAuthority(Authority.write);
 
         userEntity.addAuthorities(readAuthorityEntity, writeAuthorityEntity);
-        // ToDo сюда делаем создание юзердаты
         grpcClient.createUser(username);
         return userRepository.save(userEntity).getUsername();
     }

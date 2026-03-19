@@ -36,7 +36,7 @@ public class GrpcUserdataPublicService extends UserdataReadServiceGrpc.UserdataR
             throw new FieldValidationException("Username must not be null");
         }
 
-        byte[] avatarOrNull = request.getAvatar().isEmpty()
+        byte[] avatar = request.getAvatar().isEmpty()
                 ? null
                 : request.getAvatar().toByteArray();
 
@@ -45,7 +45,7 @@ public class GrpcUserdataPublicService extends UserdataReadServiceGrpc.UserdataR
                 request.getUsername(),
                 request.getFirstname(),
                 request.getLastname(),
-                avatarOrNull
+                avatar
         );
 
         responseObserver.onNext(userEntityToUserProtoResponse(updated));

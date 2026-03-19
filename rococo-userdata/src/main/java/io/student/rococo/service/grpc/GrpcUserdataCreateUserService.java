@@ -26,11 +26,11 @@ public class GrpcUserdataCreateUserService
             throw new FieldValidationException("Username must not be null");
         }
 
-        byte[] avatarOrNull = request.getAvatar().isEmpty()
+        byte[] avatar = request.getAvatar().isEmpty()
                 ? null
                 : request.getAvatar().toByteArray();
 
-        userdataDbService.createUser(request.getUsername(), request.getFirstname(), request.getLastname(), avatarOrNull);
+        userdataDbService.createUser(request.getUsername(), request.getFirstname(), request.getLastname(), avatar);
 
         responseObserver.onNext(Empty.getDefaultInstance());
         responseObserver.onCompleted();

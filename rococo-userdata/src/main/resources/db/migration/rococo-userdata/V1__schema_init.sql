@@ -9,7 +9,7 @@ create table if not exists `user`
     );
 
 
-delete from `rococo-gateway`.`user`;
+delete from `rococo-userdata`.`user`;
 
-INSERT INTO `rococo-gateway`.`user` (id,username,firstname,lastname,avatar) VALUES
+INSERT INTO `rococo-userdata`.`user` (id,username,firstname,lastname,avatar) VALUES
 	 (0x11F10A772EE8DDBEAD860ECD2164492E,'TestDefaultUser','Test','User',NULL);
