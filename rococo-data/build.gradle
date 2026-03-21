@@ -1,6 +1,7 @@
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.10'
+    id 'com.google.cloud.tools.jib' version '3.4.1'
 }
 
 group = 'io.student'
@@ -35,6 +36,37 @@ dependencies {
     runtimeOnly "mysql:mysql-connector-java:${project.ext.mysqlDriverVersion}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
+
+jib {
+    container {
+        ports = ['9000']
+        jvmFlags = ["-Dspring.profiles.active=${System.env.PROFILE}"]
+        environment = [
+                'TZ'         : 'Europe/Moscow'
+        ]
+        creationTime = 'USE_CURRENT_TIMESTAMP'
+        labels = [
+                'maintainer': 'Kryuchkov Pavel',
+                'version'   : "${project.version}".toString()
+        ]
+    }
+    from {
+        image = "${project.ext.dockerImage}"
+        platforms {
+            platform {
+                architecture = "${project.ext.dockerArch}"
+                os = 'linux'
+            }
+        }
+    }
+    to {
+        image = "${project.ext.dockerHubName}/${project.name}-${System.env.PROFILE}"
+        tags = ['latest', "${project.version}"]
+    }
+}
+
+tasks.jib.dependsOn test
+tasks.jibDockerBuild.dependsOn test
 
 tasks.named('test') {
 	useJUnitPlatform()

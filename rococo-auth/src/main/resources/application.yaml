@@ -17,6 +17,8 @@ spring:
     name: rococo-auth
   mvc:
     log-request-details: true
+  session:
+    timeout: 30m
   web:
     resources:
       cache:
@@ -33,20 +35,15 @@ spring:
                 - "none"
               authorization-grant-types:
                 - "authorization_code"
-              redirect-uris:
-                - "http://localhost:3000/authorized"
-              post-logout-redirect-uris:
-                - "http://localhost:3000/logout"
               scopes:
                 - "openid"
                 - "profile"
             require-authorization-consent: true
             require-proof-key: true
             token-settings:
-              access-token-time-to-live: 1800
-              authorization-code-time-to-live: 1800
+              access-token-time-to-live: 30m
+              authorization-code-time-to-live: 30m
   datasource:
-    url: 'jdbc:mysql://localhost:3306/rococo-auth?serverTimezone=UTC&createDatabaseIfNotExist=true'
     hikari:
       connection-timeout: 20000
       minimum-idle: 10
@@ -54,8 +51,6 @@ spring:
       idle-timeout: 10000
       max-lifetime: 1000
       auto-commit: true
-    username: root
-    password: secret
   flyway:
     enabled: true
     baseline-on-migrate: true
@@ -78,15 +73,70 @@ spring:
 logging:
   level:
     root: INFO
-    org.springframework.web: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.security.oauth2: DEBUG
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: INFO
+
+---
+spring:
+  config:
+    activate:
+      on-profile: 'local'
+  datasource:
+    url: 'jdbc:mysql://localhost:3306/rococo-auth?serverTimezone=UTC&createDatabaseIfNotExist=true'
+    username: root
+    password: secret
+  security:
+    oauth2:
+      authorizationserver:
+        client:
+          oidc-client:
+            registration:
+              redirect-uris:
+                - 'http://localhost:3000/authorized'
+              post-logout-redirect-uris:
+                - 'http://localhost:3000/logout'
+
 grpc:
   client:
     grpcUserdataCreateUserClient:
-      address: "static://localhost:8094"
+      address: 'static://localhost:8094'
       negotiationType: PLAINTEXT
+
 rococo-front:
   base-uri: 'http://localhost:3000'
+
 rococo-auth:
   base-uri: 'http://localhost:9000'
+
+---
+spring:
+  config:
+    activate:
+      on-profile: 'docker'
+  datasource:
+    url: 'jdbc:mysql://rococo-all-db:3306/rococo-auth?serverTimezone=UTC&createDatabaseIfNotExist=true'
+    username: root
+    password: secret
+  security:
+    oauth2:
+      authorizationserver:
+        client:
+          oidc-client:
+            registration:
+              redirect-uris:
+                - 'http://frontend.rococo.dc/authorized'
+              post-logout-redirect-uris:
+                - 'http://frontend.rococo.dc/logout'
+
+grpc:
+  client:
+    grpcUserdataCreateUserClient:
+      address: 'static://rococo-userdata:8094'
+      negotiationType: PLAINTEXT
+
+rococo-front:
+  base-uri: 'http://frontend.rococo.dc'
+
+rococo-auth:
+  base-uri: 'http://auth.rococo.dc:9000'

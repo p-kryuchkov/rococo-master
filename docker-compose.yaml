@@ -1,0 +1,14 @@
+services:
+  rococo-all-db:
+    container_name: rococo-all-db
+    ports:
+      - "3306:3306"
+    image: mysql:8.4.7
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - rococo:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  rococo:
