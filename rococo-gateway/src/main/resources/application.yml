@@ -55,9 +55,9 @@ spring:
 grpc:
   client:
     grpcDataClient:
-      address: 'static://rococo-data:8093'
+      address: 'static://data.rococo.dc:8093'
     grpcUserdataPublicClient:
-      address: 'static://rococo-userdata:8094'
+      address: 'static://userdata.rococo.dc:8094'
 
 rococo-front:
   base-uri: 'http://frontend.rococo.dc'

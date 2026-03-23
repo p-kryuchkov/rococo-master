@@ -1,6 +1,7 @@
 package io.student.rococo.config;
 
 import io.student.rococo.service.cors.CorsCustomizer;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,11 +18,11 @@ import static org.springframework.http.HttpMethod.GET;
 @EnableWebSecurity
 @EnableMethodSecurity
 @Configuration
-@Profile({"prod?"})
-public class SecurityConfigMain {
+@Profile({"local", "docker"})
+public class SecurityConfigLocal {
     private final CorsCustomizer corsCustomizer;
     @Autowired
-    public SecurityConfigMain(CorsCustomizer corsCustomizer) {
+    public SecurityConfigLocal(CorsCustomizer corsCustomizer) {
         this.corsCustomizer = corsCustomizer;
     }
 
@@ -31,11 +32,14 @@ public class SecurityConfigMain {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(customizer ->
                         customizer
+                                .requestMatchers(
+                                        "/api/session/current",
+                                        "/actuator/health").permitAll()
                                 .requestMatchers(GET,"/api/session").permitAll()
                                 .requestMatchers(GET, "/api/artist/**").permitAll()
                                 .requestMatchers(GET, "/api/museum/**").permitAll()
                                 .requestMatchers(GET, "/api/painting/**").permitAll()
-                                .anyRequest().authenticated() //ToDO Поменяй на authenticated() чтобы просило авторизацию!!!
+                                .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
