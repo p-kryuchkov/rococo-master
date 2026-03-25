@@ -27,7 +27,7 @@ public class UserdataDbService {
     @Transactional
     public void createUser(String username, String firstname, String lastname, byte[] avatar) {
 
-        if (username == null) {
+            if (username == null) {
             throw new FieldValidationException("Username must not be null");
         }
 

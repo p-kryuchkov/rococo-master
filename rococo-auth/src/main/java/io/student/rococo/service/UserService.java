@@ -4,11 +4,12 @@ import io.student.rococo.data.Authority;
 import io.student.rococo.data.AuthorityEntity;
 import io.student.rococo.data.UserEntity;
 import io.student.rococo.data.repository.UserRepository;
-import io.student.rococo.service.grpc.UserDataCreateUpdateClient;
+import io.student.rococo.model.UserJson;
 import jakarta.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,18 +17,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class UserService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserDataCreateUpdateClient grpcClient;
+    private final KafkaTemplate<String, UserJson> kafkaTemplate;
 
     @Autowired
     public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder, UserDataCreateUpdateClient grpcClient) {
+                       PasswordEncoder passwordEncoder,  KafkaTemplate<String, UserJson> kafkaTemplate) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.grpcClient = grpcClient;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @Transactional
@@ -47,7 +46,9 @@ public class UserService {
         writeAuthorityEntity.setAuthority(Authority.write);
 
         userEntity.addAuthorities(readAuthorityEntity, writeAuthorityEntity);
-        grpcClient.createUser(username);
+
+   //     grpcClient.createUser(username);
+        kafkaTemplate.send("users", new UserJson(username));
         return userRepository.save(userEntity).getUsername();
     }
 }

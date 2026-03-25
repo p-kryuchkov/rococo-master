@@ -97,6 +97,9 @@ spring:
               post-logout-redirect-uris:
                 - 'http://localhost:3000/logout'
 
+kafka:
+  bootstrap-servers: 'localhost:9092'
+
 grpc:
   client:
     grpcUserdataCreateUserClient:
@@ -128,6 +131,9 @@ spring:
                 - 'http://frontend.rococo.dc/authorized'
               post-logout-redirect-uris:
                 - 'http://frontend.rococo.dc/logout'
+
+kafka:
+  bootstrap-servers: 'kafka:9092'
 
 grpc:
   client:

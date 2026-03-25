@@ -58,7 +58,11 @@ spring:
     url: 'jdbc:mysql://localhost:3306/rococo-userdata?serverTimezone=UTC&createDatabaseIfNotExist=true'
     username: root
     password: secret
-
+  kafka:
+    bootstrap-servers: 'localhost:9092'
+    consumer:
+      group-id: 'userdata'
+      auto-offset-reset: earliest
 ---
 spring:
   config:
@@ -73,3 +77,8 @@ spring:
     url: 'jdbc:mysql://rococo-all-db:3306/rococo-userdata?serverTimezone=UTC&createDatabaseIfNotExist=true'
     username: root
     password: secret
+  kafka:
+    bootstrap-servers: 'kafka:9092'
+    consumer:
+      group-id: 'userdata'
+      auto-offset-reset: earliest
