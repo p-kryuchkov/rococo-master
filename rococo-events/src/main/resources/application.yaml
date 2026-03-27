@@ -1,0 +1,78 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: rococo-events
+  datasource:
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 10
+      maximum-pool-size: 30
+      idle-timeout: 10000
+      max-lifetime: 1000
+      auto-commit: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    schemas: rococo-events
+    locations: classpath:db/migration/rococo-events
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: false
+    generate-ddl: false
+    open-in-view: false
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: INFO
+
+---
+spring:
+  config:
+    activate:
+      on-profile: 'local'
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: 'http://localhost:9000'
+  datasource:
+    url: 'jdbc:mysql://localhost:3306/rococo-events?serverTimezone=UTC&createDatabaseIfNotExist=true'
+    username: root
+    password: secret
+  kafka:
+    bootstrap-servers: 'localhost:9092'
+    consumer:
+      group-id: 'events'
+      auto-offset-reset: earliest
+---
+spring:
+  config:
+    activate:
+      on-profile: 'docker'
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: 'http://auth.rococo.dc:9000'
+  datasource:
+    url: 'jdbc:mysql://rococo-all-db:3306/rococo-events?serverTimezone=UTC&createDatabaseIfNotExist=true'
+    username: root
+    password: secret
+  kafka:
+    bootstrap-servers: 'kafka:9092'
+    consumer:
+      group-id: 'events'
+      auto-offset-reset: earliest

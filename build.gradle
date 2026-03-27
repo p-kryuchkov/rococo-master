@@ -2,7 +2,8 @@ plugins {
     id 'java'
     id 'io.spring.dependency-management' version '1.1.7'
 }
-
+group = 'io.student'
+version = '1.0.0'
 allprojects {
     apply plugin: 'java'
     apply plugin: 'io.spring.dependency-management'
@@ -20,9 +21,24 @@ allprojects {
 
 subprojects {
     ext {
+        dockerHubName = "krutestkru"
+
         lombokVersion = '1.18.42'
         mysqlDriverVersion = '8.0.33'
         flywayVersion = '11.14.1'
+
+        springGrpcVersion = '3.1.0.RELEASE'
+        protobufVersion = '4.32.0'
+        grpcVersion = '1.75.0'
+        mockitoVersion = '5.19.0'
+
+
+        dockerImage = System.getProperty("os.arch") == "aarch64" || System.getProperty("os.arch") == "arm64"
+                ? "arm64v8/eclipse-temurin:21-jdk"
+                : "eclipse-temurin:21-jdk"
+        dockerArch = System.getProperty("os.arch") == "aarch64" || System.getProperty("os.arch") == "arm64"
+                ? "arm64"
+                : "amd64"
     }
 
     dependencyManagement {

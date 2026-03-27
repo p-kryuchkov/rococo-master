@@ -1,0 +1,3 @@
+CREATE DATABASE IF NOT EXISTS `rococo-auth`;
+CREATE DATABASE IF NOT EXISTS `rococo-data`;
+CREATE DATABASE IF NOT EXISTS `rococo-userdata`;

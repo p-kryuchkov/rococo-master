@@ -1,0 +1,103 @@
+plugins {
+    id 'idea'
+    id 'com.google.protobuf' version '0.9.5'
+    id 'com.google.cloud.tools.jib' version '3.4.1'
+}
+
+group = 'io.student'
+version = '0.0.1-SNAPSHOT'
+description = 'rococo-proto'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenLocal()
+}
+
+dependencies {
+    implementation project(':rococo-proto')
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation('org.springframework.boot:spring-boot-starter-web-services') {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+    }
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.data:spring-data-commons'
+    implementation 'org.springframework.kafka:spring-kafka:3.3.2'
+    implementation "org.flywaydb:flyway-core:${project.ext.flywayVersion}"
+    implementation "org.flywaydb:flyway-mysql:${project.ext.flywayVersion}"
+    implementation 'org.projectlombok:lombok:1.18.30'
+    implementation("net.devh:grpc-server-spring-boot-starter:${project.ext.springGrpcVersion}") {
+        exclude group: 'io.grpc'
+        exclude group: 'com.google.protobuf'
+    }
+    implementation("io.grpc:grpc-protobuf:${project.ext.grpcVersion}") {
+        exclude group: 'com.google.protobuf'
+    }
+    implementation("io.grpc:grpc-stub:${project.ext.grpcVersion}") {
+        exclude group: 'com.google.protobuf'
+    }
+    implementation "com.google.protobuf:protobuf-java-util:${project.ext.protobufVersion}"
+    implementation "io.grpc:grpc-netty-shaded:${project.ext.grpcVersion}"
+    implementation "io.grpc:grpc-services:${project.ext.grpcVersion}"
+
+    runtimeOnly "mysql:mysql-connector-java:${project.ext.mysqlDriverVersion}"
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${project.ext.protobufVersion}"
+    }
+    clean {
+        delete generatedFilesBaseDir
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${project.ext.grpcVersion}"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+jib {
+    container {
+        ports = ['9000']
+        jvmFlags = ["-Dspring.profiles.active=${System.env.PROFILE}"]
+        environment = [
+                'TZ'         : 'Europe/Moscow'
+        ]
+        creationTime = 'USE_CURRENT_TIMESTAMP'
+        labels = [
+                'maintainer': 'Kryuchkov Pavel',
+                'version'   : "${project.version}".toString()
+        ]
+    }
+    from {
+        image = "${project.ext.dockerImage}"
+        platforms {
+            platform {
+                architecture = "${project.ext.dockerArch}"
+                os = 'linux'
+            }
+        }
+    }
+    to {
+        image = "${project.ext.dockerHubName}/${project.name}-${System.env.PROFILE}"
+        tags = ['latest', "${project.version}"]
+    }
+}
+
+tasks.jib.dependsOn test
+tasks.jibDockerBuild.dependsOn test
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

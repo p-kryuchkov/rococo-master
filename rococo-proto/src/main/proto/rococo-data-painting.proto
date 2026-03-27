@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package io.student.grpc.rococo;
+import "rococo-data.proto";
+import "rococo-data-artist.proto";
+import "rococo-data-museum.proto";
+
+option  java_multiple_files = true;
+option  java_package = "io.student.rococo.grpc";
+option  java_outer_classname = "RococoDataPaintingProto";
+
+service PaintingService{
+  rpc AllPaintings(PageableRequest) returns (PaintingsResponse);
+  rpc FindPaintingById(IdRequest) returns (PaintingResponse);
+  rpc FindPaintingByArtist(PaintingsByArtistRequest) returns (PaintingsResponse);
+  rpc CreatePainting(CreatePaintingRequest) returns (PaintingResponse);
+  rpc UpdatePainting(UpdatePaintingRequest) returns (PaintingResponse);
+}
+
+message PaintingsByArtistRequest{
+  string artistId = 1;
+  optional PageableRequest pageable = 2;
+}
+
+message CreatePaintingRequest{
+  string description = 1;
+  string title = 2;
+  bytes content = 3;
+  ArtistRequest artist = 4;
+  MuseumRequest museum = 5;
+}
+
+message UpdatePaintingRequest{
+  string id = 1;
+  optional string description = 2;
+  optional string title = 3;
+  optional bytes content = 4;
+  ArtistRequest artist = 5;
+  MuseumRequest museum = 6;
+}
+
+message ArtistRequest{
+  optional string id = 1;
+}
+
+message MuseumRequest{
+  optional string id = 1;
+}
+
+message PaintingResponse{
+  string id = 1;
+  string description = 2;
+  string title = 3;
+  bytes content = 4;
+  ArtistResponse artist = 5;
+  MuseumResponse museum = 6;
+}
+
+message PaintingsResponse {
+  repeated PaintingResponse paintings = 1;
+  int32 page = 2;
+  int32 size = 3;
+  int64 total_elements = 4;
+  int32 total_pages = 5;
+}
+

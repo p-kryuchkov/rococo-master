@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package io.student.grpc.rococo;
+import "rococo-data.proto";
+option  java_multiple_files = true;
+option  java_package = "io.student.rococo.grpc";
+option  java_outer_classname = "RococoDataArtistProto";
+
+service ArtistService{
+  rpc AllArtists(PageableRequest) returns (ArtistsResponse);
+  rpc GetArtistById(IdRequest) returns (ArtistResponse);
+  rpc CreateArtist(CreateArtistRequest) returns (ArtistResponse);
+  rpc UpdateArtist(UpdateArtistRequest) returns (ArtistResponse);
+}
+
+message CreateArtistRequest{
+  string name = 1;
+  string biography = 2;
+  bytes photo = 3;
+}
+
+message UpdateArtistRequest{
+  string id = 1;
+  optional  string name = 2;
+  optional  string biography = 3;
+  optional bytes photo = 4;
+}
+
+message ArtistResponse{
+  string id = 1;
+  string name = 2;
+  string biography = 3;
+  bytes photo = 4;
+}
+message ArtistsResponse {
+  repeated ArtistResponse artists = 1;
+  int32 page = 2;
+  int32 size = 3;
+  int64 total_elements = 4;
+  int32 total_pages = 5;
+}

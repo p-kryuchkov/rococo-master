@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package io.student.grpc.rococo;
+import "rococo-data.proto";
+option  java_multiple_files = true;
+option  java_package = "io.student.rococo.grpc";
+option  java_outer_classname = "RococoDataMuseumProto";
+
+service MuseumService{
+  rpc AllMuseums(PageableRequest) returns (MuseumsResponse);
+  rpc FindMuseumById(IdRequest) returns (MuseumResponse);
+  rpc CreateMuseum(CreateMuseumRequest) returns (MuseumResponse);
+  rpc UpdateMuseum(UpdateMuseumRequest) returns (MuseumResponse);
+}
+
+message CreateMuseumRequest{
+  string description = 1;
+  string title = 2;
+  bytes photo = 3;
+  Geo geo= 4;
+}
+
+message UpdateMuseumRequest{
+  string id = 1;
+ optional string description = 2;
+ optional string title = 3;
+ optional bytes photo = 4;
+  Geo geo= 5;
+}
+
+message Geo{
+  string city = 1;
+  string countryId = 2;
+  string countryName = 3;
+}
+
+message MuseumResponse{
+  string id = 1;
+  string description = 2;
+  string title = 3;
+  bytes photo = 4;
+  Geo geo= 5;
+}
+message MuseumsResponse {
+  repeated MuseumResponse museums = 1;
+  int32 page = 2;
+  int32 size = 3;
+  int64 total_elements = 4;
+  int32 total_pages = 5;
+}

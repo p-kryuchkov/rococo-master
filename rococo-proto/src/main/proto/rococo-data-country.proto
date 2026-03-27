@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package io.student.grpc.rococo;
+import "rococo-data.proto";
+option  java_multiple_files = true;
+option  java_package = "io.student.rococo.grpc";
+option  java_outer_classname = "RococoDataCountryProto";
+
+service CountriesService{
+  rpc AllCountries(PageableRequest) returns (CountriesResponse);
+}
+
+message CountryResponse{
+  string id = 1;
+  string name = 2;
+}
+message CountriesResponse {
+  repeated CountryResponse countries = 1;
+  int32 page = 2;
+  int32 size = 3;
+  int64 total_elements = 4;
+  int32 total_pages = 5;
+}
