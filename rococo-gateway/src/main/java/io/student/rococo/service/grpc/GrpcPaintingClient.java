@@ -4,26 +4,37 @@ import com.google.protobuf.ByteString;
 import io.grpc.StatusRuntimeException;
 import io.student.rococo.exception.GrpcStatusException;
 import io.student.rococo.grpc.*;
+import io.student.rococo.model.EventJson;
 import io.student.rococo.model.PaintingJson;
+import io.student.rococo.utils.CurrentUserProvider;
+import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static io.student.rococo.model.EventType.*;
 import static io.student.rococo.utils.Base64Utils.decodeImageFromB64ToBytes;
 import static io.student.rococo.utils.GrpcUtils.springPageableToGrpcPageableRequest;
 
 @Component
+@RequiredArgsConstructor
 public class GrpcPaintingClient {
 
     @GrpcClient("grpcDataClient")
     private PaintingServiceGrpc.PaintingServiceBlockingStub stub;
+
+    private final KafkaTemplate<String, EventJson> kafkaTemplate;
+
+    private final CurrentUserProvider currentUserProvider;
 
     public Page<PaintingJson> getAllPaintings(Pageable pageable) {
         try {
@@ -33,7 +44,12 @@ public class GrpcPaintingClient {
             List<PaintingJson> items = resp.getPaintingsList().stream()
                     .map(PaintingJson::fromGrpcMessage)
                     .toList();
-
+            kafkaTemplate.send("events",
+                    new EventJson(Instant.now(),
+                            GET,
+                            "Get All Paintings",
+                            null,
+                            currentUserProvider.getUsername()));
             return new PageImpl<>(items, pageable, resp.getTotalElements());
         } catch (StatusRuntimeException e) {
             throw new GrpcStatusException(e);
@@ -51,7 +67,14 @@ public class GrpcPaintingClient {
                     .build();
 
             PaintingResponse resp = stub.findPaintingById(req);
-            return PaintingJson.fromGrpcMessage(resp);
+            PaintingJson result = PaintingJson.fromGrpcMessage(resp);
+            kafkaTemplate.send("events",
+                    new EventJson(Instant.now(),
+                            GET,
+                            "Get Painting by Id",
+                            result.id(),
+                            currentUserProvider.getUsername()));
+            return result;
         } catch (StatusRuntimeException e) {
             throw new GrpcStatusException(e);
         }
@@ -75,6 +98,12 @@ public class GrpcPaintingClient {
             List<PaintingJson> items = resp.getPaintingsList().stream()
                     .map(PaintingJson::fromGrpcMessage)
                     .toList();
+            kafkaTemplate.send("events",
+                    new EventJson(Instant.now(),
+                            GET,
+                            "Get Paintings by Artist",
+                            artistId,
+                            currentUserProvider.getUsername()));
 
             return new PageImpl<>(items, pageable, resp.getTotalElements());
         } catch (StatusRuntimeException e) {
@@ -110,7 +139,14 @@ public class GrpcPaintingClient {
             }
 
             PaintingResponse resp = stub.createPainting(builder.build());
-            return PaintingJson.fromGrpcMessage(resp);
+            PaintingJson result = PaintingJson.fromGrpcMessage(resp);
+            kafkaTemplate.send("events",
+                    new EventJson(Instant.now(),
+                            CREATE,
+                            "Create Painting",
+                            result.id(),
+                            currentUserProvider.getUsername()));
+            return result;
         } catch (StatusRuntimeException e) {
             throw new GrpcStatusException(e);
         }
@@ -148,7 +184,14 @@ public class GrpcPaintingClient {
             }
 
             PaintingResponse resp = stub.updatePainting(builder.build());
-            return PaintingJson.fromGrpcMessage(resp);
+            PaintingJson result = PaintingJson.fromGrpcMessage(resp);
+            kafkaTemplate.send("events",
+                    new EventJson(Instant.now(),
+                            UPDATE,
+                            "Update Painting",
+                            result.id(),
+                            currentUserProvider.getUsername()));
+            return result;
         } catch (StatusRuntimeException e) {
             throw new GrpcStatusException(e);
         }

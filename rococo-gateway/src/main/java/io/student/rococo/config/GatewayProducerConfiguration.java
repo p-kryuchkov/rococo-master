@@ -1,6 +1,6 @@
 package io.student.rococo.config;
 
-import io.student.rococo.model.Event;
+import io.student.rococo.model.EventJson;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,12 +42,12 @@ public class GatewayProducerConfiguration {
   }
 
   @Bean
-  public ProducerFactory<String, Event> producerFactory() {
+  public ProducerFactory<String, EventJson> producerFactory() {
     return new DefaultKafkaProducerFactory<>(producerConfiguration());
   }
 
   @Bean
-  public KafkaTemplate<String, Event> kafkaTemplate() {
+  public KafkaTemplate<String, EventJson> kafkaTemplate() {
     return new KafkaTemplate<>(producerFactory());
   }
 

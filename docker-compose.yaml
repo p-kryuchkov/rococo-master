@@ -113,6 +113,20 @@ services:
     networks:
       - rococo-network
 
+  events.rococo.dc:
+    container_name: events.rococo.dc
+    image: ${PREFIX}/rococo-userdata-docker:latest
+    ports:
+      - 8085:8085
+    environment:
+      - JAVA_TOOL_OPTIONS=-XX:InitialHeapSize=384m -XX:MaxHeapSize=512m
+    restart: always
+    depends_on:
+      rococo-all-db:
+        condition: service_healthy
+    networks:
+      - rococo-network
+
   frontend.rococo.dc:
     container_name: frontend.rococo.dc
     image: ${PREFIX}/rococo-client-docker:latest

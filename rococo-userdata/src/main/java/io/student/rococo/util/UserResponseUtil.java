@@ -9,9 +9,9 @@ public class UserResponseUtil {
         return UserResponse.newBuilder()
                 .setId(userEntity.getId().toString())
                 .setUsername(userEntity.getUsername())
-                .setFirstname(userEntity.getFirstname())
-                .setLastname(userEntity.getLastname())
-                .setAvatar(null == userEntity.getAvatar()
+                .setFirstname(userEntity.getFirstname() == null ? "" : userEntity.getFirstname())
+                .setLastname(userEntity.getLastname() == null ? "" : userEntity.getLastname())
+                .setAvatar(userEntity.getAvatar() == null
                         ? ByteString.EMPTY
                         : ByteString.copyFrom(userEntity.getAvatar()))
                 .build();
