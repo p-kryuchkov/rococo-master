@@ -1,6 +1,7 @@
 package io.student.rococo.service;
 
 import io.student.rococo.data.Authority;
+import io.student.rococo.data.AuthorityEntity;
 import io.student.rococo.data.UserEntity;
 import io.student.rococo.data.repository.UserRepository;
 import io.student.rococo.model.UserJson;
@@ -69,7 +70,7 @@ class UserServiceTest {
         UserEntity savedUser = userCaptor.getValue();
 
         assertThat(savedUser.getAuthorities())
-                .extracting(authorityEntity -> authorityEntity.getAuthority())
+                .extracting(AuthorityEntity::getAuthority)
                 .containsExactlyInAnyOrder(Authority.read, Authority.write);
     }
 
