@@ -30,6 +30,7 @@ dependencies {
     implementation "io.grpc:grpc-services:${project.ext.grpcVersion}"
     implementation "io.grpc:grpc-inprocess:${project.ext.grpcVersion}"
 
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     annotationProcessor "org.projectlombok:lombok:${project.ext.lombokVersion}"
     compileOnly "org.projectlombok:lombok:${project.ext.lombokVersion}"
     runtimeOnly "mysql:mysql-connector-java:${project.ext.mysqlDriverVersion}"
