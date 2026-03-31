@@ -87,11 +87,11 @@ public class GrpcArtistService extends ArtistServiceGrpc.ArtistServiceImplBase {
     public static ArtistResponse artistEntityToArtistProtoResponse(ArtistEntity artistEntity) {
         return ArtistResponse.newBuilder()
                 .setId(artistEntity.getId() != null ? artistEntity.getId().toString() : "")
-                .setName(artistEntity.getName())
-                .setBiography(artistEntity.getBiography())
-                .setPhoto(artistEntity.getPhoto() != null
-                        ? ByteString.copyFrom(artistEntity.getPhoto())
-                        : ByteString.EMPTY)
+                .setName(artistEntity.getName() != null ? artistEntity.getName() : "")
+                .setBiography(artistEntity.getBiography() != null ? artistEntity.getBiography() : "")
+                .setPhoto(artistEntity.getPhoto() == null
+                        ? ByteString.EMPTY
+                        : ByteString.copyFrom(artistEntity.getPhoto()))
                 .build();
     }
 }

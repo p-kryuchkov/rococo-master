@@ -14,11 +14,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,16 +55,21 @@ class DatabaseUserDetailsServiceTest {
 
         UserDetails userDetails = databaseUserDetailsService.loadUserByUsername("testuser");
 
-        assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo("testuser");
-        assertThat(userDetails.getPassword()).isEqualTo("12345");
-        assertThat(userDetails.isEnabled()).isTrue();
-        assertThat(userDetails.isAccountNonExpired()).isTrue();
-        assertThat(userDetails.isAccountNonLocked()).isTrue();
-        assertThat(userDetails.isCredentialsNonExpired()).isTrue();
-        assertThat(userDetails.getAuthorities())
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactly("read");
+        assertNotNull(userDetails);
+        assertEquals("testuser", userDetails.getUsername());
+        assertEquals("12345", userDetails.getPassword());
+        assertTrue(userDetails.isEnabled());
+        assertTrue(userDetails.isAccountNonExpired());
+        assertTrue(userDetails.isAccountNonLocked());
+        assertTrue(userDetails.isCredentialsNonExpired());
+
+        List<String> authorities = userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        assertEquals(1, authorities.size());
+        assertEquals("read", authorities.get(0));
     }
 
     @Test
@@ -72,9 +77,12 @@ class DatabaseUserDetailsServiceTest {
         when(userRepository.findByUsername("unknown"))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> databaseUserDetailsService.loadUserByUsername("unknown"))
-                .isInstanceOf(UsernameNotFoundException.class)
-                .hasMessageContaining("Username: `unknown` not found");
+        UsernameNotFoundException exception = assertThrows(
+                UsernameNotFoundException.class,
+                () -> databaseUserDetailsService.loadUserByUsername("unknown")
+        );
+
+        assertTrue(exception.getMessage().contains("Username: `unknown` not found"));
     }
 
     @Test
@@ -88,9 +96,14 @@ class DatabaseUserDetailsServiceTest {
 
         UserDetails userDetails = databaseUserDetailsService.loadUserByUsername("testuser");
 
-        assertThat(userDetails.getAuthorities())
-                .extracting(GrantedAuthority::getAuthority)
-                .containsExactlyInAnyOrder("read", "write");
+        List<String> authorities = userDetails.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .sorted()
+                .toList();
+
+        assertEquals(2, authorities.size());
+        assertIterableEquals(List.of("read", "write"), authorities);
     }
 
     @Test
@@ -102,7 +115,7 @@ class DatabaseUserDetailsServiceTest {
 
         UserDetails userDetails = databaseUserDetailsService.loadUserByUsername("testuser");
 
-        assertThat(userDetails.isEnabled()).isFalse();
+        assertFalse(userDetails.isEnabled());
     }
 
     @Test
@@ -113,7 +126,8 @@ class DatabaseUserDetailsServiceTest {
                 .thenReturn(Optional.of(userEntity));
 
         UserDetails userDetails = databaseUserDetailsService.loadUserByUsername("testuser");
-        assertThat(userDetails.isAccountNonLocked()).isFalse();
+
+        assertFalse(userDetails.isAccountNonLocked());
     }
 
     @Test
@@ -125,7 +139,7 @@ class DatabaseUserDetailsServiceTest {
 
         UserDetails userDetails = databaseUserDetailsService.loadUserByUsername("testuser");
 
-        assertThat(userDetails.isAccountNonExpired()).isFalse();
+        assertFalse(userDetails.isAccountNonExpired());
     }
 
     @Test
@@ -137,6 +151,6 @@ class DatabaseUserDetailsServiceTest {
 
         UserDetails userDetails = databaseUserDetailsService.loadUserByUsername("testuser");
 
-        assertThat(userDetails.isCredentialsNonExpired()).isFalse();
+        assertFalse(userDetails.isCredentialsNonExpired());
     }
 }

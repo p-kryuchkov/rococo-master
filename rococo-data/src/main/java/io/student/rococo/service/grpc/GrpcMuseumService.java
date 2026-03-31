@@ -65,25 +65,15 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
 
     @Override
     public void updateMuseum(UpdateMuseumRequest request, StreamObserver<MuseumResponse> responseObserver) {
-        String title = request.hasTitle() ? request.getTitle() : null;
-        String description = request.hasDescription() ? request.getDescription() : null;
-
-        String city = null;
-        String countryId = null;
-        if (request.hasGeo()) {
-            city = request.getGeo().getCity();
-            countryId = request.getGeo().getCountryId();
-        }
-
-        byte[] photo = request.hasPhoto() ? request.getPhoto().toByteArray() : null;
+        var geo = request.hasGeo() ? request.getGeo() : null;
 
         MuseumEntity updated = museumDbService.update(
                 request.getId(),
-                title,
-                description,
-                city,
-                countryId,
-                photo
+                request.hasTitle() ? request.getTitle() : null,
+                request.hasDescription() ? request.getDescription() : null,
+                geo != null ? geo.getCity() : null,
+                geo != null ? geo.getCountryId() : null,
+                request.hasPhoto() ? request.getPhoto().toByteArray() : null
         );
 
         responseObserver.onNext(museumEntityToMuseumProtoResponse(updated));
@@ -98,10 +88,18 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
                 .build();
 
         return MuseumResponse.newBuilder()
-                .setId(museumEntity.getId() == null ? "" : museumEntity.getId().toString())
-                .setTitle(museumEntity.getTitle() == null ? "" : museumEntity.getTitle())
-                .setDescription(museumEntity.getDescription() == null ? "" : museumEntity.getDescription())
-                .setPhoto(museumEntity.getPhoto() == null ? ByteString.EMPTY : ByteString.copyFrom(museumEntity.getPhoto()))
+                .setId(museumEntity.getId() == null
+                        ? ""
+                        : museumEntity.getId().toString())
+                .setTitle(museumEntity.getTitle() == null
+                        ? ""
+                        : museumEntity.getTitle())
+                .setDescription(museumEntity.getDescription() == null
+                        ? ""
+                        : museumEntity.getDescription())
+                .setPhoto(museumEntity.getPhoto() == null
+                        ? ByteString.EMPTY
+                        : ByteString.copyFrom(museumEntity.getPhoto()))
                 .setGeo(geo)
                 .build();
     }
