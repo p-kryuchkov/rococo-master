@@ -25,20 +25,16 @@ import java.util.UUID;
 import static io.student.rococo.model.EventType.GET;
 import static io.student.rococo.model.EventType.UPDATE;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class GrpcUserdataClientTest {
 
     private static final UUID USER_ID = UUID.randomUUID();
 
-    private static final String USERNAME = "splinter";
-    private static final String FIRSTNAME = "Hamato";
-    private static final String LASTNAME = "Yoshi";
-    private static final String UPDATED_FIRSTNAME = "Casey";
-    private static final String UPDATED_LASTNAME = "Jones";
+    private final String USERNAME = "splinter";
+    private final String FIRSTNAME = "Hamato";
+    private final String LASTNAME = "Yoshi";
 
     private final KafkaTemplate<String, EventJson> kafkaTemplate = mock(KafkaTemplate.class);
     private final CurrentUserProvider currentUserProvider = mock(CurrentUserProvider.class);
@@ -127,8 +123,10 @@ class GrpcUserdataClientTest {
 
         when(user.id()).thenReturn(USER_ID);
         when(user.username()).thenReturn(USERNAME);
-        when(user.firstname()).thenReturn(UPDATED_FIRSTNAME);
-        when(user.lastname()).thenReturn(UPDATED_LASTNAME);
+        String updatedFirstname = "Casey";
+        when(user.firstname()).thenReturn(updatedFirstname);
+        String updatedLastname = "Jones";
+        when(user.lastname()).thenReturn(updatedLastname);
 
         byte[] avatarBytes = "avatar-image".getBytes(StandardCharsets.UTF_8);
         String base64Avatar = "data:image/png;base64," + Base64.getEncoder().encodeToString(avatarBytes);
@@ -137,8 +135,8 @@ class GrpcUserdataClientTest {
         final UserResponse response = UserResponse.newBuilder()
                 .setId(USER_ID.toString())
                 .setUsername(USERNAME)
-                .setFirstname(UPDATED_FIRSTNAME)
-                .setLastname(UPDATED_LASTNAME)
+                .setFirstname(updatedFirstname)
+                .setLastname(updatedLastname)
                 .build();
 
         when(stub.updateUser(any(UpdateUserRequest.class))).thenReturn(response);
@@ -148,8 +146,8 @@ class GrpcUserdataClientTest {
         assertNotNull(result);
         assertEquals(USER_ID, result.id());
         assertEquals(USERNAME, result.username());
-        assertEquals(UPDATED_FIRSTNAME, result.firstname());
-        assertEquals(UPDATED_LASTNAME, result.lastname());
+        assertEquals(updatedFirstname, result.firstname());
+        assertEquals(updatedLastname, result.lastname());
 
         ArgumentCaptor<UpdateUserRequest> requestCaptor = ArgumentCaptor.forClass(UpdateUserRequest.class);
         verify(stub).updateUser(requestCaptor.capture());
@@ -157,8 +155,8 @@ class GrpcUserdataClientTest {
         UpdateUserRequest request = requestCaptor.getValue();
         assertEquals(USER_ID.toString(), request.getId());
         assertEquals(USERNAME, request.getUsername());
-        assertEquals(UPDATED_FIRSTNAME, request.getFirstname());
-        assertEquals(UPDATED_LASTNAME, request.getLastname());
+        assertEquals(updatedFirstname, request.getFirstname());
+        assertEquals(updatedLastname, request.getLastname());
         assertEquals(ByteString.copyFrom(avatarBytes), request.getAvatar());
 
         ArgumentCaptor<EventJson> eventCaptor = ArgumentCaptor.forClass(EventJson.class);

@@ -21,30 +21,22 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.UUID;
 
-import static io.student.rococo.model.EventType.CREATE;
-import static io.student.rococo.model.EventType.GET;
-import static io.student.rococo.model.EventType.UPDATE;
+import static io.student.rococo.model.EventType.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class GrpcMuseumClientTest {
 
-    private static final UUID LOUVRE_ID = UUID.randomUUID();
-    private static final UUID PRADO_ID = UUID.randomUUID();
-    private static final UUID FRANCE_ID = UUID.randomUUID();
-    private static final UUID SPAIN_ID = UUID.randomUUID();
+    private final UUID LOUVRE_ID = UUID.randomUUID();
+    private final UUID PRADO_ID = UUID.randomUUID();
+    private final UUID FRANCE_ID = UUID.randomUUID();
+    private final UUID SPAIN_ID = UUID.randomUUID();
 
-    private static final String USERNAME = "splinter";
-    private static final String LOUVRE_TITLE = "Louvre";
-    private static final String PRADO_TITLE = "Prado";
-    private static final String LOUVRE_DESCRIPTION = "Louvre description";
-    private static final String PRADO_DESCRIPTION = "Prado description";
-    private static final String UPDATED_DESCRIPTION = "Updated museum description";
-    private static final String PARIS = "Paris";
-    private static final String MADRID = "Madrid";
+    private final String USERNAME = "splinter";
+    private final String LOUVRE_TITLE = "Louvre";
+    private final String LOUVRE_DESCRIPTION = "Louvre description";
+    private final String PARIS = "Paris";
 
     private final KafkaTemplate<String, EventJson> kafkaTemplate = mock(KafkaTemplate.class);
     private final CurrentUserProvider currentUserProvider = mock(CurrentUserProvider.class);
@@ -71,12 +63,15 @@ class GrpcMuseumClientTest {
                         .build())
                 .build();
 
+        String pradoTitle = "Prado";
+        String pradoDescription = "Prado description";
+        String madridCity = "Madrid";
         final MuseumResponse prado = MuseumResponse.newBuilder()
                 .setId(PRADO_ID.toString())
-                .setTitle(PRADO_TITLE)
-                .setDescription(PRADO_DESCRIPTION)
+                .setTitle(pradoTitle)
+                .setDescription(pradoDescription)
                 .setGeo(Geo.newBuilder()
-                        .setCity(MADRID)
+                        .setCity(madridCity)
                         .setCountryId(SPAIN_ID.toString())
                         .build())
                 .build();
@@ -97,7 +92,7 @@ class GrpcMuseumClientTest {
         assertEquals(2, result.getContent().size());
         assertEquals(5, result.getTotalElements());
         assertEquals(LOUVRE_TITLE, result.getContent().get(0).title());
-        assertEquals(PRADO_TITLE, result.getContent().get(1).title());
+        assertEquals(pradoTitle, result.getContent().get(1).title());
 
         ArgumentCaptor<PageableRequest> requestCaptor = ArgumentCaptor.forClass(PageableRequest.class);
         verify(stub).allMuseums(requestCaptor.capture());
@@ -291,7 +286,8 @@ class GrpcMuseumClientTest {
         MuseumJson museum = mock(MuseumJson.class, RETURNS_DEEP_STUBS);
         when(museum.id()).thenReturn(LOUVRE_ID);
         when(museum.title()).thenReturn(LOUVRE_TITLE);
-        when(museum.description()).thenReturn(UPDATED_DESCRIPTION);
+        String updatedDescription = "Updated museum description";
+        when(museum.description()).thenReturn(updatedDescription);
         when(museum.geo().city()).thenReturn(PARIS);
         when(museum.geo().country().id()).thenReturn(FRANCE_ID);
 
@@ -302,7 +298,7 @@ class GrpcMuseumClientTest {
         final MuseumResponse response = MuseumResponse.newBuilder()
                 .setId(LOUVRE_ID.toString())
                 .setTitle(LOUVRE_TITLE)
-                .setDescription(UPDATED_DESCRIPTION)
+                .setDescription(updatedDescription)
                 .setGeo(Geo.newBuilder()
                         .setCity(PARIS)
                         .setCountryId(FRANCE_ID.toString())
@@ -316,7 +312,7 @@ class GrpcMuseumClientTest {
         assertNotNull(result);
         assertEquals(LOUVRE_ID, result.id());
         assertEquals(LOUVRE_TITLE, result.title());
-        assertEquals(UPDATED_DESCRIPTION, result.description());
+        assertEquals(updatedDescription, result.description());
 
         ArgumentCaptor<UpdateMuseumRequest> requestCaptor = ArgumentCaptor.forClass(UpdateMuseumRequest.class);
         verify(stub).updateMuseum(requestCaptor.capture());
@@ -324,7 +320,7 @@ class GrpcMuseumClientTest {
         UpdateMuseumRequest request = requestCaptor.getValue();
         assertEquals(LOUVRE_ID.toString(), request.getId());
         assertEquals(LOUVRE_TITLE, request.getTitle());
-        assertEquals(UPDATED_DESCRIPTION, request.getDescription());
+        assertEquals(updatedDescription, request.getDescription());
         assertEquals(PARIS, request.getGeo().getCity());
         assertEquals(FRANCE_ID.toString(), request.getGeo().getCountryId());
         assertEquals(ByteString.copyFrom(photoBytes), request.getPhoto());

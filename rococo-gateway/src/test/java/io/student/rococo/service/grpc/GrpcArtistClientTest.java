@@ -21,26 +21,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.UUID;
 
-import static io.student.rococo.model.EventType.CREATE;
-import static io.student.rococo.model.EventType.GET;
-import static io.student.rococo.model.EventType.UPDATE;
+import static io.student.rococo.model.EventType.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class GrpcArtistClientTest {
 
-    private static final UUID LEONARDO_ID = UUID.randomUUID();
-    private static final UUID RAPHAEL_ID = UUID.randomUUID();
+    private final UUID LEONARDO_ID = UUID.randomUUID();
+    private final UUID RAPHAEL_ID = UUID.randomUUID();
 
-    private static final String USERNAME = "splinter";
-    private static final String LEONARDO_NAME = "Leonardo";
-    private static final String RAPHAEL_NAME = "Raphael";
-    private static final String LEONARDO_BIOGRAPHY = "Leonardo biography";
-    private static final String RAPHAEL_BIOGRAPHY = "Raphael biography";
-    private static final String UPDATED_BIOGRAPHY = "Updated biography";
+    private final String USERNAME = "splinter";
+    private final String LEONARDO_NAME = "Leonardo";
+    private final String LEONARDO_BIOGRAPHY = "Leonardo biography";
 
     private final KafkaTemplate<String, EventJson> kafkaTemplate = mock(KafkaTemplate.class);
     private final CurrentUserProvider currentUserProvider = mock(CurrentUserProvider.class);
@@ -117,10 +110,12 @@ class GrpcArtistClientTest {
                 .setBiography(LEONARDO_BIOGRAPHY)
                 .build();
 
+        String raphaelName = "Raphael";
+        String raphaelBiography = "Raphael biography";
         final ArtistResponse raphael = ArtistResponse.newBuilder()
                 .setId(RAPHAEL_ID.toString())
-                .setName(RAPHAEL_NAME)
-                .setBiography(RAPHAEL_BIOGRAPHY)
+                .setName(raphaelName)
+                .setBiography(raphaelBiography)
                 .build();
 
         final ArtistsResponse response = ArtistsResponse.newBuilder()
@@ -139,7 +134,7 @@ class GrpcArtistClientTest {
         assertEquals(2, result.getContent().size());
         assertEquals(5, result.getTotalElements());
         assertEquals(LEONARDO_NAME, result.getContent().get(0).name());
-        assertEquals(RAPHAEL_NAME, result.getContent().get(1).name());
+        assertEquals(raphaelName, result.getContent().get(1).name());
 
         ArgumentCaptor<PageableRequest> requestCaptor = ArgumentCaptor.forClass(PageableRequest.class);
         verify(stub).allArtists(requestCaptor.capture());
@@ -259,7 +254,8 @@ class GrpcArtistClientTest {
         ArtistJson artist = mock(ArtistJson.class);
         when(artist.id()).thenReturn(LEONARDO_ID);
         when(artist.name()).thenReturn(LEONARDO_NAME);
-        when(artist.biography()).thenReturn(UPDATED_BIOGRAPHY);
+        String updatedBiography = "Updated biography";
+        when(artist.biography()).thenReturn(updatedBiography);
 
         byte[] photoBytes = "updated-leonardo-photo".getBytes(StandardCharsets.UTF_8);
         String base64Photo = "data:image/png;base64," + Base64.getEncoder().encodeToString(photoBytes);
@@ -268,7 +264,7 @@ class GrpcArtistClientTest {
         final ArtistResponse response = ArtistResponse.newBuilder()
                 .setId(LEONARDO_ID.toString())
                 .setName(LEONARDO_NAME)
-                .setBiography(UPDATED_BIOGRAPHY)
+                .setBiography(updatedBiography)
                 .build();
 
         when(stub.updateArtist(any(UpdateArtistRequest.class))).thenReturn(response);
@@ -278,7 +274,7 @@ class GrpcArtistClientTest {
         assertNotNull(result);
         assertEquals(LEONARDO_ID, result.id());
         assertEquals(LEONARDO_NAME, result.name());
-        assertEquals(UPDATED_BIOGRAPHY, result.biography());
+        assertEquals(updatedBiography, result.biography());
 
         ArgumentCaptor<UpdateArtistRequest> requestCaptor = ArgumentCaptor.forClass(UpdateArtistRequest.class);
         verify(stub).updateArtist(requestCaptor.capture());
@@ -286,7 +282,7 @@ class GrpcArtistClientTest {
         UpdateArtistRequest request = requestCaptor.getValue();
         assertEquals(LEONARDO_ID.toString(), request.getId());
         assertEquals(LEONARDO_NAME, request.getName());
-        assertEquals(UPDATED_BIOGRAPHY, request.getBiography());
+        assertEquals(updatedBiography, request.getBiography());
         assertEquals(ByteString.copyFrom(photoBytes), request.getPhoto());
 
         ArgumentCaptor<EventJson> eventCaptor = ArgumentCaptor.forClass(EventJson.class);

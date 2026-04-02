@@ -115,7 +115,7 @@ services:
 
   events.rococo.dc:
     container_name: events.rococo.dc
-    image: ${PREFIX}/rococo-userdata-docker:latest
+    image: ${PREFIX}/rococo-events-docker:latest
     ports:
       - 8085:8085
     environment:

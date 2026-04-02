@@ -21,27 +21,22 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.UUID;
 
-import static io.student.rococo.model.EventType.CREATE;
-import static io.student.rococo.model.EventType.GET;
-import static io.student.rococo.model.EventType.UPDATE;
+import static io.student.rococo.model.EventType.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class GrpcPaintingClientTest {
 
-    private static final UUID PAINTING_ID = UUID.randomUUID();
-    private static final UUID SECOND_PAINTING_ID = UUID.randomUUID();
-    private static final UUID ARTIST_ID = UUID.randomUUID();
-    private static final UUID MUSEUM_ID = UUID.randomUUID();
+    private final UUID PAINTING_ID = UUID.randomUUID();
+    private final UUID SECOND_PAINTING_ID = UUID.randomUUID();
+    private final UUID ARTIST_ID = UUID.randomUUID();
+    private final UUID MUSEUM_ID = UUID.randomUUID();
 
-    private static final String USERNAME = "splinter";
-    private static final String TITLE = "Mona Lisa";
-    private static final String SECOND_TITLE = "The Ninth Wave";
-    private static final String DESCRIPTION = "Painting description";
-    private static final String UPDATED_DESCRIPTION = "Updated painting description";
+    private final String USERNAME = "splinter";
+    private final String TITLE = "Mona Lisa";
+    private final String SECOND_TITLE = "The Ninth Wave";
+    private final String DESCRIPTION = "Painting description";
 
     private final KafkaTemplate<String, EventJson> kafkaTemplate = mock(KafkaTemplate.class);
     private final CurrentUserProvider currentUserProvider = mock(CurrentUserProvider.class);
@@ -366,7 +361,8 @@ class GrpcPaintingClientTest {
 
         when(painting.id()).thenReturn(PAINTING_ID);
         when(painting.title()).thenReturn(TITLE);
-        when(painting.description()).thenReturn(UPDATED_DESCRIPTION);
+        String updatedDescription = "Updated painting description";
+        when(painting.description()).thenReturn(updatedDescription);
         when(painting.artist().id()).thenReturn(ARTIST_ID);
         when(painting.museum().id()).thenReturn(MUSEUM_ID);
 
@@ -377,7 +373,7 @@ class GrpcPaintingClientTest {
         final PaintingResponse response = PaintingResponse.newBuilder()
                 .setId(PAINTING_ID.toString())
                 .setTitle(TITLE)
-                .setDescription(UPDATED_DESCRIPTION)
+                .setDescription(updatedDescription)
                 .build();
 
         when(stub.updatePainting(any(UpdatePaintingRequest.class))).thenReturn(response);
@@ -387,7 +383,7 @@ class GrpcPaintingClientTest {
         assertNotNull(result);
         assertEquals(PAINTING_ID, result.id());
         assertEquals(TITLE, result.title());
-        assertEquals(UPDATED_DESCRIPTION, result.description());
+        assertEquals(updatedDescription, result.description());
 
         ArgumentCaptor<UpdatePaintingRequest> requestCaptor =
                 ArgumentCaptor.forClass(UpdatePaintingRequest.class);
@@ -396,7 +392,7 @@ class GrpcPaintingClientTest {
         UpdatePaintingRequest request = requestCaptor.getValue();
         assertEquals(PAINTING_ID.toString(), request.getId());
         assertEquals(TITLE, request.getTitle());
-        assertEquals(UPDATED_DESCRIPTION, request.getDescription());
+        assertEquals(updatedDescription, request.getDescription());
         assertEquals(ByteString.copyFrom(contentBytes), request.getContent());
         assertEquals(ARTIST_ID.toString(), request.getArtist().getId());
         assertEquals(MUSEUM_ID.toString(), request.getMuseum().getId());

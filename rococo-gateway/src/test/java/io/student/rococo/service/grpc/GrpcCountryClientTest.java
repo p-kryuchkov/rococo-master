@@ -18,16 +18,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.UUID;
+
 import static io.student.rococo.model.EventType.GET;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class GrpcCountryClientTest {
 
-    private static final String USERNAME = "splinter";
+    private final String USERNAME = "splinter";
+    private final UUID FRANCE_ID = UUID.randomUUID();
+    private final UUID SPAIN_ID = UUID.randomUUID();
+
 
     private final KafkaTemplate<String, EventJson> kafkaTemplate = mock(KafkaTemplate.class);
     private final CurrentUserProvider currentUserProvider = mock(CurrentUserProvider.class);
@@ -44,8 +47,16 @@ class GrpcCountryClientTest {
 
     @Test
     void getAllCountries() {
-        final CountryResponse firstCountry = CountryResponse.newBuilder().build();
-        final CountryResponse secondCountry = CountryResponse.newBuilder().build();
+        String franceName = "France";
+        final CountryResponse firstCountry = CountryResponse.newBuilder()
+                .setId(FRANCE_ID.toString())
+                .setName(franceName)
+                .build();
+        String spainName = "Spain";
+        final CountryResponse secondCountry = CountryResponse.newBuilder()
+                .setId(SPAIN_ID.toString())
+                .setName(spainName)
+                .build();
 
         final CountriesResponse response = CountriesResponse.newBuilder()
                 .addCountries(firstCountry)
@@ -62,8 +73,17 @@ class GrpcCountryClientTest {
         assertNotNull(result);
         assertEquals(2, result.getContent().size());
         assertEquals(5, result.getTotalElements());
-        assertNotNull(result.getContent().get(0));
-        assertNotNull(result.getContent().get(1));
+
+        final CountryJson firstResult = result.getContent().get(0);
+        final CountryJson secondResult = result.getContent().get(1);
+
+        assertNotNull(firstResult);
+        assertEquals(FRANCE_ID, firstResult.id());
+        assertEquals(franceName, firstResult.name());
+
+        assertNotNull(secondResult);
+        assertEquals(SPAIN_ID, secondResult.id());
+        assertEquals(spainName, secondResult.name());
 
         ArgumentCaptor<PageableRequest> requestCaptor = ArgumentCaptor.forClass(PageableRequest.class);
         verify(stub).allCountries(requestCaptor.capture());
