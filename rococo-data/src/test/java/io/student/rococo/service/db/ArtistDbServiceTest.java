@@ -356,6 +356,7 @@ class ArtistDbServiceTest {
         verify(artistRepository).save(existingArtist);
         verify(artistRepository, never()).getByName(any());
     }
+
     @Test
     void shouldThrowWhenGetArtistByInvalidId() {
         assertThrows(RuntimeException.class, () -> artistDbService.getById("abc"));
