@@ -27,7 +27,7 @@ public class UserdataDbService {
     @Transactional
     public void createUser(String username, String firstname, String lastname, byte[] avatar) {
 
-            if (username == null) {
+        if (username == null) {
             throw new FieldValidationException("Username must not be null");
         }
 
@@ -49,15 +49,12 @@ public class UserdataDbService {
 
     @Transactional
     public UserDataEntity updateUser(UUID id, String username, String firstname, String lastname, byte[] avatar) {
-
         UserDataEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found by id: " + id));
         if (username != null) {
-            if (!username.equals(userEntity.getUsername())
-                    && userRepository.findByUsername(username).isPresent()) {
-                throw new FieldValidationException("This username exists: " + username);
+            if (!username.equals(userEntity.getUsername())) {
+                throw new FieldValidationException("Username cannot be changed");
             }
-            userEntity.setUsername(username);
         }
         if (firstname != null) {
             userEntity.setFirstname(firstname);

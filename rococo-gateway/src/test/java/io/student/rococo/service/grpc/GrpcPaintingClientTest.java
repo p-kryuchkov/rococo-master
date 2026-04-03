@@ -28,15 +28,15 @@ import static org.mockito.Mockito.*;
 
 class GrpcPaintingClientTest {
 
-    private final UUID PAINTING_ID = UUID.randomUUID();
-    private final UUID SECOND_PAINTING_ID = UUID.randomUUID();
-    private final UUID ARTIST_ID = UUID.randomUUID();
-    private final UUID MUSEUM_ID = UUID.randomUUID();
+    private final UUID paintingId = UUID.randomUUID();
+    private final UUID secondPaintingId = UUID.randomUUID();
+    private final UUID artistId = UUID.randomUUID();
+    private final UUID museumId = UUID.randomUUID();
 
-    private final String USERNAME = "splinter";
-    private final String TITLE = "Mona Lisa";
-    private final String SECOND_TITLE = "The Ninth Wave";
-    private final String DESCRIPTION = "Painting description";
+    private final String username = "splinter";
+    private final String title = "Mona Lisa";
+    private final String secondTitle = "The Ninth Wave";
+    private final String description = "Painting description";
 
     private final KafkaTemplate<String, EventJson> kafkaTemplate = mock(KafkaTemplate.class);
     private final CurrentUserProvider currentUserProvider = mock(CurrentUserProvider.class);
@@ -48,21 +48,21 @@ class GrpcPaintingClientTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(client, "stub", stub);
-        when(currentUserProvider.getUsername()).thenReturn(USERNAME);
+        when(currentUserProvider.getUsername()).thenReturn(username);
     }
 
     @Test
     void getAllPaintings() {
         final PaintingResponse firstPainting = PaintingResponse.newBuilder()
-                .setId(PAINTING_ID.toString())
-                .setTitle(TITLE)
-                .setDescription(DESCRIPTION)
+                .setId(paintingId.toString())
+                .setTitle(title)
+                .setDescription(description)
                 .build();
 
         final PaintingResponse secondPainting = PaintingResponse.newBuilder()
-                .setId(SECOND_PAINTING_ID.toString())
-                .setTitle(SECOND_TITLE)
-                .setDescription(DESCRIPTION)
+                .setId(secondPaintingId.toString())
+                .setTitle(secondTitle)
+                .setDescription(description)
                 .build();
 
         final PaintingsResponse response = PaintingsResponse.newBuilder()
@@ -80,8 +80,8 @@ class GrpcPaintingClientTest {
         assertNotNull(result);
         assertEquals(2, result.getContent().size());
         assertEquals(5, result.getTotalElements());
-        assertEquals(TITLE, result.getContent().get(0).title());
-        assertEquals(SECOND_TITLE, result.getContent().get(1).title());
+        assertEquals(title, result.getContent().get(0).title());
+        assertEquals(secondTitle, result.getContent().get(1).title());
 
         ArgumentCaptor<PageableRequest> requestCaptor = ArgumentCaptor.forClass(PageableRequest.class);
         verify(stub).allPaintings(requestCaptor.capture());
@@ -96,7 +96,7 @@ class GrpcPaintingClientTest {
         assertEquals(GET, event.eventType());
         assertEquals("Get All Paintings", event.description());
         assertNull(event.entityId());
-        assertEquals(USERNAME, event.username());
+        assertEquals(username, event.username());
     }
 
     @Test
@@ -114,23 +114,23 @@ class GrpcPaintingClientTest {
     @Test
     void getPaintingById() {
         final PaintingResponse response = PaintingResponse.newBuilder()
-                .setId(PAINTING_ID.toString())
-                .setTitle(TITLE)
-                .setDescription(DESCRIPTION)
+                .setId(paintingId.toString())
+                .setTitle(title)
+                .setDescription(description)
                 .build();
 
         when(stub.findPaintingById(any(IdRequest.class))).thenReturn(response);
 
-        PaintingJson result = client.getPaintingById(PAINTING_ID);
+        PaintingJson result = client.getPaintingById(paintingId);
 
         assertNotNull(result);
-        assertEquals(PAINTING_ID, result.id());
-        assertEquals(TITLE, result.title());
-        assertEquals(DESCRIPTION, result.description());
+        assertEquals(paintingId, result.id());
+        assertEquals(title, result.title());
+        assertEquals(description, result.description());
 
         ArgumentCaptor<IdRequest> requestCaptor = ArgumentCaptor.forClass(IdRequest.class);
         verify(stub).findPaintingById(requestCaptor.capture());
-        assertEquals(PAINTING_ID.toString(), requestCaptor.getValue().getId());
+        assertEquals(paintingId.toString(), requestCaptor.getValue().getId());
 
         ArgumentCaptor<EventJson> eventCaptor = ArgumentCaptor.forClass(EventJson.class);
         verify(kafkaTemplate).send(eq("events"), eventCaptor.capture());
@@ -139,8 +139,8 @@ class GrpcPaintingClientTest {
         assertNotNull(event.date());
         assertEquals(GET, event.eventType());
         assertEquals("Get Painting by Id", event.description());
-        assertEquals(PAINTING_ID, event.entityId());
-        assertEquals(USERNAME, event.username());
+        assertEquals(paintingId, event.entityId());
+        assertEquals(username, event.username());
     }
 
     @Test
@@ -160,7 +160,7 @@ class GrpcPaintingClientTest {
         when(stub.findPaintingById(any(IdRequest.class)))
                 .thenThrow(new StatusRuntimeException(Status.NOT_FOUND));
 
-        assertThrows(GrpcStatusException.class, () -> client.getPaintingById(PAINTING_ID));
+        assertThrows(GrpcStatusException.class, () -> client.getPaintingById(paintingId));
 
         verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
     }
@@ -168,15 +168,15 @@ class GrpcPaintingClientTest {
     @Test
     void getPaintingsByArtist() {
         final PaintingResponse firstPainting = PaintingResponse.newBuilder()
-                .setId(PAINTING_ID.toString())
-                .setTitle(TITLE)
-                .setDescription(DESCRIPTION)
+                .setId(paintingId.toString())
+                .setTitle(title)
+                .setDescription(description)
                 .build();
 
         final PaintingResponse secondPainting = PaintingResponse.newBuilder()
-                .setId(SECOND_PAINTING_ID.toString())
-                .setTitle(SECOND_TITLE)
-                .setDescription(DESCRIPTION)
+                .setId(secondPaintingId.toString())
+                .setTitle(secondTitle)
+                .setDescription(description)
                 .build();
 
         final PaintingsResponse response = PaintingsResponse.newBuilder()
@@ -189,20 +189,20 @@ class GrpcPaintingClientTest {
 
         PageRequest pageable = PageRequest.of(0, 2);
 
-        Page<PaintingJson> result = client.getPaintingsByArtist(ARTIST_ID, pageable);
+        Page<PaintingJson> result = client.getPaintingsByArtist(artistId, pageable);
 
         assertNotNull(result);
         assertEquals(2, result.getContent().size());
         assertEquals(4, result.getTotalElements());
-        assertEquals(TITLE, result.getContent().get(0).title());
-        assertEquals(SECOND_TITLE, result.getContent().get(1).title());
+        assertEquals(title, result.getContent().get(0).title());
+        assertEquals(secondTitle, result.getContent().get(1).title());
 
         ArgumentCaptor<PaintingsByArtistRequest> requestCaptor =
                 ArgumentCaptor.forClass(PaintingsByArtistRequest.class);
         verify(stub).findPaintingByArtist(requestCaptor.capture());
 
         PaintingsByArtistRequest request = requestCaptor.getValue();
-        assertEquals(ARTIST_ID.toString(), request.getArtistId());
+        assertEquals(artistId.toString(), request.getArtistId());
         assertEquals(0, request.getPageable().getPage());
         assertEquals(2, request.getPageable().getSize());
 
@@ -213,8 +213,8 @@ class GrpcPaintingClientTest {
         assertNotNull(event.date());
         assertEquals(GET, event.eventType());
         assertEquals("Get Paintings by Artist", event.description());
-        assertEquals(ARTIST_ID, event.entityId());
-        assertEquals(USERNAME, event.username());
+        assertEquals(artistId, event.entityId());
+        assertEquals(username, event.username());
     }
 
     @Test
@@ -238,7 +238,7 @@ class GrpcPaintingClientTest {
 
         PageRequest pageable = PageRequest.of(0, 2);
 
-        assertThrows(GrpcStatusException.class, () -> client.getPaintingsByArtist(ARTIST_ID, pageable));
+        assertThrows(GrpcStatusException.class, () -> client.getPaintingsByArtist(artistId, pageable));
 
         verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
     }
@@ -247,19 +247,19 @@ class GrpcPaintingClientTest {
     void createPaintingWithContent() {
         PaintingJson painting = mock(PaintingJson.class, RETURNS_DEEP_STUBS);
 
-        when(painting.title()).thenReturn(TITLE);
-        when(painting.description()).thenReturn(DESCRIPTION);
-        when(painting.artist().id()).thenReturn(ARTIST_ID);
-        when(painting.museum().id()).thenReturn(MUSEUM_ID);
+        when(painting.title()).thenReturn(title);
+        when(painting.description()).thenReturn(description);
+        when(painting.artist().id()).thenReturn(artistId);
+        when(painting.museum().id()).thenReturn(museumId);
 
         byte[] contentBytes = "painting-content".getBytes(StandardCharsets.UTF_8);
         String base64Content = "data:image/png;base64," + Base64.getEncoder().encodeToString(contentBytes);
         when(painting.content()).thenReturn(base64Content);
 
         final PaintingResponse response = PaintingResponse.newBuilder()
-                .setId(PAINTING_ID.toString())
-                .setTitle(TITLE)
-                .setDescription(DESCRIPTION)
+                .setId(paintingId.toString())
+                .setTitle(title)
+                .setDescription(description)
                 .build();
 
         when(stub.createPainting(any(CreatePaintingRequest.class))).thenReturn(response);
@@ -267,20 +267,20 @@ class GrpcPaintingClientTest {
         PaintingJson result = client.createPainting(painting);
 
         assertNotNull(result);
-        assertEquals(PAINTING_ID, result.id());
-        assertEquals(TITLE, result.title());
-        assertEquals(DESCRIPTION, result.description());
+        assertEquals(paintingId, result.id());
+        assertEquals(title, result.title());
+        assertEquals(description, result.description());
 
         ArgumentCaptor<CreatePaintingRequest> requestCaptor =
                 ArgumentCaptor.forClass(CreatePaintingRequest.class);
         verify(stub).createPainting(requestCaptor.capture());
 
         CreatePaintingRequest request = requestCaptor.getValue();
-        assertEquals(TITLE, request.getTitle());
-        assertEquals(DESCRIPTION, request.getDescription());
+        assertEquals(title, request.getTitle());
+        assertEquals(description, request.getDescription());
         assertEquals(ByteString.copyFrom(contentBytes), request.getContent());
-        assertEquals(ARTIST_ID.toString(), request.getArtist().getId());
-        assertEquals(MUSEUM_ID.toString(), request.getMuseum().getId());
+        assertEquals(artistId.toString(), request.getArtist().getId());
+        assertEquals(museumId.toString(), request.getMuseum().getId());
 
         ArgumentCaptor<EventJson> eventCaptor = ArgumentCaptor.forClass(EventJson.class);
         verify(kafkaTemplate).send(eq("events"), eventCaptor.capture());
@@ -289,24 +289,24 @@ class GrpcPaintingClientTest {
         assertNotNull(event.date());
         assertEquals(CREATE, event.eventType());
         assertEquals("Create Painting", event.description());
-        assertEquals(PAINTING_ID, event.entityId());
-        assertEquals(USERNAME, event.username());
+        assertEquals(paintingId, event.entityId());
+        assertEquals(username, event.username());
     }
 
     @Test
     void createPaintingWithoutContent() {
         PaintingJson painting = mock(PaintingJson.class, RETURNS_DEEP_STUBS);
 
-        when(painting.title()).thenReturn(TITLE);
-        when(painting.description()).thenReturn(DESCRIPTION);
-        when(painting.artist().id()).thenReturn(ARTIST_ID);
-        when(painting.museum().id()).thenReturn(MUSEUM_ID);
+        when(painting.title()).thenReturn(title);
+        when(painting.description()).thenReturn(description);
+        when(painting.artist().id()).thenReturn(artistId);
+        when(painting.museum().id()).thenReturn(museumId);
         when(painting.content()).thenReturn(null);
 
         final PaintingResponse response = PaintingResponse.newBuilder()
-                .setId(PAINTING_ID.toString())
-                .setTitle(TITLE)
-                .setDescription(DESCRIPTION)
+                .setId(paintingId.toString())
+                .setTitle(title)
+                .setDescription(description)
                 .build();
 
         when(stub.createPainting(any(CreatePaintingRequest.class))).thenReturn(response);
@@ -318,11 +318,11 @@ class GrpcPaintingClientTest {
         verify(stub).createPainting(requestCaptor.capture());
 
         CreatePaintingRequest request = requestCaptor.getValue();
-        assertEquals(TITLE, request.getTitle());
-        assertEquals(DESCRIPTION, request.getDescription());
+        assertEquals(title, request.getTitle());
+        assertEquals(description, request.getDescription());
         assertTrue(request.getContent().isEmpty());
-        assertEquals(ARTIST_ID.toString(), request.getArtist().getId());
-        assertEquals(MUSEUM_ID.toString(), request.getMuseum().getId());
+        assertEquals(artistId.toString(), request.getArtist().getId());
+        assertEquals(museumId.toString(), request.getMuseum().getId());
     }
 
     @Test
@@ -341,10 +341,10 @@ class GrpcPaintingClientTest {
     void createPaintingShouldThrowGrpcStatusException() {
         PaintingJson painting = mock(PaintingJson.class, RETURNS_DEEP_STUBS);
 
-        when(painting.title()).thenReturn(TITLE);
-        when(painting.description()).thenReturn(DESCRIPTION);
-        when(painting.artist().id()).thenReturn(ARTIST_ID);
-        when(painting.museum().id()).thenReturn(MUSEUM_ID);
+        when(painting.title()).thenReturn(title);
+        when(painting.description()).thenReturn(description);
+        when(painting.artist().id()).thenReturn(artistId);
+        when(painting.museum().id()).thenReturn(museumId);
         when(painting.content()).thenReturn(null);
 
         when(stub.createPainting(any(CreatePaintingRequest.class)))
@@ -359,20 +359,20 @@ class GrpcPaintingClientTest {
     void updatePainting() {
         PaintingJson painting = mock(PaintingJson.class, RETURNS_DEEP_STUBS);
 
-        when(painting.id()).thenReturn(PAINTING_ID);
-        when(painting.title()).thenReturn(TITLE);
+        when(painting.id()).thenReturn(paintingId);
+        when(painting.title()).thenReturn(title);
         String updatedDescription = "Updated painting description";
         when(painting.description()).thenReturn(updatedDescription);
-        when(painting.artist().id()).thenReturn(ARTIST_ID);
-        when(painting.museum().id()).thenReturn(MUSEUM_ID);
+        when(painting.artist().id()).thenReturn(artistId);
+        when(painting.museum().id()).thenReturn(museumId);
 
         byte[] contentBytes = "updated-painting-content".getBytes(StandardCharsets.UTF_8);
         String base64Content = "data:image/png;base64," + Base64.getEncoder().encodeToString(contentBytes);
         when(painting.content()).thenReturn(base64Content);
 
         final PaintingResponse response = PaintingResponse.newBuilder()
-                .setId(PAINTING_ID.toString())
-                .setTitle(TITLE)
+                .setId(paintingId.toString())
+                .setTitle(title)
                 .setDescription(updatedDescription)
                 .build();
 
@@ -381,8 +381,8 @@ class GrpcPaintingClientTest {
         PaintingJson result = client.updatePainting(painting);
 
         assertNotNull(result);
-        assertEquals(PAINTING_ID, result.id());
-        assertEquals(TITLE, result.title());
+        assertEquals(paintingId, result.id());
+        assertEquals(title, result.title());
         assertEquals(updatedDescription, result.description());
 
         ArgumentCaptor<UpdatePaintingRequest> requestCaptor =
@@ -390,12 +390,12 @@ class GrpcPaintingClientTest {
         verify(stub).updatePainting(requestCaptor.capture());
 
         UpdatePaintingRequest request = requestCaptor.getValue();
-        assertEquals(PAINTING_ID.toString(), request.getId());
-        assertEquals(TITLE, request.getTitle());
+        assertEquals(paintingId.toString(), request.getId());
+        assertEquals(title, request.getTitle());
         assertEquals(updatedDescription, request.getDescription());
         assertEquals(ByteString.copyFrom(contentBytes), request.getContent());
-        assertEquals(ARTIST_ID.toString(), request.getArtist().getId());
-        assertEquals(MUSEUM_ID.toString(), request.getMuseum().getId());
+        assertEquals(artistId.toString(), request.getArtist().getId());
+        assertEquals(museumId.toString(), request.getMuseum().getId());
 
         ArgumentCaptor<EventJson> eventCaptor = ArgumentCaptor.forClass(EventJson.class);
         verify(kafkaTemplate).send(eq("events"), eventCaptor.capture());
@@ -404,8 +404,8 @@ class GrpcPaintingClientTest {
         assertNotNull(event.date());
         assertEquals(UPDATE, event.eventType());
         assertEquals("Update Painting", event.description());
-        assertEquals(PAINTING_ID, event.entityId());
-        assertEquals(USERNAME, event.username());
+        assertEquals(paintingId, event.entityId());
+        assertEquals(username, event.username());
     }
 
     @Test
@@ -427,11 +427,11 @@ class GrpcPaintingClientTest {
     void updatePaintingShouldThrowGrpcStatusException() {
         PaintingJson painting = mock(PaintingJson.class, RETURNS_DEEP_STUBS);
 
-        when(painting.id()).thenReturn(PAINTING_ID);
-        when(painting.title()).thenReturn(TITLE);
-        when(painting.description()).thenReturn(DESCRIPTION);
-        when(painting.artist().id()).thenReturn(ARTIST_ID);
-        when(painting.museum().id()).thenReturn(MUSEUM_ID);
+        when(painting.id()).thenReturn(paintingId);
+        when(painting.title()).thenReturn(title);
+        when(painting.description()).thenReturn(description);
+        when(painting.artist().id()).thenReturn(artistId);
+        when(painting.museum().id()).thenReturn(museumId);
         when(painting.content()).thenReturn(null);
 
         when(stub.updatePainting(any(UpdatePaintingRequest.class)))

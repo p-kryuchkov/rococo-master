@@ -27,9 +27,9 @@ import static org.mockito.Mockito.*;
 
 class GrpcCountryClientTest {
 
-    private final String USERNAME = "splinter";
-    private final UUID FRANCE_ID = UUID.randomUUID();
-    private final UUID SPAIN_ID = UUID.randomUUID();
+    private final String username = "splinter";
+    private final UUID franceId = UUID.randomUUID();
+    private final UUID spainId = UUID.randomUUID();
 
 
     private final KafkaTemplate<String, EventJson> kafkaTemplate = mock(KafkaTemplate.class);
@@ -42,19 +42,19 @@ class GrpcCountryClientTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(client, "stub", stub);
-        when(currentUserProvider.getUsername()).thenReturn(USERNAME);
+        when(currentUserProvider.getUsername()).thenReturn(username);
     }
 
     @Test
     void getAllCountries() {
         String franceName = "France";
         final CountryResponse firstCountry = CountryResponse.newBuilder()
-                .setId(FRANCE_ID.toString())
+                .setId(franceId.toString())
                 .setName(franceName)
                 .build();
         String spainName = "Spain";
         final CountryResponse secondCountry = CountryResponse.newBuilder()
-                .setId(SPAIN_ID.toString())
+                .setId(spainId.toString())
                 .setName(spainName)
                 .build();
 
@@ -78,11 +78,11 @@ class GrpcCountryClientTest {
         final CountryJson secondResult = result.getContent().get(1);
 
         assertNotNull(firstResult);
-        assertEquals(FRANCE_ID, firstResult.id());
+        assertEquals(franceId, firstResult.id());
         assertEquals(franceName, firstResult.name());
 
         assertNotNull(secondResult);
-        assertEquals(SPAIN_ID, secondResult.id());
+        assertEquals(spainId, secondResult.id());
         assertEquals(spainName, secondResult.name());
 
         ArgumentCaptor<PageableRequest> requestCaptor = ArgumentCaptor.forClass(PageableRequest.class);
@@ -98,7 +98,7 @@ class GrpcCountryClientTest {
         assertEquals(GET, event.eventType());
         assertEquals("Get all countries", event.description());
         assertNull(event.entityId());
-        assertEquals(USERNAME, event.username());
+        assertEquals(username, event.username());
     }
 
     @Test

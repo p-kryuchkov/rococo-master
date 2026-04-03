@@ -44,6 +44,7 @@ dependencies {
     implementation "com.google.protobuf:protobuf-java-util:${project.ext.protobufVersion}"
     implementation "io.grpc:grpc-netty-shaded:${project.ext.grpcVersion}"
     implementation "io.grpc:grpc-services:${project.ext.grpcVersion}"
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     runtimeOnly "mysql:mysql-connector-java:${project.ext.mysqlDriverVersion}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

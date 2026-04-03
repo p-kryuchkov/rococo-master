@@ -28,12 +28,12 @@ import static org.mockito.Mockito.*;
 
 class GrpcArtistClientTest {
 
-    private final UUID LEONARDO_ID = UUID.randomUUID();
-    private final UUID RAPHAEL_ID = UUID.randomUUID();
+    private final UUID leonardoId = UUID.randomUUID();
+    private final UUID raphaelId = UUID.randomUUID();
 
-    private final String USERNAME = "splinter";
-    private final String LEONARDO_NAME = "Leonardo";
-    private final String LEONARDO_BIOGRAPHY = "Leonardo biography";
+    private final String username = "splinter";
+    private final String leonardoName = "Leonardo";
+    private final String leonardoBiography = "Leonardo biography";
 
     private final KafkaTemplate<String, EventJson> kafkaTemplate = mock(KafkaTemplate.class);
     private final CurrentUserProvider currentUserProvider = mock(CurrentUserProvider.class);
@@ -45,29 +45,29 @@ class GrpcArtistClientTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(client, "stub", stub);
-        when(currentUserProvider.getUsername()).thenReturn(USERNAME);
+        when(currentUserProvider.getUsername()).thenReturn(username);
     }
 
     @Test
     void getArtistById() {
         final ArtistResponse response = ArtistResponse.newBuilder()
-                .setId(LEONARDO_ID.toString())
-                .setName(LEONARDO_NAME)
-                .setBiography(LEONARDO_BIOGRAPHY)
+                .setId(leonardoId.toString())
+                .setName(leonardoName)
+                .setBiography(leonardoBiography)
                 .build();
 
         when(stub.getArtistById(any(IdRequest.class))).thenReturn(response);
 
-        ArtistJson result = client.getArtistById(LEONARDO_ID);
+        ArtistJson result = client.getArtistById(leonardoId);
 
         assertNotNull(result);
-        assertEquals(LEONARDO_ID, result.id());
-        assertEquals(LEONARDO_NAME, result.name());
-        assertEquals(LEONARDO_BIOGRAPHY, result.biography());
+        assertEquals(leonardoId, result.id());
+        assertEquals(leonardoName, result.name());
+        assertEquals(leonardoBiography, result.biography());
 
         ArgumentCaptor<IdRequest> requestCaptor = ArgumentCaptor.forClass(IdRequest.class);
         verify(stub).getArtistById(requestCaptor.capture());
-        assertEquals(LEONARDO_ID.toString(), requestCaptor.getValue().getId());
+        assertEquals(leonardoId.toString(), requestCaptor.getValue().getId());
 
         ArgumentCaptor<EventJson> eventCaptor = ArgumentCaptor.forClass(EventJson.class);
         verify(kafkaTemplate).send(eq("events"), eventCaptor.capture());
@@ -76,8 +76,8 @@ class GrpcArtistClientTest {
         assertNotNull(event.date());
         assertEquals(GET, event.eventType());
         assertEquals("Get artist by ID", event.description());
-        assertEquals(LEONARDO_ID, event.entityId());
-        assertEquals(USERNAME, event.username());
+        assertEquals(leonardoId, event.entityId());
+        assertEquals(username, event.username());
     }
 
     @Test
@@ -85,7 +85,7 @@ class GrpcArtistClientTest {
         when(stub.getArtistById(any(IdRequest.class)))
                 .thenThrow(new StatusRuntimeException(Status.NOT_FOUND));
 
-        assertThrows(GrpcStatusException.class, () -> client.getArtistById(LEONARDO_ID));
+        assertThrows(GrpcStatusException.class, () -> client.getArtistById(leonardoId));
 
         verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
     }
@@ -105,15 +105,15 @@ class GrpcArtistClientTest {
     @Test
     void getAllArtists() {
         final ArtistResponse leonardo = ArtistResponse.newBuilder()
-                .setId(LEONARDO_ID.toString())
-                .setName(LEONARDO_NAME)
-                .setBiography(LEONARDO_BIOGRAPHY)
+                .setId(leonardoId.toString())
+                .setName(leonardoName)
+                .setBiography(leonardoBiography)
                 .build();
 
         String raphaelName = "Raphael";
         String raphaelBiography = "Raphael biography";
         final ArtistResponse raphael = ArtistResponse.newBuilder()
-                .setId(RAPHAEL_ID.toString())
+                .setId(raphaelId.toString())
                 .setName(raphaelName)
                 .setBiography(raphaelBiography)
                 .build();
@@ -133,7 +133,7 @@ class GrpcArtistClientTest {
         assertNotNull(result);
         assertEquals(2, result.getContent().size());
         assertEquals(5, result.getTotalElements());
-        assertEquals(LEONARDO_NAME, result.getContent().get(0).name());
+        assertEquals(leonardoName, result.getContent().get(0).name());
         assertEquals(raphaelName, result.getContent().get(1).name());
 
         ArgumentCaptor<PageableRequest> requestCaptor = ArgumentCaptor.forClass(PageableRequest.class);
@@ -149,7 +149,7 @@ class GrpcArtistClientTest {
         assertEquals(GET, event.eventType());
         assertEquals("Get all artists", event.description());
         assertNull(event.entityId());
-        assertEquals(USERNAME, event.username());
+        assertEquals(username, event.username());
     }
 
     @Test
@@ -167,17 +167,17 @@ class GrpcArtistClientTest {
     @Test
     void createArtistWithPhoto() {
         ArtistJson artist = mock(ArtistJson.class);
-        when(artist.name()).thenReturn(LEONARDO_NAME);
-        when(artist.biography()).thenReturn(LEONARDO_BIOGRAPHY);
+        when(artist.name()).thenReturn(leonardoName);
+        when(artist.biography()).thenReturn(leonardoBiography);
 
         byte[] photoBytes = "leonardo-photo".getBytes(StandardCharsets.UTF_8);
         String base64Photo = "data:image/png;base64," + Base64.getEncoder().encodeToString(photoBytes);
         when(artist.photo()).thenReturn(base64Photo);
 
         final ArtistResponse response = ArtistResponse.newBuilder()
-                .setId(LEONARDO_ID.toString())
-                .setName(LEONARDO_NAME)
-                .setBiography(LEONARDO_BIOGRAPHY)
+                .setId(leonardoId.toString())
+                .setName(leonardoName)
+                .setBiography(leonardoBiography)
                 .build();
 
         when(stub.createArtist(any(CreateArtistRequest.class))).thenReturn(response);
@@ -185,16 +185,16 @@ class GrpcArtistClientTest {
         ArtistJson result = client.createArtist(artist);
 
         assertNotNull(result);
-        assertEquals(LEONARDO_ID, result.id());
-        assertEquals(LEONARDO_NAME, result.name());
-        assertEquals(LEONARDO_BIOGRAPHY, result.biography());
+        assertEquals(leonardoId, result.id());
+        assertEquals(leonardoName, result.name());
+        assertEquals(leonardoBiography, result.biography());
 
         ArgumentCaptor<CreateArtistRequest> requestCaptor = ArgumentCaptor.forClass(CreateArtistRequest.class);
         verify(stub).createArtist(requestCaptor.capture());
 
         CreateArtistRequest request = requestCaptor.getValue();
-        assertEquals(LEONARDO_NAME, request.getName());
-        assertEquals(LEONARDO_BIOGRAPHY, request.getBiography());
+        assertEquals(leonardoName, request.getName());
+        assertEquals(leonardoBiography, request.getBiography());
         assertEquals(ByteString.copyFrom(photoBytes), request.getPhoto());
 
         ArgumentCaptor<EventJson> eventCaptor = ArgumentCaptor.forClass(EventJson.class);
@@ -204,21 +204,21 @@ class GrpcArtistClientTest {
         assertNotNull(event.date());
         assertEquals(CREATE, event.eventType());
         assertEquals("Create artist", event.description());
-        assertEquals(LEONARDO_ID, event.entityId());
-        assertEquals(USERNAME, event.username());
+        assertEquals(leonardoId, event.entityId());
+        assertEquals(username, event.username());
     }
 
     @Test
     void createArtistWithoutPhoto() {
         ArtistJson artist = mock(ArtistJson.class);
-        when(artist.name()).thenReturn(LEONARDO_NAME);
-        when(artist.biography()).thenReturn(LEONARDO_BIOGRAPHY);
+        when(artist.name()).thenReturn(leonardoName);
+        when(artist.biography()).thenReturn(leonardoBiography);
         when(artist.photo()).thenReturn(null);
 
         final ArtistResponse response = ArtistResponse.newBuilder()
-                .setId(LEONARDO_ID.toString())
-                .setName(LEONARDO_NAME)
-                .setBiography(LEONARDO_BIOGRAPHY)
+                .setId(leonardoId.toString())
+                .setName(leonardoName)
+                .setBiography(leonardoBiography)
                 .build();
 
         when(stub.createArtist(any(CreateArtistRequest.class))).thenReturn(response);
@@ -229,8 +229,8 @@ class GrpcArtistClientTest {
         verify(stub).createArtist(requestCaptor.capture());
 
         CreateArtistRequest request = requestCaptor.getValue();
-        assertEquals(LEONARDO_NAME, request.getName());
-        assertEquals(LEONARDO_BIOGRAPHY, request.getBiography());
+        assertEquals(leonardoName, request.getName());
+        assertEquals(leonardoBiography, request.getBiography());
         assertTrue(request.getPhoto().isEmpty());
     }
 
@@ -252,8 +252,8 @@ class GrpcArtistClientTest {
     @Test
     void updateArtist() {
         ArtistJson artist = mock(ArtistJson.class);
-        when(artist.id()).thenReturn(LEONARDO_ID);
-        when(artist.name()).thenReturn(LEONARDO_NAME);
+        when(artist.id()).thenReturn(leonardoId);
+        when(artist.name()).thenReturn(leonardoName);
         String updatedBiography = "Updated biography";
         when(artist.biography()).thenReturn(updatedBiography);
 
@@ -262,8 +262,8 @@ class GrpcArtistClientTest {
         when(artist.photo()).thenReturn(base64Photo);
 
         final ArtistResponse response = ArtistResponse.newBuilder()
-                .setId(LEONARDO_ID.toString())
-                .setName(LEONARDO_NAME)
+                .setId(leonardoId.toString())
+                .setName(leonardoName)
                 .setBiography(updatedBiography)
                 .build();
 
@@ -272,16 +272,16 @@ class GrpcArtistClientTest {
         ArtistJson result = client.updateArtist(artist);
 
         assertNotNull(result);
-        assertEquals(LEONARDO_ID, result.id());
-        assertEquals(LEONARDO_NAME, result.name());
+        assertEquals(leonardoId, result.id());
+        assertEquals(leonardoName, result.name());
         assertEquals(updatedBiography, result.biography());
 
         ArgumentCaptor<UpdateArtistRequest> requestCaptor = ArgumentCaptor.forClass(UpdateArtistRequest.class);
         verify(stub).updateArtist(requestCaptor.capture());
 
         UpdateArtistRequest request = requestCaptor.getValue();
-        assertEquals(LEONARDO_ID.toString(), request.getId());
-        assertEquals(LEONARDO_NAME, request.getName());
+        assertEquals(leonardoId.toString(), request.getId());
+        assertEquals(leonardoName, request.getName());
         assertEquals(updatedBiography, request.getBiography());
         assertEquals(ByteString.copyFrom(photoBytes), request.getPhoto());
 
@@ -292,16 +292,16 @@ class GrpcArtistClientTest {
         assertNotNull(event.date());
         assertEquals(UPDATE, event.eventType());
         assertEquals("Update artist", event.description());
-        assertEquals(LEONARDO_ID, event.entityId());
-        assertEquals(USERNAME, event.username());
+        assertEquals(leonardoId, event.entityId());
+        assertEquals(username, event.username());
     }
 
     @Test
     void updateArtistShouldThrowGrpcStatusException() {
         ArtistJson artist = mock(ArtistJson.class);
-        when(artist.id()).thenReturn(LEONARDO_ID);
-        when(artist.name()).thenReturn(LEONARDO_NAME);
-        when(artist.biography()).thenReturn(LEONARDO_BIOGRAPHY);
+        when(artist.id()).thenReturn(leonardoId);
+        when(artist.name()).thenReturn(leonardoName);
+        when(artist.biography()).thenReturn(leonardoBiography);
         when(artist.photo()).thenReturn(null);
 
         when(stub.updateArtist(any(UpdateArtistRequest.class)))

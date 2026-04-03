@@ -29,12 +29,11 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 class GrpcUserdataClientTest {
+    private final UUID userId = UUID.randomUUID();
 
-    private static final UUID USER_ID = UUID.randomUUID();
-
-    private final String USERNAME = "splinter";
-    private final String FIRSTNAME = "Hamato";
-    private final String LASTNAME = "Yoshi";
+    private final String username = "splinter";
+    private final String firstname = "Hamato";
+    private final String lastname = "Yoshi";
 
     private final KafkaTemplate<String, EventJson> kafkaTemplate = mock(KafkaTemplate.class);
     private final CurrentUserProvider currentUserProvider = mock(CurrentUserProvider.class);
@@ -46,31 +45,31 @@ class GrpcUserdataClientTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(client, "stub", stub);
-        when(currentUserProvider.getUsername()).thenReturn(USERNAME);
+        when(currentUserProvider.getUsername()).thenReturn(username);
     }
 
     @Test
     void getUserByUsername() {
         final UserResponse response = UserResponse.newBuilder()
-                .setId(USER_ID.toString())
-                .setUsername(USERNAME)
-                .setFirstname(FIRSTNAME)
-                .setLastname(LASTNAME)
+                .setId(userId.toString())
+                .setUsername(username)
+                .setFirstname(firstname)
+                .setLastname(lastname)
                 .build();
 
         when(stub.getUserByUsername(any(UsernameRequest.class))).thenReturn(response);
 
-        UserJson result = client.getUserByUsername(USERNAME);
+        UserJson result = client.getUserByUsername(username);
 
         assertNotNull(result);
-        assertEquals(USER_ID, result.id());
-        assertEquals(USERNAME, result.username());
-        assertEquals(FIRSTNAME, result.firstname());
-        assertEquals(LASTNAME, result.lastname());
+        assertEquals(userId, result.id());
+        assertEquals(username, result.username());
+        assertEquals(firstname, result.firstname());
+        assertEquals(lastname, result.lastname());
 
         ArgumentCaptor<UsernameRequest> requestCaptor = ArgumentCaptor.forClass(UsernameRequest.class);
         verify(stub).getUserByUsername(requestCaptor.capture());
-        assertEquals(USERNAME, requestCaptor.getValue().getUsername());
+        assertEquals(username, requestCaptor.getValue().getUsername());
 
         ArgumentCaptor<EventJson> eventCaptor = ArgumentCaptor.forClass(EventJson.class);
         verify(kafkaTemplate).send(eq("events"), eventCaptor.capture());
@@ -79,8 +78,8 @@ class GrpcUserdataClientTest {
         assertNotNull(event.date());
         assertEquals(GET, event.eventType());
         assertEquals("Get User by Username", event.description());
-        assertEquals(USER_ID, event.entityId());
-        assertEquals(USERNAME, event.username());
+        assertEquals(userId, event.entityId());
+        assertEquals(username, event.username());
     }
 
     @Test
@@ -112,7 +111,7 @@ class GrpcUserdataClientTest {
         when(stub.getUserByUsername(any(UsernameRequest.class)))
                 .thenThrow(new StatusRuntimeException(Status.NOT_FOUND));
 
-        assertThrows(GrpcStatusException.class, () -> client.getUserByUsername(USERNAME));
+        assertThrows(GrpcStatusException.class, () -> client.getUserByUsername(username));
 
         verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
     }
@@ -121,8 +120,8 @@ class GrpcUserdataClientTest {
     void updateUserWithAvatar() {
         UserJson user = mock(UserJson.class);
 
-        when(user.id()).thenReturn(USER_ID);
-        when(user.username()).thenReturn(USERNAME);
+        when(user.id()).thenReturn(userId);
+        when(user.username()).thenReturn(username);
         String updatedFirstname = "Casey";
         when(user.firstname()).thenReturn(updatedFirstname);
         String updatedLastname = "Jones";
@@ -133,8 +132,8 @@ class GrpcUserdataClientTest {
         when(user.avatar()).thenReturn(base64Avatar);
 
         final UserResponse response = UserResponse.newBuilder()
-                .setId(USER_ID.toString())
-                .setUsername(USERNAME)
+                .setId(userId.toString())
+                .setUsername(username)
                 .setFirstname(updatedFirstname)
                 .setLastname(updatedLastname)
                 .build();
@@ -144,8 +143,8 @@ class GrpcUserdataClientTest {
         UserJson result = client.updateUser(user);
 
         assertNotNull(result);
-        assertEquals(USER_ID, result.id());
-        assertEquals(USERNAME, result.username());
+        assertEquals(userId, result.id());
+        assertEquals(username, result.username());
         assertEquals(updatedFirstname, result.firstname());
         assertEquals(updatedLastname, result.lastname());
 
@@ -153,8 +152,8 @@ class GrpcUserdataClientTest {
         verify(stub).updateUser(requestCaptor.capture());
 
         UpdateUserRequest request = requestCaptor.getValue();
-        assertEquals(USER_ID.toString(), request.getId());
-        assertEquals(USERNAME, request.getUsername());
+        assertEquals(userId.toString(), request.getId());
+        assertEquals(username, request.getUsername());
         assertEquals(updatedFirstname, request.getFirstname());
         assertEquals(updatedLastname, request.getLastname());
         assertEquals(ByteString.copyFrom(avatarBytes), request.getAvatar());
@@ -166,25 +165,25 @@ class GrpcUserdataClientTest {
         assertNotNull(event.date());
         assertEquals(UPDATE, event.eventType());
         assertEquals("Update user", event.description());
-        assertEquals(USER_ID, event.entityId());
-        assertEquals(USERNAME, event.username());
+        assertEquals(userId, event.entityId());
+        assertEquals(username, event.username());
     }
 
     @Test
     void updateUserWithoutAvatar() {
         UserJson user = mock(UserJson.class);
 
-        when(user.id()).thenReturn(USER_ID);
-        when(user.username()).thenReturn(USERNAME);
-        when(user.firstname()).thenReturn(FIRSTNAME);
-        when(user.lastname()).thenReturn(LASTNAME);
+        when(user.id()).thenReturn(userId);
+        when(user.username()).thenReturn(username);
+        when(user.firstname()).thenReturn(firstname);
+        when(user.lastname()).thenReturn(lastname);
         when(user.avatar()).thenReturn(null);
 
         final UserResponse response = UserResponse.newBuilder()
-                .setId(USER_ID.toString())
-                .setUsername(USERNAME)
-                .setFirstname(FIRSTNAME)
-                .setLastname(LASTNAME)
+                .setId(userId.toString())
+                .setUsername(username)
+                .setFirstname(firstname)
+                .setLastname(lastname)
                 .build();
 
         when(stub.updateUser(any(UpdateUserRequest.class))).thenReturn(response);
@@ -195,10 +194,10 @@ class GrpcUserdataClientTest {
         verify(stub).updateUser(requestCaptor.capture());
 
         UpdateUserRequest request = requestCaptor.getValue();
-        assertEquals(USER_ID.toString(), request.getId());
-        assertEquals(USERNAME, request.getUsername());
-        assertEquals(FIRSTNAME, request.getFirstname());
-        assertEquals(LASTNAME, request.getLastname());
+        assertEquals(userId.toString(), request.getId());
+        assertEquals(username, request.getUsername());
+        assertEquals(firstname, request.getFirstname());
+        assertEquals(lastname, request.getLastname());
         assertTrue(request.getAvatar().isEmpty());
     }
 
@@ -236,10 +235,10 @@ class GrpcUserdataClientTest {
     void updateUserShouldThrowGrpcStatusException() {
         UserJson user = mock(UserJson.class);
 
-        when(user.id()).thenReturn(USER_ID);
-        when(user.username()).thenReturn(USERNAME);
-        when(user.firstname()).thenReturn(FIRSTNAME);
-        when(user.lastname()).thenReturn(LASTNAME);
+        when(user.id()).thenReturn(userId);
+        when(user.username()).thenReturn(username);
+        when(user.firstname()).thenReturn(firstname);
+        when(user.lastname()).thenReturn(lastname);
         when(user.avatar()).thenReturn(null);
 
         when(stub.updateUser(any(UpdateUserRequest.class)))
