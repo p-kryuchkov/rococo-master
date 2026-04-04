@@ -40,6 +40,16 @@ subprojects {
                 ? "arm64"
                 : "amd64"
     }
+    tasks.withType(Test).configureEach {
+        options {
+            systemProperties(System.getProperties())
+        }
+        testLogging {
+            showStandardStreams = true
+            exceptionFormat = 'full'
+        }
+        useJUnitPlatform()
+    }
 
     dependencyManagement {
         imports {

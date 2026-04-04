@@ -87,17 +87,8 @@ public class GrpcPaintingService extends PaintingServiceGrpc.PaintingServiceImpl
         String title = request.hasTitle() ? request.getTitle() : null;
         String description = request.hasDescription() ? request.getDescription() : null;
         byte[] content = request.hasContent() ? request.getContent().toByteArray() : null;
-
-        String artistId = null;
-        if (request.hasArtist()) {
-            // Если в ArtistResponse/ArtistRef id тоже optional — можно тоньше.
-            artistId = request.getArtist().getId();
-        }
-
-        String museumId = null;
-        if (request.hasMuseum()) {
-            museumId = request.getMuseum().getId();
-        }
+        String artistId = request.hasArtist() ? request.getArtist().getId() : null;
+        String museumId = request.hasMuseum() ? request.getMuseum().getId() : null;
 
         PaintingEntity updated = paintingDbService.update(
                 request.getId(),

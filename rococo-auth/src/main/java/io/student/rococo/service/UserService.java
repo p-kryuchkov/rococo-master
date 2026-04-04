@@ -6,8 +6,6 @@ import io.student.rococo.data.UserEntity;
 import io.student.rococo.data.repository.UserRepository;
 import io.student.rococo.model.UserJson;
 import jakarta.annotation.Nonnull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +21,7 @@ public class UserService {
 
     @Autowired
     public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,  KafkaTemplate<String, UserJson> kafkaTemplate) {
+                       PasswordEncoder passwordEncoder, KafkaTemplate<String, UserJson> kafkaTemplate) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.kafkaTemplate = kafkaTemplate;
@@ -46,8 +44,6 @@ public class UserService {
         writeAuthorityEntity.setAuthority(Authority.write);
 
         userEntity.addAuthorities(readAuthorityEntity, writeAuthorityEntity);
-
-   //     grpcClient.createUser(username);
         kafkaTemplate.send("users", new UserJson(username));
         return userRepository.save(userEntity).getUsername();
     }

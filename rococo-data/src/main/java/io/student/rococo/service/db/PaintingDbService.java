@@ -111,10 +111,4 @@ public class PaintingDbService {
             throw new FieldValidationException("Title must not be blank");
         }
     }
-
-    private void validate(String title) {
-        if (title == null || title.isBlank()) {
-            throw new FieldValidationException("Title must not be blank");
-        }
-    }
 }

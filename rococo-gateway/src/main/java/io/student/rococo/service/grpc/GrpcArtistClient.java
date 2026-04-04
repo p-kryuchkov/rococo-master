@@ -42,17 +42,22 @@ public class GrpcArtistClient {
 
     public ArtistJson getArtistById(UUID id) {
         try {
+            if (id == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Artist id is required");
+            }
+
             IdRequest idRequest = IdRequest.newBuilder()
                     .setId(id.toString())
                     .build();
 
+            ArtistJson result = ArtistJson.fromGrpcMessage(stub.getArtistById(idRequest));
             kafkaTemplate.send("events",
                     new EventJson(Instant.now(),
                             GET,
                             "Get artist by ID",
                             id,
                             currentUserProvider.getUsername()));
-            return ArtistJson.fromGrpcMessage(stub.getArtistById(idRequest));
+            return result;
         } catch (StatusRuntimeException e) {
             throw new GrpcStatusException(e);
         }

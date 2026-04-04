@@ -96,7 +96,7 @@ public class MuseumDbService {
         }
         if (photo != null) {
             if (photo.length == 0) {
-                entity.setPhoto(null); // очищение
+                entity.setPhoto(null);
             } else {
                 entity.setPhoto(photo);
             }
