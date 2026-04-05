@@ -2,6 +2,7 @@ plugins {
     id 'idea'
     id 'com.google.protobuf' version '0.9.5'
     id 'com.google.cloud.tools.jib' version '3.4.1'
+    id 'org.springframework.boot' version '3.5.10'
 }
 
 group = 'io.student'
