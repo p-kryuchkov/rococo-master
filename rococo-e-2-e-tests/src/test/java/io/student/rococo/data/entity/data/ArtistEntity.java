@@ -1,12 +1,14 @@
 package io.student.rococo.data.entity.data;
 
 
+import io.student.rococo.model.ArtistJson;
 import jakarta.persistence.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
 import java.util.UUID;
 
+import static io.student.rococo.utils.Base64Utils.decodeImageFromB64ToBytes;
 import static jakarta.persistence.GenerationType.AUTO;
 
 @Entity
@@ -69,5 +71,16 @@ public class ArtistEntity {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    public static ArtistEntity fromJson(ArtistJson artistJson) {
+        ArtistEntity artistEntity = new ArtistEntity();
+        artistEntity.setId(artistJson.id());
+        artistEntity.setName(artistJson.name());
+        artistEntity.setBiography(artistJson.biography());
+        artistEntity.setPhoto(artistJson.photo() == null || artistJson.photo().isBlank()
+                ? null
+                : decodeImageFromB64ToBytes(artistJson.photo()));
+        return artistEntity;
     }
 }
