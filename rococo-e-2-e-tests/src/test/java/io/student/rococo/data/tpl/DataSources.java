@@ -24,10 +24,10 @@ public class DataSources {
                     AtomikosDataSourceBean dsBean = new AtomikosDataSourceBean();
                     final String uniqId = StringUtils.substringAfter(jdbcUrl, "3306/");
                     dsBean.setUniqueResourceName(uniqId);
-                    dsBean.setXaDataSourceClassName("org.postgresql.xa.PGXADataSource");
+                    dsBean.setXaDataSourceClassName("com.mysql.cj.jdbc.MysqlXADataSource");
                     Properties props = new Properties();
                     props.put("URL", jdbcUrl);
-                    props.put("user", "postgres");
+                    props.put("user", "root");
                     props.put("password", "secret");
                     dsBean.setXaProperties(props);
                     dsBean.setPoolSize(3);

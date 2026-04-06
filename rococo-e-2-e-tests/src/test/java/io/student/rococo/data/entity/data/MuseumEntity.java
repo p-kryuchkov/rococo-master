@@ -1,11 +1,13 @@
 package io.student.rococo.data.entity.data;
 
+import io.student.rococo.model.MuseumJson;
 import jakarta.persistence.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
 import java.util.UUID;
 
+import static io.student.rococo.utils.Base64Utils.decodeImageFromB64ToBytes;
 import static jakarta.persistence.GenerationType.AUTO;
 
 @Entity
@@ -86,5 +88,21 @@ public class MuseumEntity {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+    public static MuseumEntity fromJson(MuseumJson museumJson) {
+        CountryEntity country = new CountryEntity();
+        country.setName(museumJson.geo().country().name());
+        country.setId(museumJson.geo().country().id());
+
+        MuseumEntity museumEntity = new MuseumEntity();
+        museumEntity.setId(museumJson.id());
+        museumEntity.setTitle(museumJson.title());
+        museumEntity.setDescription(museumJson.description());
+        museumEntity.setPhoto(museumJson.photo() == null || museumJson.photo().isBlank()
+                ? null
+                : decodeImageFromB64ToBytes(museumJson.photo()));
+        museumEntity.setCity(museumJson.geo().city());
+        museumEntity.setCountry(country);
+        return museumEntity;
     }
 }

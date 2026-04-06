@@ -24,7 +24,7 @@ public class EntityManagers {
                         jdbcUrl,
                         key -> {
                             DataSources.dataSource(jdbcUrl);
-                            final String persistenceUnitName = StringUtils.substringAfter(jdbcUrl, "5432/");
+                            final String persistenceUnitName = StringUtils.substringAfter(jdbcUrl, "3306/");
                             return Persistence.createEntityManagerFactory(persistenceUnitName);
                         }
                 ).createEntityManager()

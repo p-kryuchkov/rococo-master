@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+
+    <persistence-unit name="rococo-data" transaction-type="JTA">
+        <jta-data-source>java:comp/env/jdbc/rococo-data</jta-data-source>
+
+        <class>io.student.rococo.data.entity.data.ArtistEntity</class>
+        <class>io.student.rococo.data.entity.data.CountryEntity</class>
+        <class>io.student.rococo.data.entity.data.MuseumEntity</class>
+        <class>io.student.rococo.data.entity.data.PaintingEntity</class>
+
+        <properties>
+            <property name="hibernate.transaction.jta.platform"
+                      value="org.hibernate.engine.transaction.jta.platform.internal.AtomikosJtaPlatform"/>
+            <property name="hibernate.connection.handling_mode"
+                      value="DELAYED_ACQUISITION_AND_RELEASE_AFTER_STATEMENT"/>
+            <property name="hibernate.dialect"
+                      value="org.hibernate.dialect.MySQLDialect"/>
+        </properties>
+    </persistence-unit>
+
+    <persistence-unit name="rococo-userdata" transaction-type="JTA">
+        <jta-data-source>java:comp/env/jdbc/rococo-userdata</jta-data-source>
+
+        <class>io.student.rococo.data.entity.userdata.UserDataEntity</class>
+
+        <properties>
+            <property name="hibernate.transaction.jta.platform"
+                      value="org.hibernate.engine.transaction.jta.platform.internal.AtomikosJtaPlatform"/>
+            <property name="hibernate.connection.handling_mode"
+                      value="DELAYED_ACQUISITION_AND_RELEASE_AFTER_STATEMENT"/>
+            <property name="hibernate.dialect"
+                      value="org.hibernate.dialect.MySQLDialect"/>
+        </properties>
+    </persistence-unit>
+
+    <persistence-unit name="rococo-auth" transaction-type="JTA">
+        <jta-data-source>java:comp/env/jdbc/rococo-auth</jta-data-source>
+
+        <class>io.student.rococo.data.entity.auth.AuthUserEntity</class>
+        <class>io.student.rococo.data.entity.auth.AuthorityEntity</class>
+
+        <properties>
+            <property name="hibernate.transaction.jta.platform"
+                      value="org.hibernate.engine.transaction.jta.platform.internal.AtomikosJtaPlatform"/>
+            <property name="hibernate.connection.handling_mode"
+                      value="DELAYED_ACQUISITION_AND_RELEASE_AFTER_STATEMENT"/>
+            <property name="hibernate.dialect"
+                      value="org.hibernate.dialect.MySQLDialect"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>

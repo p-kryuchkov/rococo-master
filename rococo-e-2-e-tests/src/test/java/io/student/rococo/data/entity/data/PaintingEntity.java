@@ -1,11 +1,13 @@
 package io.student.rococo.data.entity.data;
 
+import io.student.rococo.model.PaintingJson;
 import jakarta.persistence.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
 import java.util.UUID;
 
+import static io.student.rococo.utils.Base64Utils.decodeImageFromB64ToBytes;
 import static jakarta.persistence.GenerationType.AUTO;
 
 @Entity
@@ -88,5 +90,21 @@ public class PaintingEntity {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy proxy ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+    public static PaintingEntity fromJson(PaintingJson paintingJson) {
+        PaintingEntity paintingEntity = new PaintingEntity();
+        paintingEntity.setId(paintingJson.id());
+        paintingEntity.setTitle(paintingJson.title());
+        paintingEntity.setDescription(paintingJson.description());
+        paintingEntity.setContent(paintingJson.content() == null || paintingJson.content().isBlank()
+                ? null
+                : decodeImageFromB64ToBytes(paintingJson.content()));
+        paintingEntity.setArtist(paintingJson.artist() == null
+                ? null
+                : ArtistEntity.fromJson(paintingJson.artist()));
+        paintingEntity.setMuseum(paintingJson.museum() == null
+                ? null
+                : MuseumEntity.fromJson(paintingJson.museum()));
+        return paintingEntity;
     }
 }

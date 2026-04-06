@@ -17,8 +17,7 @@ public class ArtistDbClient implements ArtistClient {
     private final ArtistRepository artistRepository = new ArtistRepository();
 
     private final XaTransactionTemplate xaTransactionTemplate = new XaTransactionTemplate(
-            CFG.authJdbcUrl(),
-            CFG.userdataJdbcUrl()
+            CFG.dataJdbcUrl()
     );
 
     @NotNull
@@ -39,7 +38,7 @@ public class ArtistDbClient implements ArtistClient {
     @Override
     public ArtistJson updateArtist(ArtistJson artistJson) {
         return requireNonNull(xaTransactionTemplate.execute(() -> {
-                    return fromEntity(artistRepository.updateUser(ArtistEntity.fromJson(artistJson)));
+                    return fromEntity(artistRepository.updateArtist(ArtistEntity.fromJson(artistJson)));
                 }
         ));
     }
