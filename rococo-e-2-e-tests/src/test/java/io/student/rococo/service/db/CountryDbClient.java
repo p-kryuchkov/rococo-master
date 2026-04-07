@@ -7,6 +7,8 @@ import io.student.rococo.data.tpl.XaTransactionTemplate;
 import io.student.rococo.model.CountryJson;
 import io.student.rococo.service.CountryClient;
 
+import java.util.Optional;
+
 import static java.util.Objects.requireNonNull;
 
 public class CountryDbClient implements CountryClient {
@@ -25,5 +27,9 @@ public class CountryDbClient implements CountryClient {
             CountryEntity resultEntity = countryRepository.createCountry(countryEntity);
             return new CountryJson(resultEntity.getId(), resultEntity.getName());
         }));
+    }
+
+    public Optional<CountryEntity> findByName(String name){
+        return countryRepository.findByName(name);
     }
 }

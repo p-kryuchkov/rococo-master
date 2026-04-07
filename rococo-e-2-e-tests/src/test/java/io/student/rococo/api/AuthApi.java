@@ -1,13 +1,14 @@
 package io.student.rococo.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.*;
 
 public interface AuthApi {
 
     @GET("register")
-    Call<Void> requestRegisterForm();
+    Call<ResponseBody> requestRegisterForm();
 
     @POST("register")
     @FormUrlEncoded
@@ -15,10 +16,12 @@ public interface AuthApi {
             @Field("username") String username,
             @Field("password") String password,
             @Field("passwordSubmit") String passwordSubmit,
-            @Field("_csrf") String csrf);
+            @Field("_csrf") String csrf
+    );
+
 
     @GET("oauth2/authorize")
-    Call<Void> authorize(
+    Call<ResponseBody> authorize(
             @Query("response_type") String responseType,
             @Query("client_id") String clientId,
             @Query("scope") String scope,

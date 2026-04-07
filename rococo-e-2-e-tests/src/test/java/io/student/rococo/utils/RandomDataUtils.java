@@ -19,10 +19,6 @@ public class RandomDataUtils {
         return faker.name().lastName();
     }
 
-    public static String randomCategoryName() {
-        return String.format("%s %s", faker.commerce().department(), faker.commerce().productName());
-    }
-
     public static String randomSentence(int wordsCount) {
         return faker.lorem().sentence(wordsCount);
     }

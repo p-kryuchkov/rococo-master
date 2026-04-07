@@ -30,6 +30,17 @@ public class ArtistDbClient implements ArtistClient {
             artistEntity.setPhoto(artistJson.photo() == null || artistJson.photo().isBlank()
                     ? null
                     : decodeImageFromB64ToBytes(artistJson.photo()));
+            if (artistRepository.findByName(artistEntity.getName()).isPresent()) {
+                artistEntity.setId(
+                        artistRepository.findByName(
+                                        artistEntity.getName())
+                                .map(result -> {
+                                    return result.getId();
+                                })
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                        "Artist exists with name " + artistEntity.getName() + ", but id not found for update")));
+                return fromEntity(artistRepository.updateArtist(artistEntity));
+            }
             return fromEntity(artistRepository.createArtist(artistEntity));
         }));
     }

@@ -2,6 +2,7 @@ package io.student.rococo.data.repository.data;
 
 import io.student.rococo.config.Config;
 import io.student.rococo.data.entity.data.ArtistEntity;
+import io.student.rococo.data.entity.userdata.UserDataEntity;
 import jakarta.persistence.EntityManager;
 
 import javax.annotation.Nonnull;
@@ -34,5 +35,16 @@ public class ArtistRepository {
         return Optional.ofNullable(
                 entityManager.find(ArtistEntity.class, id)
         );
+    }
+
+    @Nonnull
+    public Optional<ArtistEntity> findByName(@Nonnull String name) {
+        return entityManager.createQuery(
+                        "select a from ArtistEntity a where a.name = :name",
+                        ArtistEntity.class
+                )
+                .setParameter("name", name)
+                .getResultStream()
+                .findFirst();
     }
 }

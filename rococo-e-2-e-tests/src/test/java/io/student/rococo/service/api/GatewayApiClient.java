@@ -23,9 +23,9 @@ public class GatewayApiClient extends RestClient {
     private final GatewayApi gatewayApi;
     private static final Config CFG = Config.getInstance();
 
-    public GatewayApiClient(GatewayApi gatewayApi) {
+    public GatewayApiClient() {
         super(CFG.gatewayUrl());
-        this.gatewayApi = gatewayApi;
+        this.gatewayApi = create(GatewayApi.class);
     }
 
     @Step("Get all artists from gateway")
