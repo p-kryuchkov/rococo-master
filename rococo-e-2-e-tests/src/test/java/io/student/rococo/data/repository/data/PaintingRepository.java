@@ -1,6 +1,7 @@
 package io.student.rococo.data.repository.data;
 
 import io.student.rococo.config.Config;
+import io.student.rococo.data.entity.data.MuseumEntity;
 import io.student.rococo.data.entity.data.PaintingEntity;
 import jakarta.persistence.EntityManager;
 
@@ -33,5 +34,16 @@ public class PaintingRepository {
         return Optional.ofNullable(
                 entityManager.find(PaintingEntity.class, id)
         );
+    }
+
+    @Nonnull
+    public Optional<PaintingEntity> findByTitle(@Nonnull String title) {
+        return entityManager.createQuery(
+                        "select p from PaintingEntity p where p.title = :title",
+                        PaintingEntity.class
+                )
+                .setParameter("title", title)
+                .getResultStream()
+                .findFirst();
     }
 }

@@ -19,6 +19,10 @@ public class RandomDataUtils {
         return faker.name().lastName();
     }
 
+    public static String randomAirport() {
+        return faker.aviation().airport();
+    }
+
     public static String randomSentence(int wordsCount) {
         return faker.lorem().sentence(wordsCount);
     }

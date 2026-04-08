@@ -16,5 +16,5 @@ public @interface Painting {
 
     Artist artist() default @Artist;
 
-    Museum museum() default @Museum();
+    Museum museum() default @Museum;
 }

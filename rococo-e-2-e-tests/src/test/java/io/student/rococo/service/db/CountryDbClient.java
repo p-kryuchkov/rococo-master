@@ -29,6 +29,7 @@ public class CountryDbClient implements CountryClient {
         }));
     }
 
+    @Override
     public Optional<CountryEntity> findByName(String name){
         return countryRepository.findByName(name);
     }

@@ -10,6 +10,10 @@ public interface MuseumClient {
     @Nonnull
     MuseumJson createMuseum(MuseumJson museumJson);
 
+    @Step("Create Or Update Museum If Exists")
+    @Nonnull
+    MuseumJson createOrUpdateMuseum(MuseumJson museumJson);
+
     @Step("Update Museum")
     @Nonnull
     MuseumJson updateMuseum(MuseumJson museumJson);

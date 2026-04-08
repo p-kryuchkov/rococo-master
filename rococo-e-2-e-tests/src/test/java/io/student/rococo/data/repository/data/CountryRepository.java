@@ -26,7 +26,7 @@ public class CountryRepository {
     @Nonnull
     public Optional<CountryEntity> findByName(@Nonnull String name) {
         return Optional.ofNullable(
-                entityManager.createQuery("select c from CountryEntity  where c.name = :name",CountryEntity.class)
+                entityManager.createQuery("select c from CountryEntity c where c.name = :name",CountryEntity.class)
                         .setParameter("name", name)
                         .getResultList()
                         .getFirst()

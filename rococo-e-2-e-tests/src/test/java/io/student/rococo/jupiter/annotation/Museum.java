@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Museum {
     String description() default "";
-    String title() default "Эрмитаж";
+    String title() default "";
     String photo() default "";
 
     String city() default "Санкт-Петербург";

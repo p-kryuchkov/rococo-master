@@ -40,6 +40,30 @@ public class PaintingDbClient implements PaintingClient {
 
     @NotNull
     @Override
+    public PaintingJson createOrUpdatePainting(PaintingJson paintingJson) {
+        return requireNonNull(xaTransactionTemplate.execute(() -> {
+            PaintingEntity paintingEntity = new PaintingEntity();
+            paintingEntity.setTitle(paintingJson.title());
+            paintingEntity.setDescription(paintingJson.description());
+            paintingEntity.setContent(paintingJson.content() == null || paintingJson.content().isBlank()
+                    ? null
+                    : decodeImageFromB64ToBytes(paintingJson.content()));
+            paintingEntity.setMuseum(MuseumEntity.fromJson(paintingJson.museum()));
+            paintingEntity.setArtist(ArtistEntity.fromJson(paintingJson.artist()));
+
+            paintingRepository.findByTitle(paintingEntity.getTitle())
+                    .ifPresent(existingPainting -> paintingEntity.setId(existingPainting.getId()));
+
+            if (paintingEntity.getId() != null) {
+                return fromEntity(paintingRepository.updatePainting(paintingEntity));
+            }
+
+            return fromEntity(paintingRepository.createPainting(paintingEntity));
+        }));
+    }
+
+    @NotNull
+    @Override
     public PaintingJson updatePainting(PaintingJson paintingJson) {
         return requireNonNull(xaTransactionTemplate.execute(() ->
                 fromEntity(paintingRepository.updatePainting(PaintingEntity.fromJson(paintingJson)))

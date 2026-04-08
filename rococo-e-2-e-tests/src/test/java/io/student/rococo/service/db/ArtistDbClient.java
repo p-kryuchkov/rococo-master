@@ -30,6 +30,20 @@ public class ArtistDbClient implements ArtistClient {
             artistEntity.setPhoto(artistJson.photo() == null || artistJson.photo().isBlank()
                     ? null
                     : decodeImageFromB64ToBytes(artistJson.photo()));
+            return fromEntity(artistRepository.createArtist(artistEntity));
+        }));
+    }
+
+    @NotNull
+    @Override
+    public ArtistJson createOrUpdateArtist(ArtistJson artistJson) {
+        return requireNonNull(xaTransactionTemplate.execute(() -> {
+            ArtistEntity artistEntity = new ArtistEntity();
+            artistEntity.setName(artistJson.name());
+            artistEntity.setBiography(artistJson.biography());
+            artistEntity.setPhoto(artistJson.photo() == null || artistJson.photo().isBlank()
+                    ? null
+                    : decodeImageFromB64ToBytes(artistJson.photo()));
             if (artistRepository.findByName(artistEntity.getName()).isPresent()) {
                 artistEntity.setId(
                         artistRepository.findByName(

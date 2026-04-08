@@ -114,21 +114,27 @@ public class GrpcArtistClient {
             }
 
             UpdateArtistRequest.Builder builder = UpdateArtistRequest.newBuilder()
-                    .setId(artist.id().toString())
-                    .setName(artist.name())
-                    .setBiography(artist.biography());
+                    .setId(artist.id().toString());
 
+            if (artist.name() != null) {
+                builder.setName(artist.name());
+            }
+            if (artist.biography() != null) {
+                builder.setBiography(artist.biography());
+            }
             if (artist.photo() != null) {
                 builder.setPhoto(ByteString.copyFrom(decodeImageFromB64ToBytes(artist.photo())));
             }
 
             ArtistJson result = ArtistJson.fromGrpcMessage(stub.updateArtist(builder.build()));
             kafkaTemplate.send("events",
-                    new EventJson(Instant.now(),
+                    new EventJson(
+                            Instant.now(),
                             UPDATE,
                             "Update artist",
                             result.id(),
-                            currentUserProvider.getUsername()));
+                            currentUserProvider.getUsername()
+                    ));
             return result;
         } catch (StatusRuntimeException e) {
             throw new GrpcStatusException(e);

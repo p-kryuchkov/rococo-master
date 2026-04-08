@@ -10,8 +10,8 @@ import java.util.List;
 public interface GatewayApi {
     @GET("api/artist")
     Call<RestResponsePage<ArtistJson>> getAllArtists(@Header("Authorization") String bearerToken,
-                                                     @Query("page") int page,
-                                                     @Query("size") int size,
+                                                     @Query("page") Integer page,
+                                                     @Query("size") Integer size,
                                                      @Query("sort") List<String> sort);
 
     @GET("api/artist/{id}")
@@ -28,14 +28,14 @@ public interface GatewayApi {
 
     @GET("api/country")
     Call<RestResponsePage<CountryJson>> getAllCountries(@Header("Authorization") String bearerToken,
-                                                        @Query("page") int page,
-                                                        @Query("size") int size,
+                                                        @Query("page") Integer page,
+                                                        @Query("size") Integer size,
                                                         @Query("sort") List<String> sort);
 
     @GET("api/museum")
     Call<RestResponsePage<MuseumJson>> getAllMuseums(@Header("Authorization") String bearerToken,
-                                                     @Query("page") int page,
-                                                     @Query("size") int size,
+                                                     @Query("page") Integer page,
+                                                     @Query("size") Integer size,
                                                      @Query("sort") List<String> sort);
 
     @GET("api/museum/{id}")
@@ -52,8 +52,8 @@ public interface GatewayApi {
 
     @GET("api/painting")
     Call<RestResponsePage<PaintingJson>> getAllPaintings(@Header("Authorization") String bearerToken,
-                                                         @Query("page") int page,
-                                                         @Query("size") int size,
+                                                         @Query("page") Integer page,
+                                                         @Query("size") Integer size,
                                                          @Query("sort") List<String> sort);
 
     @GET("api/painting/{id}")
@@ -62,10 +62,10 @@ public interface GatewayApi {
 
     @GET("api/painting/author/{id}")
     Call<RestResponsePage<PaintingJson>> getAllPaintingsByArtist(@Header("Authorization") String bearerToken,
-                                             @Query("page") int page,
-                                             @Query("size") int size,
-                                             @Query("sort") List<String> sort,
-                                             @Path("id") String artistId);
+                                                                 @Path("id") String artistId,
+                                             @Query("page") Integer page,
+                                             @Query("size") Integer size,
+                                             @Query("sort") List<String> sort);
 
     @POST("api/painting")
     Call<PaintingJson> createPainting(@Header("Authorization") String bearerToken,

@@ -10,6 +10,10 @@ public interface PaintingClient {
     @Nonnull
     PaintingJson createPainting(PaintingJson PaintingJson);
 
+    @Step("Create Or Update Painting If Exists")
+    @Nonnull
+    PaintingJson createOrUpdatePainting(PaintingJson PaintingJson);
+
     @Step("Update Painting")
     @Nonnull
     PaintingJson updatePainting(PaintingJson PaintingJson);

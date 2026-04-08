@@ -5,6 +5,7 @@ import io.grpc.StatusRuntimeException;
 import io.student.rococo.exception.GrpcStatusException;
 import io.student.rococo.grpc.*;
 import io.student.rococo.model.EventJson;
+import io.student.rococo.model.GeoJson;
 import io.student.rococo.model.MuseumJson;
 import io.student.rococo.utils.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
@@ -87,7 +88,7 @@ public class GrpcMuseumClient {
                     .setDescription(museumJson.description() == null ? "" : museumJson.description());
 
             Geo geo = Geo.newBuilder()
-                    .setCity(museumJson.geo().city() == null ? "" : museumJson.geo().city() )
+                    .setCity(museumJson.geo().city() == null ? "" : museumJson.geo().city())
                     .setCountryId(museumJson.geo().country().id() == null ? "" : museumJson.geo().country().id().toString())
                     .build();
             builder.setGeo(geo);
@@ -126,13 +127,15 @@ public class GrpcMuseumClient {
                 builder.setDescription(museumJson.description());
             }
 
-            if (museumJson.geo().city() != null || museumJson.geo().country().id() != null) {
-                Geo.Builder geoBuilder = Geo.newBuilder();
-                geoBuilder.setCity(museumJson.geo().city() == null ? "" : museumJson.geo().city());
-                geoBuilder.setCountryId(museumJson.geo().country().id()  == null ? "" : museumJson.geo().country().id().toString());
-                builder.setGeo(geoBuilder.build());
+            GeoJson geo = museumJson.geo();
+            if (geo != null) {
+                if (geo.city() != null || geo.country().id() != null) {
+                    Geo.Builder geoBuilder = Geo.newBuilder();
+                    geoBuilder.setCity(geo.city() == null ? "" : geo.city());
+                    geoBuilder.setCountryId(geo.country().id() == null ? "" : geo.country().id().toString());
+                    builder.setGeo(geoBuilder.build());
+                }
             }
-
             if (museumJson.photo() != null) {
                 builder.setPhoto(ByteString.copyFrom(decodeImageFromB64ToBytes(museumJson.photo())));
             }

@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface ApiLogin {
     String username() default "";
-    String password() default "";
+    String password() default "12345";
 }

@@ -45,6 +45,34 @@ public class MuseumDbClient implements MuseumClient {
 
     @NotNull
     @Override
+    public MuseumJson createOrUpdateMuseum(MuseumJson museumJson) {
+        return requireNonNull(xaTransactionTemplate.execute(() -> {
+            CountryEntity country = new CountryEntity();
+            country.setName(museumJson.geo().country().name());
+            country.setId(museumJson.geo().country().id());
+
+            MuseumEntity museumEntity = new MuseumEntity();
+            museumEntity.setTitle(museumJson.title());
+            museumEntity.setDescription(museumJson.description());
+            museumEntity.setPhoto(museumJson.photo() == null || museumJson.photo().isBlank()
+                    ? null
+                    : decodeImageFromB64ToBytes(museumJson.photo()));
+            museumEntity.setCity(museumJson.geo().city());
+            museumEntity.setCountry(country);
+
+            museumRepository.findByTitle(museumEntity.getTitle())
+                    .ifPresent(existingMuseum -> museumEntity.setId(existingMuseum.getId()));
+
+            if (museumEntity.getId() != null) {
+                return fromEntity(museumRepository.updateMuseum(museumEntity));
+            }
+
+            return fromEntity(museumRepository.createMuseum(museumEntity));
+        }));
+    }
+
+    @NotNull
+    @Override
     public MuseumJson updateMuseum(MuseumJson museumJson) {
         return requireNonNull(xaTransactionTemplate.execute(() ->
                 fromEntity(museumRepository.updateMuseum(MuseumEntity.fromJson(museumJson)))

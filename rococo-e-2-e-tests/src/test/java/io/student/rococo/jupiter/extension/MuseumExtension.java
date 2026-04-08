@@ -49,7 +49,9 @@ public class MuseumExtension implements BeforeEachCallback, ParameterResolver {
     }
 
     private MuseumJson createMuseum(Museum annotation) {
-        String title =  annotation.title();
+        String title = annotation.title().isBlank()
+                ? RandomDataUtils.randomAirport() + " " + RandomDataUtils.randomAirport()
+                : annotation.title();
 
         String description = annotation.description();
 
@@ -64,14 +66,12 @@ public class MuseumExtension implements BeforeEachCallback, ParameterResolver {
                 annotation.countryName()
         );
 
-        return museumClient.createMuseum(
+        return museumClient.createOrUpdateMuseum(
                 new MuseumJson(
                         null,
-                        title,
                         description,
+                        title,
                         photo,
                         new GeoJson(city, country)));
     }
-
-
 }

@@ -3,11 +3,10 @@ package io.student.rococo.jupiter.extension;
 
 import io.student.rococo.jupiter.annotation.Artist;
 import io.student.rococo.model.ArtistJson;
-import io.student.rococo.service.ArtistClient;
 import io.student.rococo.service.db.ArtistDbClient;
 import io.student.rococo.utils.RandomDataUtils;
 import org.junit.jupiter.api.extension.*;
-import org.junit.platform.commons.support.AnnotationSupport;
+        import org.junit.platform.commons.support.AnnotationSupport;
 
 import java.util.Optional;
 
@@ -22,7 +21,7 @@ public class ArtistExtension implements BeforeEachCallback, ParameterResolver {
     @Override
     public void beforeEach(ExtensionContext context) {
         AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), Artist.class)
-                .ifPresent(annotation -> context.getStore(NAMESPACE).put(context.getUniqueId(), createArtist(annotation)));
+                .ifPresent(annotation -> context.getStore(NAMESPACE).put(context.getUniqueId(), createOrUpdateArtist(annotation)));
     }
 
     @Override
@@ -44,11 +43,13 @@ public class ArtistExtension implements BeforeEachCallback, ParameterResolver {
         );
     }
 
-    private ArtistJson createArtist(Artist annotation) {
-        String name = annotation.name();
+    private ArtistJson createOrUpdateArtist(Artist annotation) {
+
+        String name = annotation.name().isBlank()
+                ? RandomDataUtils.randomName() + " " + RandomDataUtils.randomSurname()
+                : annotation.name();
         String biography = annotation.biography();
         String photo = (annotation.photo());
-        return artistClient.createArtist(new ArtistJson(null, name, biography, photo));
+        return artistClient.createOrUpdateArtist(new ArtistJson(null, name, biography, photo));
     }
-
 }

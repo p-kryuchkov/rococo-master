@@ -11,6 +11,10 @@ public interface ArtistClient {
     @Nonnull
     ArtistJson createArtist(ArtistJson artistJson);
 
+    @Step("Create Or Update Artist If Exist")
+    @Nonnull
+    ArtistJson createOrUpdateArtist(ArtistJson artistJson);
+
     @Step("Update Artist")
     @Nonnull
     ArtistJson updateArtist(ArtistJson artistJson);
