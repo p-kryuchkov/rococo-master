@@ -15,8 +15,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith({
         AllureJunit5.class,
+        UserExtension.class,
         ApiLoginExtension.class,
-        UserExtension.class, //ToDo Добавь экстеншны на артистов, музеев, картины
         ArtistExtension.class,
         MuseumExtension.class,
         PaintingExtension.class

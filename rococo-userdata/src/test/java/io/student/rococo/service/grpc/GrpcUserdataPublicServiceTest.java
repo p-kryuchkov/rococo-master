@@ -75,7 +75,6 @@ class GrpcUserdataPublicServiceTest {
     @Test
     void updateUserShouldUpdateUser() {
         final UpdateUserRequest request = UpdateUserRequest.newBuilder()
-                .setId(id.toString())
                 .setUsername(username)
                 .setFirstname(firstname)
                 .setLastname(lastname)
@@ -89,14 +88,13 @@ class GrpcUserdataPublicServiceTest {
         updated.setLastname(lastname);
         updated.setAvatar(avatar);
 
-        when(userdataDbService.updateUser(eq(id), eq(username), eq(firstname), eq(lastname), any()))
+        when(userdataDbService.updateUser(eq(username), eq(firstname), eq(lastname), any()))
                 .thenReturn(updated);
 
         grpcUserdataPublicService.updateUser(request, responseObserver);
 
         final ArgumentCaptor<byte[]> avatarCaptor = ArgumentCaptor.forClass(byte[].class);
         verify(userdataDbService).updateUser(
-                eq(id),
                 eq(username),
                 eq(firstname),
                 eq(lastname),
@@ -122,7 +120,6 @@ class GrpcUserdataPublicServiceTest {
     @Test
     void updateUserShouldSetNullAvatar() {
         final UpdateUserRequest request = UpdateUserRequest.newBuilder()
-                .setId(id.toString())
                 .setUsername(username)
                 .setFirstname(firstname)
                 .setLastname(lastname)
@@ -135,13 +132,12 @@ class GrpcUserdataPublicServiceTest {
         updated.setLastname(lastname);
         updated.setAvatar(null);
 
-        when(userdataDbService.updateUser(eq(id), eq(username), eq(firstname), eq(lastname), isNull()))
+        when(userdataDbService.updateUser( eq(username), eq(firstname), eq(lastname), isNull()))
                 .thenReturn(updated);
 
         grpcUserdataPublicService.updateUser(request, responseObserver);
 
         verify(userdataDbService).updateUser(
-                eq(id),
                 eq(username),
                 eq(firstname),
                 eq(lastname),
@@ -165,7 +161,6 @@ class GrpcUserdataPublicServiceTest {
     @Test
     void updateUserShouldThrowWhenUsernameIsNull() {
         final UpdateUserRequest request = UpdateUserRequest.newBuilder()
-                .setId(id.toString())
                 .setFirstname(firstname)
                 .setLastname(lastname)
                 .build();

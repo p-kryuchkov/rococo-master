@@ -7,8 +7,6 @@ import io.student.rococo.exception.UserNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Service
 public class UserdataDbService {
 
@@ -48,18 +46,13 @@ public class UserdataDbService {
     }
 
     @Transactional
-    public UserDataEntity updateUser(UUID id, String username, String firstname, String lastname, byte[] avatar) {
-        UserDataEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found by id: " + id));
-        if (username != null) {
-            if (!username.equals(userEntity.getUsername())) {
-                throw new FieldValidationException("Username cannot be changed");
-            }
-        }
-        if (firstname != null) {
+    public UserDataEntity updateUser(String username, String firstname, String lastname, byte[] avatar) {
+        UserDataEntity userEntity = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User not found by username: " + username));
+        if (!firstname.isBlank()) {
             userEntity.setFirstname(firstname);
         }
-        if (lastname != null) {
+        if (!lastname.isBlank()) {
             userEntity.setLastname(lastname);
         }
         if (avatar != null) {

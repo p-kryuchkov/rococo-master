@@ -24,9 +24,8 @@ message UserResponse{
 }
 
 message UpdateUserRequest{
-  string id = 1;
-  optional string username = 2;
-  string firstname = 3;
-  string lastname = 4;
-  bytes avatar = 5;
+  optional string username = 1;
+  string firstname = 2;
+  string lastname = 3;
+  bytes avatar = 4;
 }

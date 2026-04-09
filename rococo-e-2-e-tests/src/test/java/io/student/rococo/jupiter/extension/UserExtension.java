@@ -2,8 +2,6 @@ package io.student.rococo.jupiter.extension;
 
 import io.student.rococo.jupiter.annotation.User;
 import io.student.rococo.model.UserJson;
-import io.student.rococo.service.UserClient;
-
 import io.student.rococo.service.db.UserDbClient;
 import io.student.rococo.utils.RandomDataUtils;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -19,26 +17,15 @@ import static io.student.rococo.jupiter.extension.TestMethodContextExtension.con
 
 public class UserExtension implements BeforeEachCallback, ParameterResolver {
 
-    public static final ExtensionContext.Namespace NAMESPACE =
-            ExtensionContext.Namespace.create(UserExtension.class);
+    public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(UserExtension.class);
     public static final String DEFAULT_PASSWORD = "12345";
 
-    private final UserClient userClient = new UserDbClient();
+    private final UserDbClient userClient = new UserDbClient();
 
     @Override
     public void beforeEach(ExtensionContext context) {
         AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), User.class)
-                .ifPresent(userAnno -> {
-                    if ("".equals(userAnno.username())) {
-                        final String username = RandomDataUtils.randomUsername();
-                        final UserJson user = userClient.createUser(username, DEFAULT_PASSWORD);
-
-                        context.getStore(NAMESPACE).put(
-                                context.getUniqueId(),
-                                user
-                        );
-                    }
-                });
+                .ifPresent(annotation -> context.getStore(NAMESPACE).put(context.getUniqueId(), createUser(annotation)));
     }
 
     @Override
@@ -50,7 +37,8 @@ public class UserExtension implements BeforeEachCallback, ParameterResolver {
     @Override
     public UserJson resolveParameter(ParameterContext parameterContext,
                                      ExtensionContext extensionContext) throws ParameterResolutionException {
-        return getUser().orElseThrow();
+        return extensionContext.getStore(NAMESPACE)
+                .get(extensionContext.getUniqueId(), UserJson.class);
     }
 
     public static Optional<UserJson> getUser() {
@@ -66,5 +54,13 @@ public class UserExtension implements BeforeEachCallback, ParameterResolver {
                 methodContext.getUniqueId(),
                 userJson
         );
+    }
+
+    private UserJson createUser(User annotation) {
+        String username = annotation.username().isBlank()
+                ? RandomDataUtils.randomUsername()
+                : annotation.username();
+
+        return userClient.createUser(username, DEFAULT_PASSWORD);
     }
 }

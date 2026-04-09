@@ -337,6 +337,11 @@ public class GatewayApiClient extends RestClient {
         return requireNonNull(response.body());
     }
 
+    @Step("Update artist raw")
+    public Response<UserJson> updateUserRaw(String bearerToken, UserJson userJson) throws IOException {
+        return gatewayApi.updateUser(bearerToken, userJson).execute();
+    }
+
     private List<String> sort(Pageable pageable) {
         if (pageable.getSort().isUnsorted()) {
             return List.of();
