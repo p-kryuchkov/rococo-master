@@ -16,19 +16,21 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserApiTest extends BaseGatewayApiTest {
 
     @Test
+    @User
     @ApiLogin
     @DisplayName("Should Return Current User With Authorization")
-    void shouldReturnCurrentUserWithAuthorization(@Token String token) throws Exception {
+    void shouldReturnCurrentUserWithAuthorization(@Token String token, UserJson userJson) throws Exception {
         final UserJson result = gatewayApiClient.getCurrentUser(
                 bearer(token)
         );
 
-        assertEquals("TestDefaultUser", result.username());
+        assertEquals(userJson.username(), result.username());
         assertNotNull(result.firstname());
         assertNotNull(result.lastname());
     }
 
     @Test
+    @User
     @ApiLogin
     @DisplayName("Should Update User Firstname With Authorization")
     void shouldUpdateUserFirstnameWithAuthorization(@Token String token) throws Exception {
@@ -67,6 +69,7 @@ public class UserApiTest extends BaseGatewayApiTest {
     }
 
     @Test
+    @User
     @ApiLogin
     @DisplayName("Should Update User Lastname With Authorization")
     void shouldUpdateUserLastnameWithAuthorization(@Token String token) throws Exception {
@@ -105,6 +108,7 @@ public class UserApiTest extends BaseGatewayApiTest {
     }
 
     @Test
+    @User
     @ApiLogin
     @DisplayName("Should Update User Avatar With Authorization")
     void shouldUpdateUserAvatarWithAuthorization(@Token String token) throws Exception {
@@ -141,6 +145,7 @@ public class UserApiTest extends BaseGatewayApiTest {
     }
 
     @Test
+    @User
     @ApiLogin
     @DisplayName("Should Update User With Authorization")
     void shouldUpdateUserWithAuthorization(@Token String token) throws Exception {
@@ -180,6 +185,7 @@ public class UserApiTest extends BaseGatewayApiTest {
     }
 
     @Test
+    @User
     @ApiLogin
     @DisplayName("Should Not Update User Without Authorization")
     void shouldNotUpdateUserWithoutAuthorization(@Token String token) throws Exception {

@@ -3,20 +3,15 @@ package io.student.rococo.test.rest;
 import io.student.rococo.jupiter.annotation.User;
 import io.student.rococo.jupiter.annotation.meta.RestTest;
 import io.student.rococo.model.UserJson;
-import io.student.rococo.service.UserClient;
 import io.student.rococo.service.api.AuthApiClient;
-import io.student.rococo.service.db.UserDbClient;
 import io.student.rococo.utils.RandomDataUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import retrofit2.Response;
 
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.*;
 @RestTest
-public class RegistrationTest {
+public class RegistrationApiTest {
     private final AuthApiClient authApiClient = new AuthApiClient();
 
     @Test

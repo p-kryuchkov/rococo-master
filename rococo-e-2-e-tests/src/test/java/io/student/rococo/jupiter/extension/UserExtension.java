@@ -61,6 +61,7 @@ public class UserExtension implements BeforeEachCallback, ParameterResolver {
                 ? RandomDataUtils.randomUsername()
                 : annotation.username();
 
-        return userClient.createUser(username, DEFAULT_PASSWORD);
+        UserJson userJson = userClient.createUser(username, DEFAULT_PASSWORD);
+        return new UserJson(userJson.id(),userJson.username(),userJson.firstname(), userJson.lastname(), userJson.avatar(), DEFAULT_PASSWORD);
     }
 }

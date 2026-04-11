@@ -1,6 +1,8 @@
 package io.student.rococo.test.rest;
 
+import io.student.rococo.jupiter.extension.ApiLoginExtension;
 import io.student.rococo.service.api.GatewayApiClient;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 

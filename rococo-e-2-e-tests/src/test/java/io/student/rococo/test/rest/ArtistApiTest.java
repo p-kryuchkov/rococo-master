@@ -3,6 +3,7 @@ package io.student.rococo.test.rest;
 import io.student.rococo.jupiter.annotation.ApiLogin;
 import io.student.rococo.jupiter.annotation.Artist;
 import io.student.rococo.jupiter.annotation.Token;
+import io.student.rococo.jupiter.annotation.User;
 import io.student.rococo.jupiter.annotation.meta.RestTest;
 import io.student.rococo.model.ArtistJson;
 import io.student.rococo.model.page.RestResponsePage;
@@ -17,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ArtistApiTest extends BaseGatewayApiTest {
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin()
     @DisplayName("Should Return Artist Page With Authorization")
     void shouldReturnArtistsPageWithAuthorization(@Token String token) throws Exception {
         final RestResponsePage<ArtistJson> result = gatewayApiClient.getAllArtists(bearer(token),
@@ -66,7 +68,8 @@ public class ArtistApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin()
     @Artist
     @DisplayName("Should Return Artist By Id With Authorization")
     void shouldReturnArtistByIdWithAuthorization(@Token String token,
@@ -98,7 +101,8 @@ public class ArtistApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin()
     @Artist
     @DisplayName("Should Update Artist Name With Authorization")
     void shouldUpdateArtistNameWithAuthorization(@Token String token,
@@ -134,7 +138,8 @@ public class ArtistApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin()
     @Artist()
     @DisplayName("Should Update Artist Biography With Authorization")
     void shouldUpdateArtistBiographyWithAuthorization(@Token String token,
@@ -170,7 +175,8 @@ public class ArtistApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin()
     @Artist
     @DisplayName("Should Update Artist Photo With Authorization")
     void shouldUpdateArtistPhotoWithAuthorization(@Token String token,
@@ -229,7 +235,8 @@ public class ArtistApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin()
     @DisplayName("Should Create Artist With Authorization")
     void shouldCreateArtistWithAuthorization(@Token String token) throws Exception {
         String name = RandomDataUtils.randomName() + " " + RandomDataUtils.randomSurname();

@@ -11,6 +11,11 @@ public class RandomDataUtils {
         return faker.name().username();
     }
 
+    public static String randomPassword() {
+        return faker.internet().password(8,12);
+    }
+
+
     public static String randomName() {
         return faker.name().firstName();
     }

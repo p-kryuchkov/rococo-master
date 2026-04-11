@@ -7,13 +7,9 @@ import io.student.rococo.config.Config;
 import io.student.rococo.jupiter.annotation.ApiLogin;
 import io.student.rococo.jupiter.annotation.Token;
 import io.student.rococo.model.UserJson;
-
+import io.student.rococo.page.MainPage;
 import io.student.rococo.service.api.AuthApiClient;
-import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.api.extension.ParameterResolver;
-import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.*;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.openqa.selenium.Cookie;
 
@@ -24,21 +20,10 @@ public class ApiLoginExtension implements BeforeEachCallback, ParameterResolver 
             ExtensionContext.Namespace.create(ApiLoginExtension.class);
 
     private static final Config CFG = Config.getInstance();
+    public static final String DEFAULT_PASSWORD = "12345";
+
 
     private final AuthApiClient authApiClient = new AuthApiClient();
-    private final boolean setupBrowser;
-
-    private ApiLoginExtension(boolean setupBrowser) {
-        this.setupBrowser = setupBrowser;
-    }
-
-    private ApiLoginExtension() {
-        this(true);
-    }
-
-    public static ApiLoginExtension restApiLoginExtension() {
-        return new ApiLoginExtension(false);
-    }
 
     @Override
     public void beforeEach(ExtensionContext context) {
@@ -47,7 +32,7 @@ public class ApiLoginExtension implements BeforeEachCallback, ParameterResolver 
                     final UserJson userToLogin;
                     final Optional<UserJson> userFromUserExtension = UserExtension.getUser();
 
-                    if ("".equals(apiLogin.username()) || "".equals(apiLogin.password())) {
+                    if ("".equals(apiLogin.username())) {
                         if (userFromUserExtension.isEmpty()) {
                             throw new IllegalStateException("@User must be present when @ApiLogin is empty");
                         }
@@ -62,7 +47,8 @@ public class ApiLoginExtension implements BeforeEachCallback, ParameterResolver 
                                 apiLogin.username(),
                                 null,
                                 null,
-                                null
+                                null,
+                                DEFAULT_PASSWORD
                         );
 
                         UserExtension.setUser(fakeUser);
@@ -71,17 +57,10 @@ public class ApiLoginExtension implements BeforeEachCallback, ParameterResolver 
 
                     final String token = authApiClient.apiLogin(
                             userToLogin.username(),
-                            apiLogin.password()
+                            userToLogin.password()
                     );
 
                     setToken(token);
-
-                    if (setupBrowser) {
-                        /*                  Selenide.open(CFG.frontUrl());
-                        Selenide.localStorage().setItem("id_token", token);
-                        WebDriverRunner.getWebDriver().manage().addCookie(getJsessionIdCookie());
-                        Selenide.open(MainPage.URL, MainPage.class).checkElements();*/ //ToDO  Раскомментируй для логигна по апи в браузере
-                    }
                 });
     }
 
