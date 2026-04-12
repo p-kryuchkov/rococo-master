@@ -4,9 +4,9 @@ import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import io.student.rococo.page.*;
 
-import static com.codeborne.selenide.Condition.exist;
-import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 
 public class Header {
     private final SelenideElement appBar = $("[data-testid='app-bar']");
@@ -14,7 +14,7 @@ public class Header {
     private final SelenideElement paintingsLink = $("a[href='/painting']");
     private final SelenideElement artistsLink = $("a[href='/artist']");
     private final SelenideElement museumsLink = $("a[href='/museum']");
-    private final SelenideElement loginButton = $("button.variant-filled-primary");
+    private final SelenideElement loginButton = $$("button").findBy(text("Войти"));
     private final SelenideElement themeSwitch = $("[role='switch']");
     private final SelenideElement profileAvatar = $("header [data-testid='avatar']");
 

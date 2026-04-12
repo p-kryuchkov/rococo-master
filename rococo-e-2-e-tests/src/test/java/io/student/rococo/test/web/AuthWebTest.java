@@ -23,7 +23,7 @@ public class AuthWebTest {
                 .register(username, password, password)
                 .checkSuccessRegisterPageLoaded()
                 .loginAfterRegistration()
-                .openLoginPage()
+                .openLoginPageFromHeader()
                 .login(username, password)
                 .checkPageLoaded();
     }
@@ -60,10 +60,10 @@ public class AuthWebTest {
         final String password = "12345";
 
         new MainPage().open()
-                .openLoginPage()
+                .openLoginPageFromHeader()
                 .login(userJson.username(), password)
                 .checkPageLoaded()
-                .checkLoginButtonDoesNotExist();
+                .checkLoginButtonIsNotDisplayed();
     }
 
     @Test
@@ -73,7 +73,7 @@ public class AuthWebTest {
         final String password = RandomDataUtils.randomPassword();
 
         new MainPage().open()
-                .openLoginPage()
+                .openLoginPageFromHeader()
                 .setUsername(userJson.username())
                 .setPassword(password)
                 .submitBadCredentials()
@@ -86,8 +86,8 @@ public class AuthWebTest {
     @DisplayName("Success Logout")
     void shouldLogout(UserJson userJson) {
         new MainPage().open()
-                .openProfileCardPage()
+                .openProfilePageFromHeader()
                 .logout()
-                .checkLoginButtonExist();
+                .checkLoginButtonIsDisplayed();
     }
 }

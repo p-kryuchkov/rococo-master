@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,7 +34,7 @@ public class GrpcArtistClient {
     private ArtistServiceGrpc.ArtistServiceBlockingStub stub;
 
     @Autowired
-    public GrpcArtistClient(KafkaTemplate<String, EventJson>  kafkaTemplate, CurrentUserProvider currentUserProvider) {
+    public GrpcArtistClient(KafkaTemplate<String, EventJson> kafkaTemplate, CurrentUserProvider currentUserProvider) {
         this.kafkaTemplate = kafkaTemplate;
         this.currentUserProvider = currentUserProvider;
     }
@@ -58,6 +57,33 @@ public class GrpcArtistClient {
                             id,
                             currentUserProvider.getUsername()));
             return result;
+        } catch (StatusRuntimeException e) {
+            throw new GrpcStatusException(e);
+        }
+    }
+
+    public Page<ArtistJson> getArtistsByName(String name, Pageable pageable) {
+        try {
+            if (name == null || name.isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Artist name is required");
+            }
+            PageableRequest pageRequest = springPageableToGrpcPageableRequest(pageable);
+            ArtistNameRequest artistNameRequest = ArtistNameRequest.newBuilder()
+                    .setName(name)
+                    .setPageable(pageRequest)
+                    .build();
+
+            ArtistsResponse response = stub.getArtistsByName(artistNameRequest);
+            List<ArtistJson> list = response.getArtistsList().stream()
+                    .map(ArtistJson::fromGrpcMessage)
+                    .toList();
+            kafkaTemplate.send("events",
+                    new EventJson(Instant.now(),
+                            GET,
+                            "Get artists by name: " + name,
+                            null,
+                            currentUserProvider.getUsername()));
+            return new PageImpl<>(list, pageable, response.getTotalElements());
         } catch (StatusRuntimeException e) {
             throw new GrpcStatusException(e);
         }

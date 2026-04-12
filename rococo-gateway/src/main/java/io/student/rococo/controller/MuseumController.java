@@ -1,6 +1,7 @@
 package io.student.rococo.controller;
 
 import io.student.rococo.model.MuseumJson;
+import io.student.rococo.service.grpc.GrpcArtistClient;
 import io.student.rococo.service.grpc.GrpcMuseumClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,12 @@ public class MuseumController {
     }
 
     @GetMapping
-    public Page<MuseumJson> getAllMuseums(@PageableDefault Pageable pageable) {
+    public Page<MuseumJson> getAllMuseums(
+            @RequestParam(required = false) String title,
+            @PageableDefault Pageable pageable) {
+        if (title != null && !title.isBlank()) {
+            return museumClient.getMuseumsByTitle(title, pageable);
+        }
         return museumClient.getAllMuseums(pageable);
     }
 

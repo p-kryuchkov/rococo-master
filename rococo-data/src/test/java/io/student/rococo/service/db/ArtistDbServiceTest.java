@@ -368,4 +368,68 @@ class ArtistDbServiceTest {
         assertThrows(RuntimeException.class, () -> artistDbService.update("abc", "Name", "Bio", null));
         verify(artistRepository, never()).findById(any());
     }
+
+    @Test
+    void shouldReturnArtistsByName() {
+        final Pageable pageable = PageRequest.of(0, 10);
+
+        final ArtistEntity first = new ArtistEntity();
+        first.setId(UUID.randomUUID());
+        first.setName("Michelangelo");
+        first.setBiography("Biography 1");
+
+        final ArtistEntity second = new ArtistEntity();
+        second.setId(UUID.randomUUID());
+        second.setName("angelo Bronzino");
+        second.setBiography("Biography 2");
+
+        final Page<ArtistEntity> page = new PageImpl<>(List.of(first, second), pageable, 2);
+
+        when(artistRepository.findAllByNameContainingIgnoreCase("angelo", pageable)).thenReturn(page);
+
+        Page<ArtistEntity> result = artistDbService.getByName("angelo", pageable);
+
+        assertEquals(2, result.getContent().size());
+        assertEquals("Michelangelo", result.getContent().get(0).getName());
+        assertEquals("angelo Bronzino", result.getContent().get(1).getName());
+
+        verify(artistRepository).findAllByNameContainingIgnoreCase("angelo", pageable);
+    }
+
+    @Test
+    void shouldTrimNameWhenGetArtistsByName() {
+        final Pageable pageable = PageRequest.of(0, 10);
+        final Page<ArtistEntity> page = new PageImpl<>(List.of(), pageable, 0);
+
+        when(artistRepository.findAllByNameContainingIgnoreCase("Michelangelo", pageable)).thenReturn(page);
+
+        Page<ArtistEntity> result = artistDbService.getByName("  Michelangelo  ", pageable);
+
+        assertNotNull(result);
+        assertTrue(result.getContent().isEmpty());
+
+        verify(artistRepository).findAllByNameContainingIgnoreCase("Michelangelo", pageable);
+    }
+
+    @Test
+    void shouldThrowWhenGetArtistsByNameIsBlank() {
+        FieldValidationException exception = assertThrows(
+                FieldValidationException.class,
+                () -> artistDbService.getByName("   ", PageRequest.of(0, 10))
+        );
+
+        assertEquals("Name must not be blank", exception.getMessage());
+        verify(artistRepository, never()).findAllByNameContainingIgnoreCase(any(), any());
+    }
+
+    @Test
+    void shouldThrowWhenGetArtistsByNameIsNull() {
+        FieldValidationException exception = assertThrows(
+                FieldValidationException.class,
+                () -> artistDbService.getByName(null, PageRequest.of(0, 10))
+        );
+
+        assertEquals("Name must not be blank", exception.getMessage());
+        verify(artistRepository, never()).findAllByNameContainingIgnoreCase(any(), any());
+    }
 }

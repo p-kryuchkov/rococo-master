@@ -1,7 +1,9 @@
 package io.student.rococo.service.db;
 
+import io.student.rococo.data.entity.ArtistEntity;
 import io.student.rococo.data.entity.CountryEntity;
 import io.student.rococo.data.entity.MuseumEntity;
+import io.student.rococo.data.repository.ArtistRepository;
 import io.student.rococo.data.repository.CountryRepository;
 import io.student.rococo.data.repository.MuseumRepository;
 import io.student.rococo.exception.CountryNotFoundException;
@@ -19,7 +21,6 @@ import static io.student.rococo.utils.DbUtils.parseUuid;
 @Service
 @Transactional(readOnly = true)
 public class MuseumDbService {
-
     private final MuseumRepository museumRepository;
     private final CountryRepository countryRepository;
 
@@ -35,6 +36,11 @@ public class MuseumDbService {
                 .orElseThrow(() ->
                         new MuseumNotFoundException("Museum not found with id: " + id)
                 );
+    }
+
+    public Page<MuseumEntity> getByTitle(String title, Pageable pageable) {
+        validateTitle(title);
+        return museumRepository.findAllByTitleContainingIgnoreCase(title.trim(), pageable);
     }
 
     public Page<MuseumEntity> getAll(Pageable pageable) {

@@ -1,87 +1,86 @@
 package io.student.rococo.page;
 
 import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
+import io.student.rococo.page.component.ArtistCreateModal;
 
 import static com.codeborne.selenide.CollectionCondition.sizeGreaterThan;
 import static com.codeborne.selenide.Condition.*;
-import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Selectors.byText;
 
 public class ArtistPage extends BasePage<ArtistPage> {
     public static final String URL = CFG.frontUrl() + "artist";
 
-    private final SelenideElement title = $("h2");
-    private final SelenideElement searchInput = $("input[placeholder='Искать художников...']");
-    private final SelenideElement searchButton = $("button.btn-icon");
-    private final SelenideElement artistsList = $("main ul");
-    private final ElementsCollection artistCards = $$("main ul li");
+    private final SelenideElement title = pageContent.$("h2");
+    private final SelenideElement searchInput = pageContent.$("input[placeholder='Искать художников...']");
+    private final SelenideElement artistsList = pageContent.$("ul");
+    private final ElementsCollection artistCards = artistsList.$$("li");
+    private final SelenideElement addArtistButton = pageContent.$(byText("Добавить художника"));
 
-    @Step("Open artist page")
-    public ArtistPage openPage() {
-        open(URL);
+    @Step("Open artists page")
+    public ArtistPage open() {
+        Selenide.open(URL);
         return this;
     }
 
     @Override
-    @Step("Check artist page loaded")
+    @Step("Check artists page is loaded")
     public ArtistPage checkPageLoaded() {
         super.checkPageLoaded();
         title.shouldBe(visible).shouldHave(text("Художники"));
         searchInput.shouldBe(visible);
-        searchButton.shouldBe(visible);
         artistsList.shouldBe(visible);
         return this;
     }
 
-    @Step("Check artist page title")
-    public ArtistPage checkTitle() {
-        title.shouldHave(text("Художники"));
-        return this;
-    }
-
     @Step("Search artist by value: {value}")
-    public ArtistPage search(String value) {
-        searchInput.shouldBe(visible).setValue(value);
-        searchButton.click();
+    public ArtistPage searchArtist(String value) {
+        searchInput.shouldBe(visible).setValue(value).pressEnter();
         return this;
     }
 
-    @Step("Check artists list is not empty")
+    @Step("Check artists are displayed")
     public ArtistPage checkArtistsExist() {
         artistCards.shouldHave(sizeGreaterThan(0));
         return this;
     }
 
-    @Step("Check artist with name: {artistName}")
-    public ArtistPage checkArtist(String artistName) {
-        artistCards.findBy(text(artistName))
-                .shouldBe(visible);
+    @Step("Check artist '{artistName}' is displayed")
+    public ArtistPage checkArtistDisplayed(String artistName) {
+        artistCard(artistName).shouldBe(visible);
         return this;
     }
 
-    @Step("Open artist with name: {artistName}")
-    public ArtistPage openArtist(String artistName) {
-        artistCards.findBy(text(artistName))
+    @Step("Open artist page for artist '{artistName}'")
+    public ArtistCardPage openArtistPage(String artistName) {
+        artistCard(artistName)
+                .$("a")
                 .shouldBe(visible)
-                .$("a[href*='/artist/']")
                 .click();
+        return new ArtistCardPage();
+    }
+
+    @Step("Check add artist button is displayed")
+    public ArtistPage checkAddArtistButtonDisplayed() {
+        addArtistButton.shouldBe(visible);
         return this;
     }
 
-    @Step("Check artist link exists for: {artistName}")
-    public ArtistPage checkArtistLinkExists(String artistName) {
-        artistCards.findBy(text(artistName))
-                .$("a[href*='/artist/']")
-                .should(exist);
+    @Step("Check add artist button is not displayed")
+    public ArtistPage checkAddArtistButtonNotDisplayed() {
+        addArtistButton.shouldNot(exist);
         return this;
     }
 
-    @Step("Check artist avatar exists for: {artistName}")
-    public ArtistPage checkArtistAvatarExists(String artistName) {
-        artistCards.findBy(text(artistName))
-                .$("figure[data-testid='avatar']")
-                .should(exist);
-        return this;
+    @Step("Open create artist modal")
+    public ArtistCreateModal openCreateArtistModal() {
+        addArtistButton.shouldBe(visible).click();
+        return new ArtistCreateModal();
+    }
+
+    private SelenideElement artistCard(String artistName) {
+        return artistCards.findBy(text(artistName));
     }
 }

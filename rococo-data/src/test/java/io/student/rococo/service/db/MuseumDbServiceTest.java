@@ -460,4 +460,59 @@ class MuseumDbServiceTest {
         verify(museumRepository).save(existingMuseum);
         verify(museumRepository, never()).getByTitle(any());
     }
+
+    @Test
+    void shouldReturnMuseumsByTitle() {
+        final Pageable pageable = PageRequest.of(0, 10);
+
+        final MuseumEntity firstMuseum = new MuseumEntity();
+        firstMuseum.setTitle("Louvre");
+
+        final MuseumEntity secondMuseum = new MuseumEntity();
+        secondMuseum.setTitle("Louvre Abu Dhabi");
+
+        final Page<MuseumEntity> page = new PageImpl<>(List.of(firstMuseum, secondMuseum));
+
+        when(museumRepository.findAllByTitleContainingIgnoreCase("Louvre", pageable)).thenReturn(page);
+
+        Page<MuseumEntity> result = museumDbService.getByTitle("Louvre", pageable);
+
+        assertEquals(2, result.getContent().size());
+        assertEquals("Louvre", result.getContent().get(0).getTitle());
+        assertEquals("Louvre Abu Dhabi", result.getContent().get(1).getTitle());
+
+        verify(museumRepository).findAllByTitleContainingIgnoreCase("Louvre", pageable);
+        verifyNoInteractions(countryRepository);
+    }
+
+    @Test
+    void shouldTrimTitleBeforeSearch() {
+        final Pageable pageable = PageRequest.of(0, 10);
+        final Page<MuseumEntity> page = Page.empty(pageable);
+
+        when(museumRepository.findAllByTitleContainingIgnoreCase("Louvre", pageable)).thenReturn(page);
+
+        Page<MuseumEntity> result = museumDbService.getByTitle("   Louvre   ", pageable);
+
+        assertNotNull(result);
+        assertTrue(result.getContent().isEmpty());
+
+        verify(museumRepository).findAllByTitleContainingIgnoreCase("Louvre", pageable);
+        verifyNoInteractions(countryRepository);
+    }
+
+    @Test
+    void shouldThrowWhenGetByTitleWithBlankTitle() {
+        final Pageable pageable = PageRequest.of(0, 10);
+
+        FieldValidationException exception = assertThrows(
+                FieldValidationException.class,
+                () -> museumDbService.getByTitle("   ", pageable)
+        );
+
+        assertEquals("Title must not be blank", exception.getMessage());
+
+        verify(museumRepository, never()).findAllByTitleContainingIgnoreCase(any(), any());
+        verifyNoInteractions(countryRepository);
+    }
 }

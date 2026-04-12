@@ -11,4 +11,5 @@ public @interface Artist {
     String name() default "";
     String biography() default "";
     String photo() default "";
+    int paintingsCount() default 0;
 }

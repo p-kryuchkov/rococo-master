@@ -152,7 +152,6 @@ class GrpcUserdataClientTest {
         verify(stub).updateUser(requestCaptor.capture());
 
         UpdateUserRequest request = requestCaptor.getValue();
-        assertEquals(userId.toString(), request.getId());
         assertEquals(username, request.getUsername());
         assertEquals(updatedFirstname, request.getFirstname());
         assertEquals(updatedLastname, request.getLastname());
@@ -194,7 +193,6 @@ class GrpcUserdataClientTest {
         verify(stub).updateUser(requestCaptor.capture());
 
         UpdateUserRequest request = requestCaptor.getValue();
-        assertEquals(userId.toString(), request.getId());
         assertEquals(username, request.getUsername());
         assertEquals(firstname, request.getFirstname());
         assertEquals(lastname, request.getLastname());

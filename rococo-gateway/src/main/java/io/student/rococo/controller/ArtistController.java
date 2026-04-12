@@ -22,7 +22,12 @@ public class ArtistController {
     }
 
     @GetMapping
-    public Page<ArtistJson> getAllArtists(@PageableDefault Pageable pageable) {
+    public Page<ArtistJson> getAllArtists(
+            @RequestParam(required = false) String name,
+            @PageableDefault Pageable pageable) {
+        if (name != null && !name.isBlank()) {
+            return grpcArtistClient.getArtistsByName(name, pageable);
+        }
         return grpcArtistClient.getAllArtists(pageable);
     }
 

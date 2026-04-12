@@ -33,6 +33,25 @@ public class GrpcArtistService extends ArtistServiceGrpc.ArtistServiceImplBase {
     }
 
     @Override
+    public void getArtistsByName(ArtistNameRequest request, StreamObserver<ArtistsResponse> responseObserver) {
+        PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request.getPageable());
+        Page<ArtistEntity> result = artistDbService.getByName(request.getName(), pageRequest);
+
+        ArtistsResponse response = ArtistsResponse.newBuilder()
+                .addAllArtists(result.stream()
+                        .map(GrpcArtistService::artistEntityToArtistProtoResponse)
+                        .toList())
+                .setPage(result.getNumber())
+                .setSize(result.getSize())
+                .setTotalElements(result.getTotalElements())
+                .setTotalPages(result.getTotalPages())
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
     public void allArtists(PageableRequest request, StreamObserver<ArtistsResponse> responseObserver) {
         PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request);
         Page<ArtistEntity> result = artistDbService.getAll(pageRequest);

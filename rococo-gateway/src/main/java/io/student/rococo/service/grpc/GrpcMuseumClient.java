@@ -39,10 +39,10 @@ public class GrpcMuseumClient {
 
     public Page<MuseumJson> getAllMuseums(Pageable pageable) {
         try {
-            PageableRequest req = springPageableToGrpcPageableRequest(pageable);
-            MuseumsResponse resp = stub.allMuseums(req);
+            PageableRequest request = springPageableToGrpcPageableRequest(pageable);
+            MuseumsResponse response = stub.allMuseums(request);
 
-            List<MuseumJson> items = resp.getMuseumsList().stream()
+            List<MuseumJson> list = response.getMuseumsList().stream()
                     .map(MuseumJson::fromGrpcMessage)
                     .toList();
             kafkaTemplate.send("events",
@@ -51,7 +51,35 @@ public class GrpcMuseumClient {
                             "Get all museums",
                             null,
                             currentUserProvider.getUsername()));
-            return new PageImpl<>(items, pageable, resp.getTotalElements());
+            return new PageImpl<>(list, pageable, response.getTotalElements());
+        } catch (StatusRuntimeException e) {
+            throw new GrpcStatusException(e);
+        }
+    }
+
+    public Page<MuseumJson> getMuseumsByTitle(String title, Pageable pageable) {
+        try {
+            if (title == null || title.isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Museum name is required");
+            }
+
+            PageableRequest pageRequest = springPageableToGrpcPageableRequest(pageable);
+            MuseumTitleRequest museumTitleRequest = MuseumTitleRequest.newBuilder()
+                    .setTitle(title)
+                    .setPageable(pageRequest)
+                    .build();
+
+            MuseumsResponse response = stub.findMuseumsByName(museumTitleRequest);
+            List<MuseumJson> list = response.getMuseumsList().stream()
+                    .map(MuseumJson::fromGrpcMessage)
+                    .toList();
+            kafkaTemplate.send("events",
+                    new EventJson(Instant.now(),
+                            GET,
+                            "Get museums by title",
+                            null,
+                            currentUserProvider.getUsername()));
+            return new PageImpl<>(list, pageable, response.getTotalElements());
         } catch (StatusRuntimeException e) {
             throw new GrpcStatusException(e);
         }
