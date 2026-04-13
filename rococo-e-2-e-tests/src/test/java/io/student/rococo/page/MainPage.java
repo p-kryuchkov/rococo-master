@@ -1,10 +1,8 @@
 package io.student.rococo.page;
 
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
-import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
@@ -17,51 +15,45 @@ public class MainPage extends BasePage<MainPage> {
     private final SelenideElement artistsCard = $("a[href='/artist']");
     private final SelenideElement museumsCard = $("a[href='/museum']");
 
+    @Override
+    protected MainPage self() {
+        return this;
+    }
+
     @Step("Open main page")
     public MainPage open() {
-        Selenide.open(URL);
-        return this;
+        return openPage(URL);
     }
 
     @Override
     @Step("Check that main page is loaded")
     public MainPage checkPageLoaded() {
         super.checkPageLoaded();
-        checkSloganIsDisplayed();
-        checkNavigationCardsAreDisplayed();
-        return this;
-    }
-
-    @Step("Check that main page slogan is displayed")
-    public MainPage checkSloganIsDisplayed() {
-        slogan.shouldBe(visible);
-        slogan.shouldHave(text("Ваши любимые картины и художники всегда рядом"));
+        checkVisible(slogan, paintingsCard, artistsCard, museumsCard);
         return this;
     }
 
     @Step("Check that navigation cards are displayed")
     public MainPage checkNavigationCardsAreDisplayed() {
-        paintingsCard.shouldBe(visible);
-        artistsCard.shouldBe(visible);
-        museumsCard.shouldBe(visible);
+        checkVisible(paintingsCard, artistsCard, museumsCard);
         return this;
     }
 
     @Step("Open paintings page from main page card")
     public PaintingPage openPaintingsPageFromCard() {
-        paintingsCard.click();
+        paintingsCard.shouldBe(visible).click();
         return new PaintingPage();
     }
 
     @Step("Open artists page from main page card")
     public ArtistPage openArtistsPageFromCard() {
-        artistsCard.click();
+        artistsCard.shouldBe(visible).click();
         return new ArtistPage();
     }
 
     @Step("Open museums page from main page card")
     public MuseumPage openMuseumsPageFromCard() {
-        museumsCard.click();
+        museumsCard.shouldBe(visible).click();
         return new MuseumPage();
     }
 }

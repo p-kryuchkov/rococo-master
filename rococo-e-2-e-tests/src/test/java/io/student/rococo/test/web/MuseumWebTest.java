@@ -8,7 +8,6 @@ import io.student.rococo.jupiter.annotation.meta.WebTest;
 import io.student.rococo.model.MuseumJson;
 import io.student.rococo.page.MainPage;
 import io.student.rococo.page.MuseumPage;
-import io.student.rococo.page.component.MuseumCreateModal;
 import io.student.rococo.utils.RandomDataUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +17,10 @@ import java.awt.image.BufferedImage;
 @WebTest
 public class MuseumWebTest {
     private static final String MUSEUM_PHOTO = "images/museum.jpg";
+    private static final String DEFAULT_COUNTRY = "Австралия";
+    private static final String DEFAULT_CITY = "Сидней";
+    private static final String UPDATED_COUNTRY = "Австрия";
+    private static final String UPDATED_CITY = "Вена";
 
     @Test
     @Museum
@@ -26,9 +29,7 @@ public class MuseumWebTest {
         new MainPage().open()
                 .checkNavigationCardsAreDisplayed()
                 .openMuseumsPageFromHeader()
-                .checkPageLoaded()
-                .checkMuseumsExist()
-                .checkLoginButtonIsDisplayed();
+                .checkOpenedForUnauthorizedUser();
     }
 
     @Test
@@ -38,9 +39,7 @@ public class MuseumWebTest {
         new MainPage().open()
                 .checkNavigationCardsAreDisplayed()
                 .openMuseumsPageFromCard()
-                .checkPageLoaded()
-                .checkMuseumsExist()
-                .checkLoginButtonIsDisplayed();
+                .checkOpenedForUnauthorizedUser();
     }
 
     @Test
@@ -48,10 +47,8 @@ public class MuseumWebTest {
     @DisplayName("Should find museum by search for unauthorized user")
     void shouldFindMuseumBySearchForUnauthorizedUser(MuseumJson museum) {
         new MuseumPage().open()
-                .checkPageLoaded()
-                .checkLoginButtonIsDisplayed()
-                .searchMuseum(museum.title())
-                .checkMuseumDisplayed(museum.title());
+                .checkOpenedForUnauthorizedUser()
+                .searchAndCheckMuseumDisplayed(museum.title());
     }
 
     @Test
@@ -59,14 +56,9 @@ public class MuseumWebTest {
     @DisplayName("Should open museum card for unauthorized user")
     void shouldOpenMuseumCardForUnauthorizedUser(MuseumJson museum) {
         new MuseumPage().open()
-                .checkPageLoaded()
-                .checkLoginButtonIsDisplayed()
-                .searchMuseum(museum.title())
-                .checkMuseumDisplayed(museum.title())
-                .openMuseumPage(museum.title())
-                .checkPageLoaded()
-                .checkMuseumNameIsDisplayed(museum.title())
-                .checkLoginButtonIsDisplayed();
+                .checkOpenedForUnauthorizedUser()
+                .openMuseumCard(museum.title())
+                .checkOpenedForUnauthorizedUser(museum.title());
     }
 
     @Test
@@ -74,14 +66,11 @@ public class MuseumWebTest {
     @ApiLogin
     @DisplayName("Should open and close create museum modal for authorized user")
     void shouldOpenAndCloseCreateMuseumModalForAuthorizedUser() {
-        MuseumCreateModal createMuseumModal = new MuseumPage().open()
-                .checkPageLoaded()
-                .checkLoginButtonIsNotDisplayed()
-                .checkAddMuseumButtonDisplayed()
+        new MuseumPage().open()
+                .checkOpenedForAuthorizedUser()
                 .openCreateMuseumModal()
-                .checkModalLoaded();
-
-        createMuseumModal.close()
+                .checkModalLoaded()
+                .close()
                 .checkModalClosed();
     }
 
@@ -94,29 +83,19 @@ public class MuseumWebTest {
         final String museumName = RandomDataUtils.randomSentence(1);
         final String description = RandomDataUtils.randomSentence(5);
 
-        MuseumPage museumPage = new MuseumPage().open()
-                .checkPageLoaded()
-                .checkLoginButtonIsNotDisplayed()
-                .checkAddMuseumButtonDisplayed();
+        MuseumPage page = new MuseumPage().open()
+                .checkOpenedForAuthorizedUser();
 
-        MuseumCreateModal createMuseumModal = museumPage.openCreateMuseumModal()
-                .checkModalLoaded();
-
-        String defaultCountry = "Австралия";
-        String defaultCity = "Сидней";
-        createMuseumModal.createMuseum(museumName, defaultCountry, defaultCity, expected, description)
+        page.openCreateMuseumModal()
+                .checkModalLoaded()
+                .createMuseum(museumName, DEFAULT_COUNTRY, DEFAULT_CITY, expected, description)
                 .checkModalClosed();
 
-        museumPage.checkPageLoaded()
-                .searchMuseum(museumName)
-                .checkMuseumDisplayed(museumName)
-                .openMuseumPage(museumName)
-                .checkPageLoaded()
-                .checkMuseumNameIsDisplayed(museumName)
+        page.openMuseumCard(museumName)
+                .checkOpenedForAuthorizedUser(museumName)
+                .checkMuseumLocationIsDisplayed(DEFAULT_COUNTRY, DEFAULT_CITY)
                 .checkMuseumDescriptionIsDisplayed(description)
-                //.assertPhotoScreenshotsMatch(expected)
-                .assertDownloadedPhotoMatches(expected)
-                .checkLoginButtonIsNotDisplayed();
+                .assertDownloadedPhotoMatches(expected);
     }
 
     @Test
@@ -129,25 +108,15 @@ public class MuseumWebTest {
         final String updatedName = RandomDataUtils.randomSentence(1);
         final String updatedDescription = RandomDataUtils.randomSentence(6);
 
-        String updatedCountry = "Австрия";
-        String updatedCity = "Вена";
         new MuseumPage().open()
-                .checkPageLoaded()
-                .checkLoginButtonIsNotDisplayed()
-                .searchMuseum(museum.title())
-                .checkMuseumDisplayed(museum.title())
-                .openMuseumPage(museum.title())
-                .checkPageLoaded()
-                .checkMuseumNameIsDisplayed(museum.title())
-                .checkEditMuseumButtonIsDisplayed()
-                .openEditMuseumForm()
-                .editMuseum(updatedName, updatedCountry, updatedCity, updatedDescription, expected)
-                .checkPageLoaded()
-                .checkMuseumNameIsDisplayed(updatedName)
+                .checkOpenedForAuthorizedUser()
+                .openMuseumCard(museum.title())
+                .checkOpenedForAuthorizedUser(museum.title())
+                .editMuseum(updatedName, UPDATED_COUNTRY, UPDATED_CITY, updatedDescription, expected)
+                .checkOpenedForAuthorizedUser(updatedName)
+                .checkMuseumLocationIsDisplayed(UPDATED_COUNTRY, UPDATED_CITY)
                 .checkMuseumDescriptionIsDisplayed(updatedDescription)
-                //.assertPhotoScreenshotsMatch(expected)
-                .assertDownloadedPhotoMatches(expected)
-                .checkLoginButtonIsNotDisplayed();
+                .assertDownloadedPhotoMatches(expected);
     }
 
     @Test
@@ -155,15 +124,9 @@ public class MuseumWebTest {
     @DisplayName("Should not display edit museum button for unauthorized user")
     void shouldNotDisplayEditMuseumButtonForUnauthorizedUser(MuseumJson museum) {
         new MuseumPage().open()
-                .checkPageLoaded()
-                .checkLoginButtonIsDisplayed()
-                .searchMuseum(museum.title())
-                .checkMuseumDisplayed(museum.title())
-                .openMuseumPage(museum.title())
-                .checkPageLoaded()
-                .checkMuseumNameIsDisplayed(museum.title())
-                .checkEditMuseumButtonIsNotDisplayed()
-                .checkLoginButtonIsDisplayed();
+                .checkOpenedForUnauthorizedUser()
+                .openMuseumCard(museum.title())
+                .checkOpenedForUnauthorizedUser(museum.title());
     }
 
     @Test
@@ -171,9 +134,6 @@ public class MuseumWebTest {
     @DisplayName("Should not display add museum button for unauthorized user")
     void shouldNotDisplayAddMuseumButtonForUnauthorizedUser() {
         new MuseumPage().open()
-                .checkPageLoaded()
-                .checkMuseumsExist()
-                .checkAddMuseumButtonNotDisplayed()
-                .checkLoginButtonIsDisplayed();
+                .checkOpenedForUnauthorizedUser();
     }
 }

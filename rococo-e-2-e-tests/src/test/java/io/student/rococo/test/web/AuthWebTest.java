@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 
 @WebTest
 public class AuthWebTest {
+    private static final String DEFAULT_PASSWORD = "12345";
+
     @Test
     @DisplayName("Successful New User Registration")
     void shouldRegisterNewUser() {
@@ -32,11 +34,9 @@ public class AuthWebTest {
     @User
     @DisplayName("Registration Error: Existing User")
     void shouldNotRegisterUserWithExistingUsername(UserJson userJson) {
-        final String password = RandomDataUtils.randomPassword();
-
         new RegisterPage().openPage()
                 .checkPageLoaded()
-                .register(userJson.username(), password, password)
+                .register(userJson.username(), DEFAULT_PASSWORD, DEFAULT_PASSWORD)
                 .checkUsernameError("Username `" + userJson.username() + "` already exists");
     }
 
@@ -45,11 +45,10 @@ public class AuthWebTest {
     void shouldShowErrorIfPasswordAndConfirmPasswordAreNotEqual() {
         final String username = RandomDataUtils.randomUsername();
         final String password = RandomDataUtils.randomPassword();
-        final String confirmPassword = RandomDataUtils.randomPassword();
 
         new RegisterPage().openPage()
                 .checkPageLoaded()
-                .register(username, password, confirmPassword)
+                .register(username, password, RandomDataUtils.randomPassword())
                 .checkPasswordError("Passwords should be equal");
     }
 
@@ -57,11 +56,9 @@ public class AuthWebTest {
     @User
     @DisplayName("Main Page Should Be Displayed After Success Login")
     void shouldDisplayMainPageAfterSuccessfulLogin(UserJson userJson) {
-        final String password = "12345";
-
         new MainPage().open()
                 .openLoginPageFromHeader()
-                .login(userJson.username(), password)
+                .login(userJson.username(), DEFAULT_PASSWORD)
                 .checkPageLoaded()
                 .checkLoginButtonIsNotDisplayed();
     }
@@ -70,19 +67,17 @@ public class AuthWebTest {
     @User
     @DisplayName("Login error: Bad Credentials")
     void shouldShowErrorIfBadCredentials(UserJson userJson) {
-        final String password = RandomDataUtils.randomPassword();
-
         new MainPage().open()
                 .openLoginPageFromHeader()
                 .setUsername(userJson.username())
-                .setPassword(password)
+                .setPassword(RandomDataUtils.randomPassword())
                 .submitBadCredentials()
                 .checkLoginError("Неверные учетные данные пользователя");
     }
 
     @Test
     @User
-    @ApiLogin()
+    @ApiLogin
     @DisplayName("Success Logout")
     void shouldLogout(UserJson userJson) {
         new MainPage().open()

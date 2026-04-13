@@ -8,7 +8,6 @@ import io.student.rococo.jupiter.annotation.meta.WebTest;
 import io.student.rococo.model.ArtistJson;
 import io.student.rococo.page.ArtistPage;
 import io.student.rococo.page.MainPage;
-import io.student.rococo.page.component.ArtistCreateModal;
 import io.student.rococo.utils.RandomDataUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,9 +25,7 @@ public class ArtistWebTest {
         new MainPage().open()
                 .checkNavigationCardsAreDisplayed()
                 .openArtistsPageFromHeader()
-                .checkPageLoaded()
-                .checkArtistsExist()
-                .checkLoginButtonIsDisplayed();
+                .checkOpenedForUnauthorizedUser();
     }
 
     @Test
@@ -38,9 +35,7 @@ public class ArtistWebTest {
         new MainPage().open()
                 .checkNavigationCardsAreDisplayed()
                 .openArtistsPageFromCard()
-                .checkPageLoaded()
-                .checkArtistsExist()
-                .checkLoginButtonIsDisplayed();
+                .checkOpenedForUnauthorizedUser();
     }
 
     @Test
@@ -54,22 +49,13 @@ public class ArtistWebTest {
         final String updatedBiography = RandomDataUtils.randomSentence(5);
 
         new ArtistPage().open()
-                .checkPageLoaded()
-                .checkLoginButtonIsNotDisplayed()
-                .searchArtist(artist.name())
-                .checkArtistDisplayed(artist.name())
-                .openArtistPage(artist.name())
-                .checkPageLoaded()
-                .checkArtistNameIsDisplayed(artist.name())
-                .checkEditArtistButtonIsDisplayed()
-                .openEditArtistForm()
-                .updateArtist(updatedName, updatedBiography, expected)
-                .checkPageLoaded()
-                .checkArtistNameIsDisplayed(updatedName)
+                .checkOpenedForAuthorizedUser()
+                .openArtistCard(artist.name())
+                .checkOpenedForAuthorizedUser(artist.name())
+                .editArtist(updatedName, updatedBiography, expected)
+                .checkOpenedForAuthorizedUser(updatedName)
                 .checkArtistBiographyIsDisplayed(updatedBiography)
-               // .assertPhotoScreenshotsMatch(expected)
-                .assertDownloadedPhotoMatches(expected)
-                .checkLoginButtonIsNotDisplayed();
+                .assertDownloadedPhotoMatches(expected);
     }
 
     @Test
@@ -81,27 +67,18 @@ public class ArtistWebTest {
         final String artistName = RandomDataUtils.randomName() + " " + RandomDataUtils.randomSurname();
         final String biography = RandomDataUtils.randomSentence(5);
 
-        ArtistPage artistPage = new ArtistPage().open()
-                .checkPageLoaded()
-                .checkLoginButtonIsNotDisplayed()
-                .checkAddArtistButtonDisplayed();
+        ArtistPage page = new ArtistPage().open()
+                .checkOpenedForAuthorizedUser();
 
-        ArtistCreateModal createArtistModal = artistPage.openCreateArtistModal()
-                .checkModalLoaded();
-
-        createArtistModal.createArtist(artistName, expected, biography)
+        page.openCreateArtistModal()
+                .checkModalLoaded()
+                .createArtist(artistName, expected, biography)
                 .checkModalClosed();
 
-        artistPage.checkPageLoaded()
-                .searchArtist(artistName)
-                .checkArtistDisplayed(artistName)
-                .openArtistPage(artistName)
-                .checkPageLoaded()
-                .checkArtistNameIsDisplayed(artistName)
+        page.openArtistCard(artistName)
+                .checkOpenedForAuthorizedUser(artistName)
                 .checkArtistBiographyIsDisplayed(biography)
-                //.assertPhotoScreenshotsMatch(expected)
-                .assertDownloadedPhotoMatches(expected)
-                .checkLoginButtonIsNotDisplayed();
+                .assertDownloadedPhotoMatches(expected);
     }
 
     @Test
@@ -109,15 +86,9 @@ public class ArtistWebTest {
     @DisplayName("Should not display edit artist button for unauthorized user")
     void shouldNotDisplayEditArtistButtonForUnauthorizedUser(ArtistJson artist) {
         new ArtistPage().open()
-                .checkPageLoaded()
-                .checkLoginButtonIsDisplayed()
-                .searchArtist(artist.name())
-                .checkArtistDisplayed(artist.name())
-                .openArtistPage(artist.name())
-                .checkPageLoaded()
-                .checkArtistNameIsDisplayed(artist.name())
-                .checkEditArtistButtonIsNotDisplayed()
-                .checkLoginButtonIsDisplayed();
+                .checkOpenedForUnauthorizedUser()
+                .openArtistCard(artist.name())
+                .checkOpenedForUnauthorizedUser(artist.name());
     }
 
     @Test
@@ -125,9 +96,6 @@ public class ArtistWebTest {
     @DisplayName("Should not display add artist button for unauthorized user")
     void shouldNotDisplayAddArtistButtonForUnauthorizedUser() {
         new ArtistPage().open()
-                .checkPageLoaded()
-                .checkArtistsExist()
-                .checkAddArtistButtonNotDisplayed()
-                .checkLoginButtonIsDisplayed();
+                .checkOpenedForUnauthorizedUser();
     }
 }

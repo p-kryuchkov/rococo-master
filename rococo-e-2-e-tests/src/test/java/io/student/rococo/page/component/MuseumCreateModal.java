@@ -2,11 +2,10 @@ package io.student.rococo.page.component;
 
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
+import io.student.rococo.utils.ImageUploadHelper;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 
 import static com.codeborne.selenide.Condition.disappear;
 import static com.codeborne.selenide.Condition.enabled;
@@ -18,13 +17,11 @@ public class MuseumCreateModal {
 
     private final SelenideElement modal = $("[data-testid='modal-component']");
     private final SelenideElement form = modal.$("form");
-
     private final SelenideElement titleInput = form.$("input[name='title']");
     private final SelenideElement countrySelect = form.$("select[name='countryId']");
     private final SelenideElement cityInput = form.$("input[name='city']");
     private final SelenideElement photoInput = form.$("input[name='photo']");
     private final SelenideElement descriptionInput = form.$("textarea[name='description']");
-
     private final SelenideElement closeButton = form.$("button[type='button']");
     private final SelenideElement submitButton = form.$("button[type='submit']");
 
@@ -65,6 +62,18 @@ public class MuseumCreateModal {
         return this;
     }
 
+    @Step("Upload museum picture")
+    public MuseumCreateModal uploadPicture(BufferedImage image) {
+        ImageUploadHelper.uploadPng(photoInput.shouldBe(visible), image, "museum-create-");
+        return this;
+    }
+
+    @Step("Upload museum picture: {imageFile}")
+    public MuseumCreateModal uploadPicture(File imageFile) {
+        photoInput.shouldBe(visible).uploadFile(imageFile);
+        return this;
+    }
+
     @Step("Submit create museum form")
     public MuseumCreateModal submit() {
         submitButton.shouldBe(visible, enabled).click();
@@ -85,32 +94,11 @@ public class MuseumCreateModal {
 
     @Step("Create museum")
     public MuseumCreateModal createMuseum(String title, String country, String city, BufferedImage photo, String description) {
-        setTitle(title);
-        selectCountry(country);
-        setCity(city);
-        if (photo != null) {
-            uploadPicture(photo);
-        }
-        setDescription(description);
-        submit();
-        return this;
-    }
-
-    @Step("Upload museum picture: {imageFile}")
-    public MuseumCreateModal uploadPicture(File imageFile) {
-        photoInput.shouldBe(visible).uploadFile(imageFile);
-        return this;
-    }
-
-    @Step("Upload museum picture")
-    public MuseumCreateModal uploadPicture(BufferedImage imageFile) {
-        try {
-            File tempFile = File.createTempFile("img-", ".png");
-            ImageIO.write(imageFile, "png", tempFile);
-            uploadPicture(tempFile);
-            return this;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return setTitle(title)
+                .selectCountry(country)
+                .setCity(city)
+                .uploadPicture(photo)
+                .setDescription(description)
+                .submit();
     }
 }

@@ -12,7 +12,6 @@ import io.student.rococo.model.MuseumJson;
 import io.student.rococo.model.PaintingJson;
 import io.student.rococo.page.ArtistCardPage;
 import io.student.rococo.page.MainPage;
-import io.student.rococo.page.PaintingCardPage;
 import io.student.rococo.page.PaintingPage;
 import io.student.rococo.utils.RandomDataUtils;
 import org.junit.jupiter.api.DisplayName;
@@ -22,9 +21,9 @@ import java.awt.image.BufferedImage;
 
 @WebTest
 public class PaintingWebTest {
-
     private static final String PAINTING_PHOTO = "images/painting.jpg";
     private static final String DEFAULT_ARTIST_NAME = "Илья Репин";
+    private static final String DEFAULT_MUSEUM_TITLE = "Эрмитаж";
 
     @Test
     @Painting
@@ -81,24 +80,17 @@ public class PaintingWebTest {
 
     @Test
     @Artist
-    @Museum
     @User
     @ApiLogin
     @ScreenshotTest(value = PAINTING_PHOTO, rewriteExpected = false)
     @DisplayName("Should create and find painting for authorized user")
-    void shouldCreateAndFindPaintingForAuthorizedUser(MuseumJson museum, BufferedImage expected) {
+    void shouldCreateAndFindPaintingForAuthorizedUser( BufferedImage expected) {
         final String title = RandomDataUtils.randomSentence(1);
         final String description = RandomDataUtils.randomSentence(5);
 
         new PaintingPage().open()
                 .checkOpenedForAuthorizedUser()
-                .createPaintingAndOpenCard(
-                        title,
-                        DEFAULT_ARTIST_NAME,
-                        museum.title(),
-                        expected,
-                        description
-                )
+                .createPaintingAndOpenCard(title, DEFAULT_ARTIST_NAME, DEFAULT_MUSEUM_TITLE, expected, description)
                 .checkOpenedForAuthorizedUser()
                 .checkPaintingDetails(title, DEFAULT_ARTIST_NAME, description)
                 .assertPaintingImageMatches(expected);
@@ -106,13 +98,11 @@ public class PaintingWebTest {
 
     @Test
     @Painting
-    @Museum
     @User
     @ApiLogin
     @ScreenshotTest(value = PAINTING_PHOTO, rewriteExpected = false)
     @DisplayName("Should find and edit painting for authorized user")
     void shouldFindAndEditPaintingForAuthorizedUser(PaintingJson painting,
-                                                    MuseumJson museum,
                                                     BufferedImage expected) {
         final String updatedTitle = RandomDataUtils.randomSentence(1);
         final String updatedDescription = RandomDataUtils.randomSentence(6);
@@ -122,13 +112,7 @@ public class PaintingWebTest {
                 .openPaintingCard(painting.title())
                 .checkOpenedForAuthorizedUser()
                 .openEditPaintingForm()
-                .editPainting(
-                        updatedTitle,
-                        DEFAULT_ARTIST_NAME,
-                        museum.title(),
-                        updatedDescription,
-                        expected
-                )
+                .editPainting(updatedTitle, DEFAULT_ARTIST_NAME, DEFAULT_MUSEUM_TITLE, updatedDescription, expected)
                 .checkOpenedForAuthorizedUser()
                 .checkPaintingDetails(updatedTitle, DEFAULT_ARTIST_NAME, updatedDescription)
                 .assertPaintingImageMatches(expected);
@@ -155,20 +139,18 @@ public class PaintingWebTest {
 
     @Test
     @Artist
-    @Museum
     @User
     @ApiLogin
     @ScreenshotTest(value = PAINTING_PHOTO, rewriteExpected = false)
     @DisplayName("Should create and display painting on artist page for authorized user")
     void shouldCreateAndDisplayPaintingOnArtistPageForAuthorizedUser(ArtistJson artist,
-                                                                     MuseumJson museum,
                                                                      BufferedImage expected) {
         final String paintingTitle = RandomDataUtils.randomSentence(1);
         final String description = RandomDataUtils.randomSentence(5);
 
         new ArtistCardPage().open(artist.id().toString())
                 .checkOpenedForAuthorizedUser(artist.name())
-                .addPainting(paintingTitle, "Эрмитаж", expected, description)
+                .addPainting(paintingTitle, DEFAULT_MUSEUM_TITLE, expected, description)
                 .checkOpenedForAuthorizedUser(artist.name())
                 .checkPaintingCardDisplayed(paintingTitle);
     }

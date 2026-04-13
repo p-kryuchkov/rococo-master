@@ -2,11 +2,10 @@ package io.student.rococo.page.component;
 
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
+import io.student.rococo.utils.ImageUploadHelper;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
@@ -57,39 +56,31 @@ public class MuseumUpdateModal {
         return this;
     }
 
-    @Step("Save museum changes")
-    public void save() {
-        saveMuseumButton.shouldBe(visible).click();
-    }
-
-    @Step("Update museum with title '{title}'")
-    public void updateMuseum(String title, String country, String city, String description, BufferedImage photo) {
-        setTitle(title);
-        selectCountry(country);
-        setCity(city);
-        setDescription(description);
-        if (photo != null) {
-            uploadPicture(photo);
-        }
-        save();
+    @Step("Upload museum picture")
+    public MuseumUpdateModal uploadPicture(BufferedImage image) {
+        ImageUploadHelper.uploadPng(museumPhotoInput.shouldBe(visible), image, "museum-update-");
+        return this;
     }
 
     @Step("Upload museum picture: {imageFile}")
     public MuseumUpdateModal uploadPicture(File imageFile) {
-        museumPhotoInput.uploadFile(imageFile);
+        museumPhotoInput.shouldBe(visible).uploadFile(imageFile);
         return this;
     }
 
-    @Step("Upload museum picture")
-    public MuseumUpdateModal uploadPicture(BufferedImage imageFile) {
-        File tempFile;
-        try {
-            tempFile = File.createTempFile("img-", ".png");
-            ImageIO.write(imageFile, "png", tempFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        uploadPicture(tempFile);
+    @Step("Save museum changes")
+    public MuseumUpdateModal save() {
+        saveMuseumButton.shouldBe(visible).click();
         return this;
+    }
+
+    @Step("Update museum")
+    public MuseumUpdateModal updateMuseum(String title, String country, String city, String description, BufferedImage photo) {
+        return setTitle(title)
+                .selectCountry(country)
+                .setCity(city)
+                .setDescription(description)
+                .uploadPicture(photo)
+                .save();
     }
 }

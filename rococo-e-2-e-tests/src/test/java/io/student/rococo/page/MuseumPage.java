@@ -1,13 +1,11 @@
 package io.student.rococo.page;
 
 import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import io.student.rococo.page.component.MuseumCreateModal;
 
-import static com.codeborne.selenide.CollectionCondition.sizeGreaterThan;
-import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byText;
 
 public class MuseumPage extends BasePage<MuseumPage> {
@@ -19,58 +17,86 @@ public class MuseumPage extends BasePage<MuseumPage> {
     private final ElementsCollection museumCards = museumsList.$$("li");
     private final SelenideElement addMuseumButton = pageContent.$(byText("Добавить музей"));
 
+    @Override
+    protected MuseumPage self() {
+        return this;
+    }
+
     @Step("Open museums page")
     public MuseumPage open() {
-        Selenide.open(URL);
-        return this;
+        return openPage(URL);
     }
 
     @Override
     @Step("Check museums page is loaded")
     public MuseumPage checkPageLoaded() {
         super.checkPageLoaded();
-        title.shouldBe(visible).shouldHave(text("Музеи"));
-        searchInput.shouldBe(visible);
-        museumsList.shouldBe(visible);
+        checkTitle(title, "Музеи");
+        checkVisible(searchInput, museumsList);
         return this;
+    }
+
+    @Step("Museums page is opened for unauthorized user")
+    public MuseumPage checkOpenedForUnauthorizedUser() {
+        return checkPageLoaded()
+                .checkMuseumsExist()
+                .checkAddMuseumButtonNotDisplayed()
+                .checkLoginButtonIsDisplayed();
+    }
+
+    @Step("Museums page is opened for authorized user")
+    public MuseumPage checkOpenedForAuthorizedUser() {
+        return checkPageLoaded()
+                .checkMuseumsExist()
+                .checkAddMuseumButtonDisplayed()
+                .checkLoginButtonIsNotDisplayed();
     }
 
     @Step("Search museum by value: {value}")
     public MuseumPage searchMuseum(String value) {
-        searchInput.shouldBe(visible).setValue(value).pressEnter();
+        search(searchInput, value);
         return this;
+    }
+
+    @Step("Search museum by value and check it is displayed: {value}")
+    public MuseumPage searchAndCheckMuseumDisplayed(String value) {
+        return searchMuseum(value).checkMuseumDisplayed(value);
     }
 
     @Step("Check museums are displayed")
     public MuseumPage checkMuseumsExist() {
-        museumCards.shouldHave(sizeGreaterThan(0));
+        checkCardsExist(museumCards);
         return this;
     }
 
     @Step("Check museum '{museumTitle}' is displayed")
     public MuseumPage checkMuseumDisplayed(String museumTitle) {
-        museumCard(museumTitle).shouldBe(visible);
+        cardByText(museumCards, museumTitle);
         return this;
     }
 
     @Step("Open museum page for museum '{museumTitle}'")
     public MuseumCardPage openMuseumPage(String museumTitle) {
-        museumCard(museumTitle)
-                .$("a")
-                .shouldBe(visible)
-                .click();
+        openCardByText(museumCards, museumTitle);
         return new MuseumCardPage();
+    }
+
+    @Step("Search museum and open museum page: {museumTitle}")
+    public MuseumCardPage openMuseumCard(String museumTitle) {
+        return searchAndCheckMuseumDisplayed(museumTitle)
+                .openMuseumPage(museumTitle)
+                .checkPageLoaded();
     }
 
     @Step("Check add museum button is displayed")
     public MuseumPage checkAddMuseumButtonDisplayed() {
-        addMuseumButton.shouldBe(visible);
+        checkVisible(addMuseumButton);
         return this;
     }
 
     @Step("Check add museum button is not displayed")
     public MuseumPage checkAddMuseumButtonNotDisplayed() {
-        addMuseumButton.shouldNot(exist);
+        checkDoesNotExist(addMuseumButton);
         return this;
     }
 
@@ -78,9 +104,5 @@ public class MuseumPage extends BasePage<MuseumPage> {
     public MuseumCreateModal openCreateMuseumModal() {
         addMuseumButton.shouldBe(visible).click();
         return new MuseumCreateModal();
-    }
-
-    private SelenideElement museumCard(String museumTitle) {
-        return museumCards.findBy(text(museumTitle));
     }
 }

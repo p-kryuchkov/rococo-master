@@ -3,9 +3,7 @@ package io.student.rococo.page;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
-import static com.codeborne.selenide.Condition.attribute;
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
 
 public class ProfileCardPage extends BasePage<ProfileCardPage> {
@@ -27,17 +25,17 @@ public class ProfileCardPage extends BasePage<ProfileCardPage> {
     private final SelenideElement updateButton = $("button.variant-filled-primary");
 
     @Override
+    protected ProfileCardPage self() {
+        return this;
+    }
+
+    @Override
     @Step("Check profile modal loaded")
     public ProfileCardPage checkPageLoaded() {
-        modalBackdrop.shouldBe(visible);
-        modal.shouldBe(visible);
-        title.shouldBe(visible).shouldHave(text("Профиль"));
-        avatar.shouldBe(visible);
-        username.shouldBe(visible);
-        firstNameInput.shouldBe(visible);
-        surnameInput.shouldBe(visible);
-        updateButton.shouldBe(visible).shouldHave(text("Обновить профиль"));
+        checkVisible(modalBackdrop, modal, avatar, username, firstNameInput, surnameInput, photoInput);
+        checkTitle(title, "Профиль");
         closeButton.shouldBe(visible).shouldHave(text("Закрыть"));
+        updateButton.shouldBe(visible).shouldHave(text("Обновить профиль"));
         logoutButton.shouldBe(visible).shouldHave(text("Выйти"));
         return this;
     }
@@ -78,29 +76,28 @@ public class ProfileCardPage extends BasePage<ProfileCardPage> {
         return this;
     }
 
-    @Step("Click update profile button")
-    public ProfileCardPage updateProfile() {
-        updateButton.click();
-        return this;
+    @Step("Update profile")
+    public MainPage updateProfile(String firstName, String surname) {
+        return setFirstName(firstName)
+                .setSurname(surname)
+                .submitUpdate();
     }
 
-    @Step("Update profile")
-    public ProfileCardPage updateProfile(String firstName, String surname) {
-        firstNameInput.shouldBe(visible).setValue(firstName);
-        surnameInput.shouldBe(visible).setValue(surname);
-        updateButton.click();
-        return this;
+    @Step("Submit profile update")
+    public MainPage submitUpdate() {
+        updateButton.shouldBe(visible).click();
+        return new MainPage();
     }
 
     @Step("Close profile modal")
     public MainPage closeProfile() {
-        closeButton.click();
+        closeButton.shouldBe(visible).click();
         return new MainPage();
     }
 
     @Step("Logout from profile")
     public MainPage logout() {
-        logoutButton.click();
+        logoutButton.shouldBe(visible).click();
         return new MainPage();
     }
 
@@ -114,5 +111,23 @@ public class ProfileCardPage extends BasePage<ProfileCardPage> {
     public ProfileCardPage checkAvatarImageVisible() {
         avatarImage.shouldBe(visible);
         return this;
+    }
+
+    @Step("Check first name value: {expectedFirstName}")
+    public ProfileCardPage checkFirstName(String expectedFirstName) {
+        firstNameInput.shouldHave(value(expectedFirstName));
+        return this;
+    }
+
+    @Step("Check surname value: {expectedSurname}")
+    public ProfileCardPage checkSurname(String expectedSurname) {
+        surnameInput.shouldHave(value(expectedSurname));
+        return this;
+    }
+
+    @Step("Check profile data")
+    public ProfileCardPage checkProfileData(String firstName, String surname) {
+        return checkFirstName(firstName)
+                .checkSurname(surname);
     }
 }

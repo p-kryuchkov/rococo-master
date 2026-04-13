@@ -3,11 +3,10 @@ package io.student.rococo.page.component;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import io.student.rococo.page.ArtistCardPage;
+import io.student.rococo.utils.ImageUploadHelper;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
@@ -41,36 +40,30 @@ public class ArtistUpdateModal {
         return this;
     }
 
+    @Step("Upload artist picture")
+    public ArtistUpdateModal uploadPicture(BufferedImage image) {
+        ImageUploadHelper.uploadPng(artistPhotoInput.shouldBe(visible), image, "artist-update-");
+        return this;
+    }
+
+    @Step("Upload artist picture: {imageFile}")
+    public ArtistUpdateModal uploadPicture(File imageFile) {
+        artistPhotoInput.shouldBe(visible).uploadFile(imageFile);
+        return this;
+    }
+
     @Step("Save artist changes")
-    public void save() {
+    public ArtistUpdateModal save() {
         saveArtistButton.shouldBe(visible).click();
+        return this;
     }
 
     @Step("Update artist with name '{name}'")
     public ArtistCardPage updateArtist(String name, String biography, BufferedImage photo) {
         setName(name);
         setBiography(biography);
-        if(photo!=null) uploadPicture(photo);
+        uploadPicture(photo);
         save();
         return new ArtistCardPage();
-    }
-
-    @Step("Upload artist picture: {imageFile}")
-    public ArtistUpdateModal uploadPicture(File imageFile) {
-        artistPhotoInput.uploadFile(imageFile);
-        return this;
-    }
-
-    @Step("Upload artist picture: {imageFile}")
-    public ArtistUpdateModal uploadPicture(BufferedImage imageFile) {
-        File tempFile = null;
-        try {
-            tempFile = File.createTempFile("img-", ".png");
-            ImageIO.write(imageFile, "png", tempFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        uploadPicture(tempFile);
-        return this;
     }
 }

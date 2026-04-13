@@ -3,15 +3,16 @@ package io.student.rococo.page.component;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import io.student.rococo.page.PaintingCardPage;
+import io.student.rococo.utils.ImageUploadHelper;
 import org.openqa.selenium.Keys;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 
-import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Condition.disappear;
+import static com.codeborne.selenide.Condition.enabled;
+import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
 public class PaintingUpdateModal {
@@ -20,14 +21,12 @@ public class PaintingUpdateModal {
     private final SelenideElement modal = $("[data-testid='modal-component']");
     private final SelenideElement title = modal.$("header");
     private final SelenideElement form = modal.$("form.modal-form");
-
     private final SelenideElement previewImage = form.$("img");
     private final SelenideElement imageInput = form.$("input[name='content']");
     private final SelenideElement paintingTitleInput = form.$("input[name='title']");
     private final SelenideElement artistSelect = form.$("select[name='authorId']");
     private final SelenideElement descriptionTextarea = form.$("textarea[name='description']");
     private final SelenideElement museumSelect = form.$("select[name='museumId']");
-
     private final SelenideElement closeButton = form.$("button[type='button']");
     private final SelenideElement saveButton = form.$("button[type='submit']");
 
@@ -37,7 +36,6 @@ public class PaintingUpdateModal {
         modal.shouldBe(visible);
         title.shouldBe(visible).shouldHave(text("Редактировать картину"));
         form.shouldBe(visible);
-
         previewImage.shouldBe(visible);
         imageInput.should(exist);
         paintingTitleInput.shouldBe(visible);
@@ -46,7 +44,6 @@ public class PaintingUpdateModal {
         museumSelect.shouldBe(visible);
         closeButton.shouldBe(visible).shouldHave(text("Закрыть"));
         saveButton.shouldBe(visible).shouldHave(text("Сохранить"));
-
         return this;
     }
 
@@ -73,14 +70,9 @@ public class PaintingUpdateModal {
         selectArtist(authorName);
         selectMuseum(museumName);
         setDescription(description);
-
-        if (image != null) {
-            uploadImage(image);
-        }
-
-        saveButton.shouldBe(enabled).click();
+        uploadImage(image);
+        save();
         modalBackdrop.should(disappear);
-
         return new PaintingCardPage();
     }
 
@@ -124,19 +116,8 @@ public class PaintingUpdateModal {
 
     @Step("Upload painting image")
     public PaintingUpdateModal uploadImage(BufferedImage image) {
-        File tempFile = null;
-        try {
-            tempFile = Files.createTempFile("painting-update-", ".png").toFile();
-            ImageIO.write(image, "png", tempFile);
-            imageInput.should(exist).uploadFile(tempFile);
-            return this;
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to prepare painting image for upload", e);
-        } finally {
-            if (tempFile != null) {
-                tempFile.deleteOnExit();
-            }
-        }
+        ImageUploadHelper.uploadPng(imageInput.should(exist), image, "painting-update-");
+        return this;
     }
 
     @Step("Scroll museum select down")
@@ -152,6 +133,12 @@ public class PaintingUpdateModal {
         artistSelect.shouldBe(visible).click();
         museumSelect.selectOption(1);
         museumSelect.sendKeys(Keys.END);
+        return this;
+    }
+
+    @Step("Save painting changes")
+    public PaintingUpdateModal save() {
+        saveButton.shouldBe(visible, enabled).click();
         return this;
     }
 }

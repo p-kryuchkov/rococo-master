@@ -1,19 +1,15 @@
 package io.student.rococo.page;
 
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import io.student.rococo.page.component.PaintingUpdateModal;
-import io.student.rococo.utils.ScreenDiffResult;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
-import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Condition.image;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class PaintingCardPage extends BasePage<PaintingCardPage> {
 
@@ -22,40 +18,55 @@ public class PaintingCardPage extends BasePage<PaintingCardPage> {
     private final SelenideElement paintingArtist = card.$(".card-header + div");
     private final SelenideElement paintingImage = card.$("img");
     private final SelenideElement editPaintingButton = card.$("[data-testid='edit-painting']");
-    private final SelenideElement paintingDescription = card.$("div.grid > div").$("div.m-4");
-    private final PaintingUpdateModal paintingUpdateModal = new PaintingUpdateModal();
+    private final SelenideElement paintingDescription = card.$("div.grid > div div.m-4");
+
+    @Override
+    protected PaintingCardPage self() {
+        return this;
+    }
 
     @Step("Open painting card page by id: {paintingId}")
     public PaintingCardPage openPage(String paintingId) {
-        Selenide.open(CFG.frontUrl() + "painting/" + paintingId);
-        return this;
+        return super.openPage(CFG.frontUrl() + "painting/" + paintingId);
     }
 
     @Override
     @Step("Check painting card page loaded")
     public PaintingCardPage checkPageLoaded() {
         super.checkPageLoaded();
-        card.shouldBe(visible);
-        paintingName.shouldBe(visible);
-        paintingArtist.shouldBe(visible);
+        checkVisible(card, paintingName, paintingArtist);
         return this;
+    }
+
+    @Step("Painting card is opened for unauthorized user")
+    public PaintingCardPage checkOpenedForUnauthorizedUser() {
+        return checkPageLoaded()
+                .checkLoginButtonIsDisplayed()
+                .checkEditPaintingButtonIsNotDisplayed();
+    }
+
+    @Step("Painting card is opened for authorized user")
+    public PaintingCardPage checkOpenedForAuthorizedUser() {
+        return checkPageLoaded()
+                .checkLoginButtonIsNotDisplayed()
+                .checkEditPaintingButtonIsDisplayed();
     }
 
     @Step("Check painting name is displayed: {paintingTitle}")
     public PaintingCardPage checkPaintingNameIsDisplayed(String paintingTitle) {
-        paintingName.shouldHave(text(paintingTitle));
+        checkTitle(paintingName, paintingTitle);
         return this;
     }
 
     @Step("Check painting author is displayed: {artist}")
     public PaintingCardPage checkPaintingAuthorIsDisplayed(String artist) {
-        paintingArtist.shouldHave(text(artist));
+        paintingArtist.shouldBe(visible).shouldHave(text(artist));
         return this;
     }
 
     @Step("Check painting description is displayed: {description}")
     public PaintingCardPage checkPaintingDescriptionIsDisplayed(String description) {
-        paintingDescription.shouldHave(text(description));
+        paintingDescription.shouldBe(visible).shouldHave(text(description));
         return this;
     }
 
@@ -73,78 +84,32 @@ public class PaintingCardPage extends BasePage<PaintingCardPage> {
 
     @Step("Check edit painting button is displayed")
     public PaintingCardPage checkEditPaintingButtonIsDisplayed() {
-        editPaintingButton.shouldBe(visible);
+        checkVisible(editPaintingButton);
         return this;
     }
 
     @Step("Check edit painting button is not displayed")
     public PaintingCardPage checkEditPaintingButtonIsNotDisplayed() {
-        editPaintingButton.shouldNot(exist);
+        checkDoesNotExist(editPaintingButton);
         return this;
     }
 
     @Step("Open edit painting form")
     public PaintingUpdateModal openEditPaintingForm() {
         editPaintingButton.shouldBe(visible).click();
-        return paintingUpdateModal;
-    }
-
-    @Step("Screenshot painting photo")
-    public File screenshotPaintingPhoto() {
-        return paintingImage.screenshot();
+        return new PaintingUpdateModal().checkModalLoaded();
     }
 
     @Step("Painting photo screenshots match")
     public PaintingCardPage assertPhotoScreenshotsMatch(BufferedImage expected) {
-        try {
-            assertFalse(
-                    new ScreenDiffResult(expected, ImageIO.read(screenshotPaintingPhoto())),
-                    "Screen comparison failure"
-            );
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        assertScreenshotMatches(expected, paintingImage, "painting photo");
         return this;
-    }
-
-    @Step("Download painting photo")
-    public BufferedImage downloadPaintingPhoto() {
-        try {
-            String src = paintingImage
-                    .shouldBe(visible)
-                    .getAttribute("src");
-
-            if (src == null || src.isBlank()) {
-                throw new IllegalStateException("Painting photo src is empty");
-            }
-
-            return readImageBySrc(src);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to download painting photo", e);
-        }
     }
 
     @Step("Downloaded painting photo matches expected image")
     public PaintingCardPage assertDownloadedPhotoMatches(BufferedImage expected) {
-        assertFalse(
-                new ScreenDiffResult(expected, downloadPaintingPhoto()),
-                "Screen comparison failure"
-        );
+        assertDownloadedImageMatches(expected, paintingImage, "painting photo");
         return this;
-    }
-
-    @Step("Painting card is opened for unauthorized user")
-    public PaintingCardPage checkOpenedForUnauthorizedUser() {
-        return checkPageLoaded()
-                .checkLoginButtonIsDisplayed()
-                .checkEditPaintingButtonIsNotDisplayed();
-    }
-
-    @Step("Painting card is opened for authorized user")
-    public PaintingCardPage checkOpenedForAuthorizedUser() {
-        return checkPageLoaded()
-                .checkLoginButtonIsNotDisplayed()
-                .checkEditPaintingButtonIsDisplayed();
     }
 
     @Step("Check painting title: {title}")

@@ -6,8 +6,9 @@ import io.qameta.allure.Step;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
+import static io.student.rococo.page.BasePage.CFG;
 
-public class RegisterPage extends BasePage<RegisterPage> {
+public class RegisterPage {
     public static final String URL = CFG.authUrl() + "register";
 
     private final SelenideElement form = $("#register-form");
@@ -32,7 +33,6 @@ public class RegisterPage extends BasePage<RegisterPage> {
         return this;
     }
 
-    @Override
     @Step("Check register page loaded")
     public RegisterPage checkPageLoaded() {
         form.shouldBe(visible);
