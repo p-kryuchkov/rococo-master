@@ -2,6 +2,7 @@ package io.student.rococo.test.rest;
 
 import io.student.rococo.jupiter.annotation.ApiLogin;
 import io.student.rococo.jupiter.annotation.Token;
+import io.student.rococo.jupiter.annotation.User;
 import io.student.rococo.jupiter.annotation.meta.RestTest;
 import io.student.rococo.model.UserJson;
 import io.student.rococo.service.api.AuthApiClient;
@@ -15,9 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class Oauth2Test {
     private final AuthApiClient authApiClient = new AuthApiClient();
     @Test
-    @ApiLogin(username = "TestDefaultUser", password = "12345")
+    @User
+    @ApiLogin()
     public void oauth2Test(@Token String token, UserJson user) throws IOException {
-        System.out.println(user);
         assertNotNull(token);
     }
 }

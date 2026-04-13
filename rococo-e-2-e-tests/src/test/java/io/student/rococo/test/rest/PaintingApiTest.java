@@ -17,7 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PaintingApiTest extends BaseGatewayApiTest {
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @DisplayName("Should Return Painting Page With Authorization")
     void shouldReturnPaintingsPageWithAuthorization(@Token String token) throws Exception {
         final RestResponsePage<PaintingJson> result = gatewayApiClient.getAllPaintings(
@@ -76,7 +77,8 @@ public class PaintingApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @Painting
     @DisplayName("Should Return Painting By Id With Authorization")
     void shouldReturnPaintingByIdWithAuthorization(@Token String token,
@@ -112,7 +114,8 @@ public class PaintingApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @Painting(artist = @Artist(name = "Илья Репин"))
     @DisplayName("Should Return Paintings By Artist With Authorization")
     void shouldReturnPaintingsByArtistWithAuthorization(@Token String token,
@@ -191,7 +194,8 @@ public class PaintingApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @Painting
     @DisplayName("Should Update Painting Description With Authorization")
     void shouldUpdatePaintingDescriptionWithAuthorization(@Token String token,
@@ -233,7 +237,8 @@ public class PaintingApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @Painting
     @DisplayName("Should Update Painting Title With Authorization")
     void shouldUpdatePaintingTitleWithAuthorization(@Token String token,
@@ -275,7 +280,8 @@ public class PaintingApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @Painting
     @DisplayName("Should Update Painting Content With Authorization")
     void shouldUpdatePaintingContentWithAuthorization(@Token String token,
@@ -315,7 +321,8 @@ public class PaintingApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @Painting
     @Museum
     @DisplayName("Should Update Painting Museum With Authorization")
@@ -357,7 +364,8 @@ public class PaintingApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @ApiLogin
+    @User
     @Painting
     @Artist
     @DisplayName("Should Update Painting Artist With Authorization")
@@ -431,7 +439,8 @@ public class PaintingApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @Artist
     @Museum
     @DisplayName("Should Create Painting With Authorization")

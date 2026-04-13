@@ -111,6 +111,37 @@ public class GrpcPaintingClient {
         }
     }
 
+    public Page<PaintingJson> getPaintingsByTitle(String title, Pageable pageable) {
+        try {
+            if (title == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Painting title is required");
+            }
+
+            PageableRequest pageableReq = springPageableToGrpcPageableRequest(pageable);
+
+            PaintingTitleRequest req = PaintingTitleRequest.newBuilder()
+                    .setTitle(title)
+                    .setPageable(pageableReq)
+                    .build();
+
+            PaintingsResponse resp = stub.findPaintingsByName(req);
+
+            List<PaintingJson> items = resp.getPaintingsList().stream()
+                    .map(PaintingJson::fromGrpcMessage)
+                    .toList();
+            kafkaTemplate.send("events",
+                    new EventJson(Instant.now(),
+                            GET,
+                            "Get Paintings by Title",
+                            null,
+                            currentUserProvider.getUsername()));
+
+            return new PageImpl<>(items, pageable, resp.getTotalElements());
+        } catch (StatusRuntimeException e) {
+            throw new GrpcStatusException(e);
+        }
+    }
+
     public PaintingJson createPainting(PaintingJson paintingJson) {
         try {
             if (paintingJson == null) {

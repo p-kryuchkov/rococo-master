@@ -2,6 +2,7 @@ package io.student.rococo.page.component;
 
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
+import io.student.rococo.page.ArtistCardPage;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -46,11 +47,12 @@ public class ArtistUpdateModal {
     }
 
     @Step("Update artist with name '{name}'")
-    public void updateArtist(String name, String biography, BufferedImage photo) {
+    public ArtistCardPage updateArtist(String name, String biography, BufferedImage photo) {
         setName(name);
         setBiography(biography);
         if(photo!=null) uploadPicture(photo);
         save();
+        return new ArtistCardPage();
     }
 
     @Step("Upload artist picture: {imageFile}")

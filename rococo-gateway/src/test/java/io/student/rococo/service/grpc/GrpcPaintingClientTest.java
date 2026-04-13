@@ -441,4 +441,82 @@ class GrpcPaintingClientTest {
 
         verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
     }
+
+    @Test
+    void getPaintingsByTitle() {
+        final PaintingResponse firstPainting = PaintingResponse.newBuilder()
+                .setId(paintingId.toString())
+                .setTitle(title)
+                .setDescription(description)
+                .build();
+
+        final PaintingResponse secondPainting = PaintingResponse.newBuilder()
+                .setId(secondPaintingId.toString())
+                .setTitle(secondTitle)
+                .setDescription(description)
+                .build();
+
+        final PaintingsResponse response = PaintingsResponse.newBuilder()
+                .addPaintings(firstPainting)
+                .addPaintings(secondPainting)
+                .setTotalElements(7)
+                .build();
+
+        when(stub.findPaintingsByName(any(PaintingTitleRequest.class))).thenReturn(response);
+
+        PageRequest pageable = PageRequest.of(1, 2);
+
+        Page<PaintingJson> result = client.getPaintingsByTitle(title, pageable);
+
+        assertNotNull(result);
+        assertEquals(2, result.getContent().size());
+        assertEquals(7, result.getTotalElements());
+        assertEquals(title, result.getContent().get(0).title());
+        assertEquals(secondTitle, result.getContent().get(1).title());
+
+        ArgumentCaptor<PaintingTitleRequest> requestCaptor =
+                ArgumentCaptor.forClass(PaintingTitleRequest.class);
+        verify(stub).findPaintingsByName(requestCaptor.capture());
+
+        PaintingTitleRequest request = requestCaptor.getValue();
+        assertEquals(title, request.getTitle());
+        assertEquals(1, request.getPageable().getPage());
+        assertEquals(2, request.getPageable().getSize());
+
+        ArgumentCaptor<EventJson> eventCaptor = ArgumentCaptor.forClass(EventJson.class);
+        verify(kafkaTemplate).send(eq("events"), eventCaptor.capture());
+
+        EventJson event = eventCaptor.getValue();
+        assertNotNull(event.date());
+        assertEquals(GET, event.eventType());
+        assertEquals("Get Paintings by Title", event.description());
+        assertNull(event.entityId());
+        assertEquals(username, event.username());
+    }
+
+    @Test
+    void getPaintingsByTitleShouldThrowBadRequestWhenTitleIsNull() {
+        PageRequest pageable = PageRequest.of(0, 10);
+
+        ResponseStatusException exception =
+                assertThrows(ResponseStatusException.class, () -> client.getPaintingsByTitle(null, pageable));
+
+        assertEquals(400, exception.getStatusCode().value());
+        assertEquals("Painting title is required", exception.getReason());
+
+        verifyNoInteractions(stub);
+        verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
+    }
+
+    @Test
+    void getPaintingsByTitleShouldThrowGrpcStatusException() {
+        when(stub.findPaintingsByName(any(PaintingTitleRequest.class)))
+                .thenThrow(new StatusRuntimeException(Status.INTERNAL));
+
+        PageRequest pageable = PageRequest.of(0, 10);
+
+        assertThrows(GrpcStatusException.class, () -> client.getPaintingsByTitle(title, pageable));
+
+        verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
+    }
 }

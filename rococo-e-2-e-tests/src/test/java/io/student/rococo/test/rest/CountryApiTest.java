@@ -2,6 +2,7 @@ package io.student.rococo.test.rest;
 
 import io.student.rococo.jupiter.annotation.ApiLogin;
 import io.student.rococo.jupiter.annotation.Token;
+import io.student.rococo.jupiter.annotation.User;
 import io.student.rococo.jupiter.annotation.meta.RestTest;
 import io.student.rococo.model.CountryJson;
 import io.student.rococo.model.page.RestResponsePage;
@@ -15,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CountryApiTest extends BaseGatewayApiTest {
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @DisplayName("Should Return Country Page With Authorization")
     void shouldReturnCountriesPageWithAuthorization(@Token String token) throws Exception {
         final RestResponsePage<CountryJson> result = gatewayApiClient.getAllCountries(
@@ -46,7 +48,8 @@ public class CountryApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @DisplayName("Should Return Country Pageable Correct")
     void shouldReturnCountriesPageable(@Token String token) throws Exception {
         int page = 1;
@@ -70,7 +73,8 @@ public class CountryApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @DisplayName("Should Return Country Default Pageable Correct")
     void shouldReturnCountriesPageableDefault(@Token String token) throws Exception {
         int page = 0;

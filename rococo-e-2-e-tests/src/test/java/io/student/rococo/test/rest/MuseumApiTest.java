@@ -3,6 +3,7 @@ package io.student.rococo.test.rest;
 import io.student.rococo.jupiter.annotation.ApiLogin;
 import io.student.rococo.jupiter.annotation.Museum;
 import io.student.rococo.jupiter.annotation.Token;
+import io.student.rococo.jupiter.annotation.User;
 import io.student.rococo.jupiter.annotation.meta.RestTest;
 import io.student.rococo.model.GeoJson;
 import io.student.rococo.model.MuseumJson;
@@ -18,7 +19,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MuseumApiTest extends BaseGatewayApiTest {
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @DisplayName("Should Return Museum Page With Authorization")
     void shouldReturnMuseumsPageWithAuthorization(@Token String token) throws Exception {
         final RestResponsePage<MuseumJson> result = gatewayApiClient.getAllMuseums(
@@ -71,7 +73,8 @@ public class MuseumApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @Museum
     @DisplayName("Should Return Museum By Id With Authorization")
     void shouldReturnMuseumByIdWithAuthorization(@Token String token,
@@ -105,7 +108,8 @@ public class MuseumApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @Museum
     @DisplayName("Should Update Museum Title With Authorization")
     void shouldUpdateMuseumTitleWithAuthorization(@Token String token,
@@ -144,7 +148,8 @@ public class MuseumApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @Museum
     @DisplayName("Should Update Museum Description With Authorization")
     void shouldUpdateMuseumDescriptionWithAuthorization(@Token String token,
@@ -183,7 +188,8 @@ public class MuseumApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @Museum
     @DisplayName("Should Update Museum Photo With Authorization")
     void shouldUpdateMuseumPhotoWithAuthorization(@Token String token,
@@ -220,7 +226,8 @@ public class MuseumApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @Museum
     @DisplayName("Should Update Museum Geo With Authorization")
     void shouldUpdateMuseumGeoWithAuthorization(@Token String token,
@@ -289,7 +296,8 @@ public class MuseumApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @ApiLogin(username = "TestDefaultUser")
+    @User
+    @ApiLogin
     @Museum
     @DisplayName("Should Create Museum With Authorization")
     void shouldCreateMuseumWithAuthorization(@Token String token,

@@ -1,7 +1,6 @@
 package io.student.rococo.jupiter.extension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.qameta.allure.Allure;
 import io.student.rococo.jupiter.annotation.ScreenshotTest;
 import io.student.rococo.model.allure.ScreenDiff;
@@ -58,18 +57,20 @@ public class ScreenshotTestExtension implements ParameterResolver, TestExecution
 
     @Override
     public void handleTestExecutionException(ExtensionContext context, Throwable throwable) throws Throwable {
-        if (throwable.getMessage().contains("Screen comparison failure")) {
-            ScreenDiff screenDiff = new ScreenDiff(
-                    "data:image/png;base64,"
-                            + Base64.getEncoder().encodeToString(imageToBytes(getExpected())),
-                    "data:image/png;base64,"
-                            + Base64.getEncoder().encodeToString(imageToBytes(getActual())),
-                    "data:image/png;base64,"
-                            + Base64.getEncoder().encodeToString(imageToBytes(getDiff())));
+        if (throwable.getMessage() != null) {
+            if (throwable.getMessage().contains("Screen comparison failure")) {
+                ScreenDiff screenDiff = new ScreenDiff(
+                        "data:image/png;base64,"
+                                + Base64.getEncoder().encodeToString(imageToBytes(getExpected())),
+                        "data:image/png;base64,"
+                                + Base64.getEncoder().encodeToString(imageToBytes(getActual())),
+                        "data:image/png;base64,"
+                                + Base64.getEncoder().encodeToString(imageToBytes(getDiff())));
 
-            Allure.addAttachment("Screenshot diff",
-                    "application/vnd.allure.image.diff",
-                    objectMapper.writeValueAsString(screenDiff));
+                Allure.addAttachment("Screenshot diff",
+                        "application/vnd.allure.image.diff",
+                        objectMapper.writeValueAsString(screenDiff));
+            }
         }
         throw throwable;
     }

@@ -23,6 +23,21 @@ public class GrpcPaintingService extends PaintingServiceGrpc.PaintingServiceImpl
     }
 
     @Override
+    public void findPaintingsByName(PaintingTitleRequest request, StreamObserver<PaintingsResponse> responseObserver) {
+        PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request.getPageable());
+        Page<PaintingEntity> result = paintingDbService.getByTitle(request.getTitle(), pageRequest);
+
+        responseObserver.onNext(PaintingsResponse.newBuilder()
+                .addAllPaintings(result.stream().map(GrpcPaintingService::paintingEntityToPaintingProtoResponse).toList())
+                .setPage(result.getNumber())
+                .setSize(result.getSize())
+                .setTotalElements(result.getTotalElements())
+                .setTotalPages(result.getTotalPages())
+                .build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
     public void allPaintings(PageableRequest request, StreamObserver<PaintingsResponse> responseObserver) {
         PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request);
         Page<PaintingEntity> result = paintingDbService.getAll(pageRequest);

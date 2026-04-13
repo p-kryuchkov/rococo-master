@@ -63,7 +63,7 @@ public class ArtistWebTest {
                 .checkArtistNameIsDisplayed(artist.name())
                 .checkEditArtistButtonIsDisplayed()
                 .openEditArtistForm()
-                .editArtist(updatedName, updatedBiography, expected)
+                .updateArtist(updatedName, updatedBiography, expected)
                 .checkPageLoaded()
                 .checkArtistNameIsDisplayed(updatedName)
                 .checkArtistBiographyIsDisplayed(updatedBiography)

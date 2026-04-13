@@ -454,4 +454,119 @@ class GrpcPaintingServiceTest {
         museum.setPhoto(photo);
         return museum;
     }
+
+    @Test
+    void findPaintingsByName() {
+        final UUID paintingId = UUID.randomUUID();
+        final UUID artistId = UUID.randomUUID();
+        final UUID museumId = UUID.randomUUID();
+
+        final String title = "Mona Lisa";
+        final int page = 0;
+        final int size = 10;
+        final long totalElements = 1L;
+        final int totalPages = 1;
+
+        final ArtistEntity artist = createArtistEntity(
+                artistId,
+                "Leonardo da Vinci",
+                "Biography",
+                "artist-photo".getBytes()
+        );
+        final MuseumEntity museum = createMuseumEntity(
+                museumId,
+                "Louvre",
+                "Museum description",
+                "Paris",
+                "museum-photo".getBytes()
+        );
+        final PaintingEntity painting = createPaintingEntity(
+                paintingId,
+                title,
+                "Description",
+                "content".getBytes(),
+                artist,
+                museum
+        );
+
+        final PageRequest pageRequest = PageRequest.of(page, size);
+        final Page<PaintingEntity> paintingsPage = new PageImpl<>(
+                List.of(painting),
+                pageRequest,
+                totalElements
+        );
+
+        when(paintingDbService.getByTitle(title, pageRequest)).thenReturn(paintingsPage);
+
+        final PaintingTitleRequest request = PaintingTitleRequest.newBuilder()
+                .setTitle(title)
+                .setPageable(PageableRequest.newBuilder()
+                        .setPage(page)
+                        .setSize(size)
+                        .build())
+                .build();
+
+        grpcPaintingService.findPaintingsByName(request, paintingsResponseObserver);
+
+        verify(paintingDbService).getByTitle(title, pageRequest);
+        verify(paintingsResponseObserver).onNext(paintingsResponseCaptor.capture());
+        verify(paintingsResponseObserver).onCompleted();
+
+        final PaintingsResponse response = paintingsResponseCaptor.getValue();
+
+        assertEquals(1, response.getPaintingsCount());
+        assertEquals(paintingId.toString(), response.getPaintings(0).getId());
+        assertEquals(title, response.getPaintings(0).getTitle());
+        assertEquals("Description", response.getPaintings(0).getDescription());
+        assertArrayEquals("content".getBytes(), response.getPaintings(0).getContent().toByteArray());
+
+        assertEquals(artistId.toString(), response.getPaintings(0).getArtist().getId());
+        assertEquals("Leonardo da Vinci", response.getPaintings(0).getArtist().getName());
+
+        assertEquals(museumId.toString(), response.getPaintings(0).getMuseum().getId());
+        assertEquals("Louvre", response.getPaintings(0).getMuseum().getTitle());
+
+        assertEquals(page, response.getPage());
+        assertEquals(size, response.getSize());
+        assertEquals(totalElements, response.getTotalElements());
+        assertEquals(totalPages, response.getTotalPages());
+    }
+
+    @Test
+    void findPaintingsByNameShouldReturnEmptyPage() {
+        final String title = "Unknown painting";
+        final int page = 0;
+        final int size = 10;
+
+        final PageRequest pageRequest = PageRequest.of(page, size);
+        final Page<PaintingEntity> paintingsPage = new PageImpl<>(
+                List.of(),
+                pageRequest,
+                0
+        );
+
+        when(paintingDbService.getByTitle(title, pageRequest)).thenReturn(paintingsPage);
+
+        final PaintingTitleRequest request = PaintingTitleRequest.newBuilder()
+                .setTitle(title)
+                .setPageable(PageableRequest.newBuilder()
+                        .setPage(page)
+                        .setSize(size)
+                        .build())
+                .build();
+
+        grpcPaintingService.findPaintingsByName(request, paintingsResponseObserver);
+
+        verify(paintingDbService).getByTitle(title, pageRequest);
+        verify(paintingsResponseObserver).onNext(paintingsResponseCaptor.capture());
+        verify(paintingsResponseObserver).onCompleted();
+
+        final PaintingsResponse response = paintingsResponseCaptor.getValue();
+
+        assertEquals(0, response.getPaintingsCount());
+        assertEquals(page, response.getPage());
+        assertEquals(size, response.getSize());
+        assertEquals(0, response.getTotalElements());
+        assertEquals(0, response.getTotalPages());
+    }
 }
