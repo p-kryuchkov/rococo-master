@@ -61,7 +61,8 @@ public class GrpcUserdataClient {
 
     public UserJson updateUser(UserJson user) {
         try {
-            if (user.username() == null) {
+            String username = user.username();
+            if (username == null || username.isBlank()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is required");
             }
             UpdateUserRequest.Builder builder = UpdateUserRequest.newBuilder()
@@ -81,7 +82,7 @@ public class GrpcUserdataClient {
                     new EventJson(
                             Instant.now(),
                             UPDATE,
-                            "Update user",
+                            "Update user username: " + user.username(),
                             result.id(),
                             currentUserProvider.getUsername()
                     ));

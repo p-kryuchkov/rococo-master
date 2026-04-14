@@ -163,7 +163,7 @@ class GrpcUserdataClientTest {
         EventJson event = eventCaptor.getValue();
         assertNotNull(event.date());
         assertEquals(UPDATE, event.eventType());
-        assertEquals("Update user", event.description());
+        assertEquals("Update user username: " + username, event.description());
         assertEquals(userId, event.entityId());
         assertEquals(username, event.username());
     }

@@ -151,6 +151,58 @@ services:
     networks:
       - rococo-network
 
+  rococo-e-2-e:
+    profiles: [ test ]
+    container_name: rococo-e-2-e
+    image: ${PREFIX}/rococo-e-2-e-tests:latest
+    build:
+      context: ./
+      dockerfile: ./rococo-e-2-e-tests/Dockerfile
+    environment:
+      - ALLURE_DOCKER_API=${ALLURE_DOCKER_API}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - BUILD_URL=${BUILD_URL}
+      - HEAD_COMMIT_MESSAGE=${HEAD_COMMIT_MESSAGE}
+      - EXECUTION_TYPE=${EXECUTION_TYPE}
+      - BROWSER=${BROWSER}
+
+    volumes:
+      - allure-results:/home/gradle/rococo-ng-10/rococo-e-2-e-tests/build/allure-results
+      - ./rococo-e-2-e-tests/.screen-output/screenshots/selenoid:/home/gradle/rococo-master/rococo-e-2-e-tests/.screen-output/screenshots/selenoid
+      - ./logs:/home/gradle/rococo-master/logs
+    depends_on:
+      frontend.rococo.dc:
+        condition: service_started
+    networks:
+      - rococo-network
+
+  allure:
+    profiles: [ test ]
+    container_name: allure
+    image: frankescobar/allure-docker-service:2.27.0
+    depends_on:
+      - rococo-e-2-e
+    environment:
+      - CHECK_RESULTS_EVERY_SECONDS=NONE
+      - KEEP_HISTORY=1
+    ports:
+      - 5050:5050
+    networks:
+      - rococo-network
+
+  allure-ui:
+    profiles: [ test ]
+    container_name: allure-ui
+    image: frankescobar/allure-docker-service-ui:7.0.3
+    depends_on:
+      - allure
+    environment:
+      - ALLURE_DOCKER_PUBLIC_API_URL=http://localhost:5050
+    ports:
+      - 5252:5252
+    networks:
+      - rococo-network
+
   selenoid:
     profiles:
       - test
@@ -190,3 +242,4 @@ networks:
     driver: bridge
 volumes:
   rococo:
+  allure-results:

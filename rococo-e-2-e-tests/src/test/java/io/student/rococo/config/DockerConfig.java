@@ -1,65 +1,65 @@
 package io.student.rococo.config;
 
-public enum DockerConfig implements Config{
+public enum DockerConfig implements Config {
     INSTANCE;
 
     @Override
     public String frontUrl() {
-        return "";
+        return "http://frontend.rococo.dc/";
     }
 
     @Override
     public String authUrl() {
-        return "";
+        return "http://auth.rococo.dc:9000/";
     }
 
     @Override
     public String authJdbcUrl() {
-        return "";
+        return "jdbc:mysql://rococo-all-db:3306/rococo-auth";
     }
 
     @Override
     public String gatewayUrl() {
-        return "";
+        return "http://gateway.rococo.dc:8080/";
     }
 
     @Override
     public String userdataUrl() {
-        return "";
+        return "http://userdata.rococo.dc:8084/";
     }
 
     @Override
     public String userdataJdbcUrl() {
-        return "";
+        return "jdbc:mysql://rococo-all-db:3306/rococo-userdata";
     }
 
     @Override
     public String userdataGrpcAddress() {
-        return "";
+        return "static://userdata.rococo.dc:8094";
     }
 
     @Override
     public String dataUrl() {
-        return "";
+        return "http://data.rococo.dc:8083/";
     }
 
     @Override
     public String dataJdbcUrl() {
-        return "";
+        return "jdbc:mysql://rococo-all-db:3306/rococo-data";
     }
 
     @Override
     public String dataGrpcAddress() {
-        return "";
+        return "static://data.rococo.dc:8093";
     }
 
     @Override
     public String eventsJdbcUrl() {
-        return "";
+        return "jdbc:mysql://rococo-all-db:3306/rococo-events";
     }
 
     @Override
     public String githubUrl() {
-        return "";
+        return "https://github.com/";
     }
 }

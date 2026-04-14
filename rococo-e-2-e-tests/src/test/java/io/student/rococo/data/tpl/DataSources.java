@@ -22,7 +22,10 @@ public class DataSources {
                 jdbcUrl,
                 key -> {
                     AtomikosDataSourceBean dsBean = new AtomikosDataSourceBean();
-                    final String uniqId = StringUtils.substringAfter(jdbcUrl, "3306/");
+                    final String uniqId = StringUtils.substringBefore(
+                            StringUtils.substringAfter(jdbcUrl, "3306/"),
+                            "?"
+                    );
                     dsBean.setUniqueResourceName(uniqId);
                     dsBean.setXaDataSourceClassName("com.mysql.cj.jdbc.MysqlXADataSource");
                     Properties props = new Properties();
@@ -33,9 +36,11 @@ public class DataSources {
                     dsBean.setPoolSize(3);
                     dsBean.setMaxPoolSize(10);
                     P6DataSource p6DataSource = new P6DataSource(dsBean);
+                    String jndiName = "java:comp/env/jdbc/" + uniqId;
                     try {
                         InitialContext context = new InitialContext();
                         context.bind("java:comp/env/jdbc/" + uniqId, p6DataSource);
+                        System.out.println("JNDI bound: " + jndiName + " -> " + context.lookup(jndiName));
                     } catch (NamingException e) {
                         throw new RuntimeException(e);
                     }
