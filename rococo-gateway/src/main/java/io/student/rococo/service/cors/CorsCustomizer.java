@@ -18,8 +18,8 @@ public class CorsCustomizer {
   private final String rococoFrontUri;
 
   @Autowired
-  public CorsCustomizer(@Value("${rococo-front.base-uri}") String nifflerFrontUri) {
-    this.rococoFrontUri = nifflerFrontUri;
+  public CorsCustomizer(@Value("${rococo-front.base-uri}") String rococoFrontUri) {
+    this.rococoFrontUri = rococoFrontUri;
   }
 
   public void corsCustomizer(HttpSecurity http) throws Exception {

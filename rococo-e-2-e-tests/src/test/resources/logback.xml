@@ -14,8 +14,8 @@
     <logger name="com.codeborne.selenide.drivercommands.CloseDriverCommand" level="error"/>
     <logger name="com.codeborne.selenide.drivercommands.DisposablesRegistry" level="error"/>
 
-    <logger name="guru.qa.niffler.kafka.KafkaConsumer" level="warn"/>
-    <logger name="guru.qa.niffler.jupiter.extension.AllureDockerExtension" level="debug"/>
+    <logger name="io.student.rococo.kafka.KafkaConsumer" level="warn"/>
+    <logger name="io.student.rococo.jupiter.extension.AllureDockerExtension" level="debug"/>
 
     <root level="info">
         <appender-ref ref="STDOUT"/>

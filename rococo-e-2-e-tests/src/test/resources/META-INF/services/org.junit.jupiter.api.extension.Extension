@@ -1,3 +1,4 @@
-io.student.rococo.jupiter.extension.TestMethodContextExtension
 io.student.rococo.jupiter.extension.CookieExtension
 io.student.rococo.jupiter.extension.DatabasesExtension
+io.student.rococo.jupiter.extension.TestMethodContextExtension
+io.student.rococo.jupiter.extension.AllureDockerExtension
