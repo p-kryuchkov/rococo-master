@@ -14,7 +14,7 @@ public @interface Painting {
 
     String content() default "";
 
-    Artist artist() default @Artist;
+    Artist artist() default @Artist(name = "Илья Репин");
 
-    Museum museum() default @Museum;
+    Museum museum() default @Museum(title = "Государственный Эрмитаж");
 }

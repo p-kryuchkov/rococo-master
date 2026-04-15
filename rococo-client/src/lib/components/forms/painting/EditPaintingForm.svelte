@@ -33,6 +33,11 @@
         authorId: "",
         museumId: "",
     });
+    const loadArtistsForSelect = () => apiClient.loadArtists({
+        page: 0,
+        size: 100,
+        sort: "name,asc",
+    });
 
     const onSubmit = async (evt: SubmitEvent) => {
         evt.preventDefault();
@@ -90,7 +95,7 @@
             <Select
                     label="Укажите автора картины"
                     name="authorId"
-                    loadFunction={apiClient.loadArtists}
+                    loadFunction={loadArtistsForSelect}
                     bind:value={authorId}
                     keyName="id"
                     valueName="name"

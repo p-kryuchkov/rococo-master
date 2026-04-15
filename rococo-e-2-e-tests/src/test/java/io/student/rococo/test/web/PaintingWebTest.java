@@ -22,8 +22,8 @@ import java.awt.image.BufferedImage;
 @WebTest
 public class PaintingWebTest {
     private static final String PAINTING_PHOTO = "images/painting.jpg";
-    private static final String DEFAULT_ARTIST_NAME = "Илья Репин";
-    private static final String DEFAULT_MUSEUM_TITLE = "Эрмитаж";
+    private static final String DEFAULT_ARTIST_NAME = "Эдвард Мунк";
+    private static final String DEFAULT_MUSEUM_TITLE = "Лувр";
 
     @Test
     @Painting
@@ -157,7 +157,7 @@ public class PaintingWebTest {
 
     @Test
     @Artist
-    @Museum
+    @Museum(title = "Лувр")
     @User
     @ApiLogin
     @ScreenshotTest(value = PAINTING_PHOTO, rewriteExpected = false)

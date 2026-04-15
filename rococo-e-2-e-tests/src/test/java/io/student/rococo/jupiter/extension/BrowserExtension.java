@@ -18,6 +18,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
 
 import java.io.ByteArrayInputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.student.rococo.jupiter.extension.ApiLoginExtension.getJsessionIdCookie;
 import static io.student.rococo.jupiter.extension.ApiLoginExtension.getToken;
@@ -43,9 +45,17 @@ public class BrowserExtension implements
                 Configuration.browserVersion = "125.0";
                 Configuration.browserCapabilities = new FirefoxOptions();
             } else {
+                ChromeOptions options = new ChromeOptions();
+
+                Map<String, Object> prefs = new HashMap<>();
+                prefs.put("intl.accept_languages", "ru-RU,ru");
+
+                options.setExperimentalOption("prefs", prefs);
+                options.addArguments("--lang=ru-RU");
+                options.addArguments("--no-sandbox");
                 Configuration.browser = "chrome";
                 Configuration.browserVersion = "140.0";
-                Configuration.browserCapabilities = new ChromeOptions().addArguments("--no-sandbox");
+                Configuration.browserCapabilities = options;
             }
         }
     }

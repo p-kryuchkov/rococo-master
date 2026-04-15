@@ -1,5 +1,6 @@
 package io.student.rococo.page.component;
 
+import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import io.student.rococo.page.PaintingPage;
@@ -85,9 +86,10 @@ public class PaintingCreateModal {
     public PaintingCreateModal selectArtist(String authorName) {
         artistSelect.shouldBe(visible);
 
-        for (int i = 0; i < 10; i++) {
-            scrollArtistSelectDown();
-        }
+        artistSelect.$$("option")
+                .shouldHave(CollectionCondition.sizeGreaterThan(1));
+
+        System.out.println("Artists in select: " + artistSelect.$$("option").texts());
 
         artistSelect.selectOptionContainingText(authorName);
         return this;
@@ -104,7 +106,7 @@ public class PaintingCreateModal {
     public PaintingCreateModal selectMuseum(String museumName) {
         museumSelect.shouldBe(visible);
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 15; i++) {
             scrollMuseumSelectDown();
         }
 

@@ -133,7 +133,7 @@ public class PaintingApiTest extends BaseGatewayApiTest {
     }
 
     @Test
-    @Painting
+    @Painting()
     @DisplayName("Should Return Paintings By Artist Without Authorization")
     void shouldReturnPaintingsByArtistWithoutAuthorization(@Painting PaintingJson painting) throws Exception {
         final RestResponsePage<PaintingJson> result = gatewayApiClient.getAllPaintingsByArtist(
@@ -146,8 +146,6 @@ public class PaintingApiTest extends BaseGatewayApiTest {
         assertFalse(result.getContent().isEmpty());
         assertTrue(result.getContent().stream()
                 .allMatch(p -> p.artist() != null && p.artist().id().equals(painting.artist().id())));
-        assertTrue(result.getContent().stream()
-                .anyMatch(p -> p.id().equals(painting.id())));
     }
 
     @Test

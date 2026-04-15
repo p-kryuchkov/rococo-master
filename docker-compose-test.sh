@@ -5,13 +5,11 @@ export COMPOSE_PROFILES=test
 export PROFILE=docker
 export PREFIX="${IMAGE_PREFIX}"
 export ARCH=$(uname -m)
-export BROWSER=${1:-chrome}
 
 export ALLURE_DOCKER_API=http://allure:5050/
 export HEAD_COMMIT_MESSAGE="local build"
 export ARCH=$(uname -m)
-export BROWSER=${1:-chrome}
-export BUILD_MODE=${2:-nobuild}
+export BUILD_MODE=${1:-nobuild}
 
 docker compose down
 docker_containers=$(docker ps -a -q)
@@ -19,7 +17,6 @@ docker_images=$(docker images --format '{{.Repository}}:{{.Tag}}' | grep 'rococo
 required_docker_images=$(docker compose config --images)
 need_build=false
 
-echo "Browser: $BROWSER"
 echo "Build mode: $BUILD_MODE"
 
 if [ "$BUILD_MODE" = "build" ]; then
@@ -46,10 +43,6 @@ if [ "$need_build" = true ]; then
 else
   echo "### Images already exist, skip build ###"
 fi
-if [ "$BROWSER" = "firefox" ]; then
-  docker image inspect selenoid/vnc_firefox:125.0 >/dev/null 2>&1 || docker pull selenoid/vnc_firefox:125.0
-else
-  docker image inspect twilio/selenoid:chrome_stable_140 >/dev/null 2>&1 || docker pull twilio/selenoid:chrome_stable_140
-fi
+docker image inspect twilio/selenoid:chrome_stable_140 >/dev/null 2>&1 || docker pull twilio/selenoid:chrome_stable_140
 docker compose up -d
 docker ps -a
