@@ -9,6 +9,7 @@ option  java_outer_classname = "RococoDataMuseumProto";
 service MuseumService{
   rpc AllMuseums(PageableRequest) returns (MuseumsResponse);
   rpc FindMuseumById(IdRequest) returns (MuseumResponse);
+  rpc FindMuseumsByName(MuseumTitleRequest) returns (MuseumsResponse);
   rpc CreateMuseum(CreateMuseumRequest) returns (MuseumResponse);
   rpc UpdateMuseum(UpdateMuseumRequest) returns (MuseumResponse);
 }
@@ -17,15 +18,20 @@ message CreateMuseumRequest{
   string description = 1;
   string title = 2;
   bytes photo = 3;
-  Geo geo= 4;
+  Geo geo = 4;
+}
+
+message MuseumTitleRequest{
+  string title = 1;
+  PageableRequest pageable = 2;
 }
 
 message UpdateMuseumRequest{
   string id = 1;
- optional string description = 2;
- optional string title = 3;
- optional bytes photo = 4;
-  Geo geo= 5;
+  optional string description = 2;
+  optional string title = 3;
+  optional bytes photo = 4;
+  Geo geo = 5;
 }
 
 message Geo{
@@ -39,7 +45,7 @@ message MuseumResponse{
   string description = 2;
   string title = 3;
   bytes photo = 4;
-  Geo geo= 5;
+  Geo geo = 5;
 }
 message MuseumsResponse {
   repeated MuseumResponse museums = 1;

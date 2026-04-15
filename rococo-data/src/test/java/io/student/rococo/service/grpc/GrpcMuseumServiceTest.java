@@ -4,13 +4,7 @@ import com.google.protobuf.ByteString;
 import io.grpc.stub.StreamObserver;
 import io.student.rococo.data.entity.CountryEntity;
 import io.student.rococo.data.entity.MuseumEntity;
-import io.student.rococo.grpc.CreateMuseumRequest;
-import io.student.rococo.grpc.Geo;
-import io.student.rococo.grpc.IdRequest;
-import io.student.rococo.grpc.MuseumResponse;
-import io.student.rococo.grpc.MuseumsResponse;
-import io.student.rococo.grpc.PageableRequest;
-import io.student.rococo.grpc.UpdateMuseumRequest;
+import io.student.rococo.grpc.*;
 import io.student.rococo.service.db.MuseumDbService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -438,6 +432,89 @@ class GrpcMuseumServiceTest {
         assertEquals(city, response.getGeo().getCity());
         assertEquals("", response.getGeo().getCountryId());
         assertEquals("", response.getGeo().getCountryName());
+    }
+
+    @Test
+    void findMuseumsByName() {
+        final UUID firstId = UUID.randomUUID();
+        final UUID secondId = UUID.randomUUID();
+
+        final UUID firstCountryId = UUID.randomUUID();
+        final UUID secondCountryId = UUID.randomUUID();
+
+        final String searchTitle = "ra";
+        final String firstTitle = "Prado";
+        final String firstDescription = "Museum 1";
+        final String firstCity = "Madrid";
+        final String firstCountryName = "Spain";
+        final byte[] firstPhoto = "photo1".getBytes();
+
+        final String secondTitle = "Hermitage";
+        final String secondDescription = "Museum 2";
+        final String secondCity = "Saint Petersburg";
+        final String secondCountryName = "Russia";
+        final byte[] secondPhoto = "photo2".getBytes();
+
+        final int page = 0;
+        final int size = 2;
+        final long totalElements = 2L;
+        final int totalPages = 1;
+
+        final CountryEntity firstCountry = createCountryEntity(firstCountryId, firstCountryName);
+        final CountryEntity secondCountry = createCountryEntity(secondCountryId, secondCountryName);
+
+        final MuseumEntity firstMuseum = createMuseumEntity(firstId, firstTitle, firstDescription, firstCity, firstPhoto, firstCountry);
+        final MuseumEntity secondMuseum = createMuseumEntity(secondId, secondTitle, secondDescription, secondCity, secondPhoto, secondCountry);
+
+        final PageRequest pageRequest = PageRequest.of(page, size);
+        final Page<MuseumEntity> museumsPage = new PageImpl<>(
+                List.of(firstMuseum, secondMuseum),
+                pageRequest,
+                totalElements
+        );
+
+        when(museumDbService.getByTitle(searchTitle, pageRequest)).thenReturn(museumsPage);
+
+        final PageableRequest pageableRequest = PageableRequest.newBuilder()
+                .setPage(page)
+                .setSize(size)
+                .build();
+
+        final MuseumTitleRequest request = MuseumTitleRequest.newBuilder()
+                .setTitle(searchTitle)
+                .setPageable(pageableRequest)
+                .build();
+
+        grpcMuseumService.findMuseumsByName(request, museumsResponseObserver);
+
+        verify(museumDbService).getByTitle(searchTitle, pageRequest);
+        verify(museumsResponseObserver).onNext(museumsResponseCaptor.capture());
+        verify(museumsResponseObserver).onCompleted();
+
+        final MuseumsResponse response = museumsResponseCaptor.getValue();
+
+        assertEquals(2, response.getMuseumsCount());
+
+        assertEquals(firstId.toString(), response.getMuseums(0).getId());
+        assertEquals(firstTitle, response.getMuseums(0).getTitle());
+        assertEquals(firstDescription, response.getMuseums(0).getDescription());
+        assertArrayEquals(firstPhoto, response.getMuseums(0).getPhoto().toByteArray());
+        assertEquals(firstCity, response.getMuseums(0).getGeo().getCity());
+        assertEquals(firstCountryId.toString(), response.getMuseums(0).getGeo().getCountryId());
+        assertEquals(firstCountryName, response.getMuseums(0).getGeo().getCountryName());
+
+        assertEquals(secondId.toString(), response.getMuseums(1).getId());
+        assertEquals(secondTitle, response.getMuseums(1).getTitle());
+        assertEquals(secondDescription, response.getMuseums(1).getDescription());
+        assertArrayEquals(secondPhoto, response.getMuseums(1).getPhoto().toByteArray());
+        assertEquals(secondCity, response.getMuseums(1).getGeo().getCity());
+        assertEquals(secondCountryId.toString(), response.getMuseums(1).getGeo().getCountryId());
+        assertEquals(secondCountryName, response.getMuseums(1).getGeo().getCountryName());
+
+        assertEquals(page, response.getPage());
+        assertEquals(size, response.getSize());
+        assertEquals(totalElements, response.getTotalElements());
+        assertEquals(totalPages, response.getTotalPages());
     }
 
     private MuseumEntity createMuseumEntity(

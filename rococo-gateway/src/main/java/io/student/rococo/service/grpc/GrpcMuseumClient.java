@@ -5,6 +5,7 @@ import io.grpc.StatusRuntimeException;
 import io.student.rococo.exception.GrpcStatusException;
 import io.student.rococo.grpc.*;
 import io.student.rococo.model.EventJson;
+import io.student.rococo.model.GeoJson;
 import io.student.rococo.model.MuseumJson;
 import io.student.rococo.utils.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
@@ -38,10 +39,10 @@ public class GrpcMuseumClient {
 
     public Page<MuseumJson> getAllMuseums(Pageable pageable) {
         try {
-            PageableRequest req = springPageableToGrpcPageableRequest(pageable);
-            MuseumsResponse resp = stub.allMuseums(req);
+            PageableRequest request = springPageableToGrpcPageableRequest(pageable);
+            MuseumsResponse response = stub.allMuseums(request);
 
-            List<MuseumJson> items = resp.getMuseumsList().stream()
+            List<MuseumJson> list = response.getMuseumsList().stream()
                     .map(MuseumJson::fromGrpcMessage)
                     .toList();
             kafkaTemplate.send("events",
@@ -50,7 +51,35 @@ public class GrpcMuseumClient {
                             "Get all museums",
                             null,
                             currentUserProvider.getUsername()));
-            return new PageImpl<>(items, pageable, resp.getTotalElements());
+            return new PageImpl<>(list, pageable, response.getTotalElements());
+        } catch (StatusRuntimeException e) {
+            throw new GrpcStatusException(e);
+        }
+    }
+
+    public Page<MuseumJson> getMuseumsByTitle(String title, Pageable pageable) {
+        try {
+            if (title == null || title.isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Museum name is required");
+            }
+
+            PageableRequest pageRequest = springPageableToGrpcPageableRequest(pageable);
+            MuseumTitleRequest museumTitleRequest = MuseumTitleRequest.newBuilder()
+                    .setTitle(title)
+                    .setPageable(pageRequest)
+                    .build();
+
+            MuseumsResponse response = stub.findMuseumsByName(museumTitleRequest);
+            List<MuseumJson> list = response.getMuseumsList().stream()
+                    .map(MuseumJson::fromGrpcMessage)
+                    .toList();
+            kafkaTemplate.send("events",
+                    new EventJson(Instant.now(),
+                            GET,
+                            "Get museums by title",
+                            null,
+                            currentUserProvider.getUsername()));
+            return new PageImpl<>(list, pageable, response.getTotalElements());
         } catch (StatusRuntimeException e) {
             throw new GrpcStatusException(e);
         }
@@ -87,7 +116,7 @@ public class GrpcMuseumClient {
                     .setDescription(museumJson.description() == null ? "" : museumJson.description());
 
             Geo geo = Geo.newBuilder()
-                    .setCity(museumJson.geo().city() == null ? "" : museumJson.geo().city() )
+                    .setCity(museumJson.geo().city() == null ? "" : museumJson.geo().city())
                     .setCountryId(museumJson.geo().country().id() == null ? "" : museumJson.geo().country().id().toString())
                     .build();
             builder.setGeo(geo);
@@ -126,13 +155,15 @@ public class GrpcMuseumClient {
                 builder.setDescription(museumJson.description());
             }
 
-            if (museumJson.geo().city() != null || museumJson.geo().country().id() != null) {
-                Geo.Builder geoBuilder = Geo.newBuilder();
-                geoBuilder.setCity(museumJson.geo().city() == null ? "" : museumJson.geo().city());
-                geoBuilder.setCountryId(museumJson.geo().country().id()  == null ? "" : museumJson.geo().country().id().toString());
-                builder.setGeo(geoBuilder.build());
+            GeoJson geo = museumJson.geo();
+            if (geo != null) {
+                if (geo.city() != null || geo.country().id() != null) {
+                    Geo.Builder geoBuilder = Geo.newBuilder();
+                    geoBuilder.setCity(geo.city() == null ? "" : geo.city());
+                    geoBuilder.setCountryId(geo.country().id() == null ? "" : geo.country().id().toString());
+                    builder.setGeo(geoBuilder.build());
+                }
             }
-
             if (museumJson.photo() != null) {
                 builder.setPhoto(ByteString.copyFrom(decodeImageFromB64ToBytes(museumJson.photo())));
             }

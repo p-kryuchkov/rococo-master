@@ -33,6 +33,11 @@ public class ArtistDbService {
                 );
     }
 
+    public Page<ArtistEntity> getByName(String name, Pageable pageable) {
+        validateName(name);
+        return artistRepository.findAllByNameContainingIgnoreCase(name.trim(), pageable);
+    }
+
     public Page<ArtistEntity> getAll(Pageable pageable) {
         return artistRepository.findAll(pageable);
     }

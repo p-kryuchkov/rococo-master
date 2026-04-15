@@ -41,7 +41,6 @@ public class GrpcUserdataPublicService extends UserdataReadServiceGrpc.UserdataR
                 : request.getAvatar().toByteArray();
 
         UserDataEntity updated = userdataDbService.updateUser(
-                UUID.fromString(request.getId()),
                 request.getUsername(),
                 request.getFirstname(),
                 request.getLastname(),

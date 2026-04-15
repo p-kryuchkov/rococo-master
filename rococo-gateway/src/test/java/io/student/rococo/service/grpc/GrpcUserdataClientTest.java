@@ -152,7 +152,6 @@ class GrpcUserdataClientTest {
         verify(stub).updateUser(requestCaptor.capture());
 
         UpdateUserRequest request = requestCaptor.getValue();
-        assertEquals(userId.toString(), request.getId());
         assertEquals(username, request.getUsername());
         assertEquals(updatedFirstname, request.getFirstname());
         assertEquals(updatedLastname, request.getLastname());
@@ -164,7 +163,7 @@ class GrpcUserdataClientTest {
         EventJson event = eventCaptor.getValue();
         assertNotNull(event.date());
         assertEquals(UPDATE, event.eventType());
-        assertEquals("Update user", event.description());
+        assertEquals("Update user username: " + username, event.description());
         assertEquals(userId, event.entityId());
         assertEquals(username, event.username());
     }
@@ -194,7 +193,6 @@ class GrpcUserdataClientTest {
         verify(stub).updateUser(requestCaptor.capture());
 
         UpdateUserRequest request = requestCaptor.getValue();
-        assertEquals(userId.toString(), request.getId());
         assertEquals(username, request.getUsername());
         assertEquals(firstname, request.getFirstname());
         assertEquals(lastname, request.getLastname());

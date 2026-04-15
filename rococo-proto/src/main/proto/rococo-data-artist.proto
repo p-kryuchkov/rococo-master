@@ -9,6 +9,7 @@ option  java_outer_classname = "RococoDataArtistProto";
 service ArtistService{
   rpc AllArtists(PageableRequest) returns (ArtistsResponse);
   rpc GetArtistById(IdRequest) returns (ArtistResponse);
+  rpc GetArtistsByName(ArtistNameRequest) returns (ArtistsResponse);
   rpc CreateArtist(CreateArtistRequest) returns (ArtistResponse);
   rpc UpdateArtist(UpdateArtistRequest) returns (ArtistResponse);
 }
@@ -19,10 +20,15 @@ message CreateArtistRequest{
   bytes photo = 3;
 }
 
+message ArtistNameRequest{
+  string name = 1;
+  PageableRequest pageable = 2;
+}
+
 message UpdateArtistRequest{
   string id = 1;
-  optional  string name = 2;
-  optional  string biography = 3;
+  optional string name = 2;
+  optional string biography = 3;
   optional bytes photo = 4;
 }
 

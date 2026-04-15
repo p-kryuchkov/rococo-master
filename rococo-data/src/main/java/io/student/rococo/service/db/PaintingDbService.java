@@ -41,6 +41,11 @@ public class PaintingDbService {
                 .orElseThrow(() -> new PaintingNotFoundException("Painting not found with id: " + id));
     }
 
+    public Page<PaintingEntity> getByTitle(String title, Pageable pageable) {
+        validateTitle(title);
+        return paintingRepository.findAllByTitleContainingIgnoreCase(title.trim(), pageable);
+    }
+
     public Page<PaintingEntity> getAll(Pageable pageable) {
         return paintingRepository.findAll(pageable);
     }

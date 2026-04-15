@@ -353,4 +353,102 @@ class GrpcMuseumClientTest {
 
         verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
     }
+
+    @Test
+    void getMuseumsByTitle() {
+        final MuseumResponse louvre = MuseumResponse.newBuilder()
+                .setId(louvreId.toString())
+                .setTitle(louvreTitle)
+                .setDescription(louvreDescription)
+                .setGeo(Geo.newBuilder()
+                        .setCity(paris)
+                        .setCountryId(franceId.toString())
+                        .build())
+                .build();
+
+        String pradoTitle = "Prado";
+        String pradoDescription = "Prado description";
+        String madridCity = "Madrid";
+        final MuseumResponse prado = MuseumResponse.newBuilder()
+                .setId(pradoId.toString())
+                .setTitle(pradoTitle)
+                .setDescription(pradoDescription)
+                .setGeo(Geo.newBuilder()
+                        .setCity(madridCity)
+                        .setCountryId(spainId.toString())
+                        .build())
+                .build();
+
+        final MuseumsResponse response = MuseumsResponse.newBuilder()
+                .addMuseums(louvre)
+                .addMuseums(prado)
+                .setTotalElements(5)
+                .build();
+
+        when(stub.findMuseumsByName(any(MuseumTitleRequest.class))).thenReturn(response);
+
+        PageRequest pageable = PageRequest.of(1, 2);
+
+        Page<MuseumJson> result = client.getMuseumsByTitle("r", pageable);
+
+        assertNotNull(result);
+        assertEquals(2, result.getContent().size());
+        assertEquals(5, result.getTotalElements());
+        assertEquals(louvreTitle, result.getContent().get(0).title());
+        assertEquals(pradoTitle, result.getContent().get(1).title());
+
+        ArgumentCaptor<MuseumTitleRequest> requestCaptor = ArgumentCaptor.forClass(MuseumTitleRequest.class);
+        verify(stub).findMuseumsByName(requestCaptor.capture());
+
+        MuseumTitleRequest request = requestCaptor.getValue();
+        assertEquals("r", request.getTitle());
+        assertEquals(1, request.getPageable().getPage());
+        assertEquals(2, request.getPageable().getSize());
+
+        ArgumentCaptor<EventJson> eventCaptor = ArgumentCaptor.forClass(EventJson.class);
+        verify(kafkaTemplate).send(eq("events"), eventCaptor.capture());
+
+        EventJson event = eventCaptor.getValue();
+        assertNotNull(event.date());
+        assertEquals(GET, event.eventType());
+        assertEquals("Get museums by title", event.description());
+        assertNull(event.entityId());
+        assertEquals(username, event.username());
+    }
+
+    @Test
+    void getMuseumsByTitleShouldThrowBadRequestWhenTitleIsNull() {
+        ResponseStatusException exception =
+                assertThrows(ResponseStatusException.class, () -> client.getMuseumsByTitle(null, PageRequest.of(0, 10)));
+
+        assertEquals(400, exception.getStatusCode().value());
+        assertEquals("Museum name is required", exception.getReason());
+
+        verifyNoInteractions(stub);
+        verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
+    }
+
+    @Test
+    void getMuseumsByTitleShouldThrowBadRequestWhenTitleIsBlank() {
+        ResponseStatusException exception =
+                assertThrows(ResponseStatusException.class, () -> client.getMuseumsByTitle("   ", PageRequest.of(0, 10)));
+
+        assertEquals(400, exception.getStatusCode().value());
+        assertEquals("Museum name is required", exception.getReason());
+
+        verifyNoInteractions(stub);
+        verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
+    }
+
+    @Test
+    void getMuseumsByTitleShouldThrowGrpcStatusException() {
+        when(stub.findMuseumsByName(any(MuseumTitleRequest.class)))
+                .thenThrow(new StatusRuntimeException(Status.INTERNAL));
+
+        PageRequest pageable = PageRequest.of(0, 20);
+
+        assertThrows(GrpcStatusException.class, () -> client.getMuseumsByTitle("Louvre", pageable));
+
+        verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
+    }
 }

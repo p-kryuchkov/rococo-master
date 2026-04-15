@@ -492,4 +492,87 @@ class PaintingDbServiceTest {
         verify(museumRepository, never()).findById(any());
         verify(paintingRepository).save(existingPainting);
     }
+
+    @Test
+    void shouldReturnPaintingsByTitle() {
+        final Pageable pageable = PageRequest.of(0, 10);
+        final String title = "mona";
+
+        final PaintingEntity painting = new PaintingEntity();
+        painting.setTitle("Mona Lisa");
+
+        final Page<PaintingEntity> page = new PageImpl<>(List.of(painting), pageable, 1);
+
+        when(paintingRepository.findAllByTitleContainingIgnoreCase("mona", pageable))
+                .thenReturn(page);
+
+        Page<PaintingEntity> result = paintingDbService.getByTitle(title, pageable);
+
+        assertEquals(1, result.getContent().size());
+        assertEquals("Mona Lisa", result.getContent().get(0).getTitle());
+
+        verify(paintingRepository).findAllByTitleContainingIgnoreCase("mona", pageable);
+    }
+
+    @Test
+    void shouldTrimTitleWhenFindPaintingsByTitle() {
+        final Pageable pageable = PageRequest.of(0, 10);
+        final String title = "  mona  ";
+
+        final PaintingEntity painting = new PaintingEntity();
+        painting.setTitle("Mona Lisa");
+
+        final Page<PaintingEntity> page = new PageImpl<>(List.of(painting), pageable, 1);
+
+        when(paintingRepository.findAllByTitleContainingIgnoreCase("mona", pageable))
+                .thenReturn(page);
+
+        Page<PaintingEntity> result = paintingDbService.getByTitle(title, pageable);
+
+        assertEquals(1, result.getContent().size());
+        assertEquals("Mona Lisa", result.getContent().get(0).getTitle());
+
+        verify(paintingRepository).findAllByTitleContainingIgnoreCase("mona", pageable);
+    }
+
+    @Test
+    void shouldReturnEmptyPageWhenPaintingTitleNotFound() {
+        final Pageable pageable = PageRequest.of(0, 10);
+        final String title = "unknown";
+
+        final Page<PaintingEntity> page = new PageImpl<>(List.of(), pageable, 0);
+
+        when(paintingRepository.findAllByTitleContainingIgnoreCase(title, pageable))
+                .thenReturn(page);
+
+        Page<PaintingEntity> result = paintingDbService.getByTitle(title, pageable);
+
+        assertTrue(result.getContent().isEmpty());
+
+        verify(paintingRepository).findAllByTitleContainingIgnoreCase(title, pageable);
+    }
+
+    @Test
+    void shouldThrowWhenFindPaintingsByTitleWithNullTitle() {
+        FieldValidationException exception = assertThrows(
+                FieldValidationException.class,
+                () -> paintingDbService.getByTitle(null, PageRequest.of(0, 10))
+        );
+
+        assertEquals("Title must not be blank", exception.getMessage());
+
+        verify(paintingRepository, never()).findAllByTitleContainingIgnoreCase(any(), any());
+    }
+
+    @Test
+    void shouldThrowWhenFindPaintingsByTitleWithBlankTitle() {
+        FieldValidationException exception = assertThrows(
+                FieldValidationException.class,
+                () -> paintingDbService.getByTitle("   ", PageRequest.of(0, 10))
+        );
+
+        assertEquals("Title must not be blank", exception.getMessage());
+
+        verify(paintingRepository, never()).findAllByTitleContainingIgnoreCase(any(), any());
+    }
 }

@@ -17,10 +17,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-
 import java.time.Instant;
 
-import static io.student.rococo.model.EventType.*;
+import static io.student.rococo.model.EventType.GET;
+import static io.student.rococo.model.EventType.UPDATE;
 import static io.student.rococo.utils.Base64Utils.decodeImageFromB64ToBytes;
 
 @Component
@@ -61,30 +61,32 @@ public class GrpcUserdataClient {
 
     public UserJson updateUser(UserJson user) {
         try {
-            if (user.username() == null || user.username().isBlank()) {
+            String username = user.username();
+            if (username == null || username.isBlank()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is required");
             }
-
             UpdateUserRequest.Builder builder = UpdateUserRequest.newBuilder()
-                    .setId(user.id().toString())
-                    .setUsername(user.username())
-                    .setFirstname(user.firstname() == null ? "" : user.firstname())
-                    .setLastname(user.lastname() == null ? "" : user.lastname());
-
+                    .setUsername(user.username());
+            if (user.firstname() != null) {
+                builder.setFirstname(user.firstname());
+            }
+            if (user.lastname() != null) {
+                builder.setLastname(user.lastname());
+            }
             if (user.avatar() != null) {
                 builder.setAvatar(ByteString.copyFrom(decodeImageFromB64ToBytes(user.avatar())));
             }
 
-            UserResponse resp = stub.updateUser(builder.build());
-            UserJson result = UserJson.fromGrpcMessage(resp);
+            UserJson result = UserJson.fromGrpcMessage(stub.updateUser(builder.build()));
             kafkaTemplate.send("events",
-                    new EventJson(Instant.now(),
+                    new EventJson(
+                            Instant.now(),
                             UPDATE,
-                            "Update user",
+                            "Update user username: " + user.username(),
                             result.id(),
-                            currentUserProvider.getUsername()));
+                            currentUserProvider.getUsername()
+                    ));
             return result;
-
         } catch (StatusRuntimeException e) {
             throw new GrpcStatusException(e);
         }

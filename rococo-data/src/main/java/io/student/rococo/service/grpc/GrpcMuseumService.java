@@ -41,6 +41,24 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
     }
 
     @Override
+    public void findMuseumsByName(MuseumTitleRequest request, StreamObserver<MuseumsResponse> responseObserver) {
+        PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request.getPageable());
+        Page<MuseumEntity> result = museumDbService.getByTitle(request.getTitle(), pageRequest);
+
+        responseObserver.onNext(MuseumsResponse.newBuilder()
+                .addAllMuseums(result.stream()
+                        .map(GrpcMuseumService::museumEntityToMuseumProtoResponse)
+                        .toList())
+                .setPage(result.getNumber())
+                .setSize(result.getSize())
+                .setTotalElements(result.getTotalElements())
+                .setTotalPages(result.getTotalPages())
+                .build());
+
+        responseObserver.onCompleted();
+    }
+
+    @Override
     public void findMuseumById(IdRequest request, StreamObserver<MuseumResponse> responseObserver) {
         MuseumEntity entity = museumDbService.getById(request.getId());
         responseObserver.onNext(museumEntityToMuseumProtoResponse(entity));
@@ -84,7 +102,7 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
         Geo geo = Geo.newBuilder()
                 .setCity(museumEntity.getCity() == null ? "" : museumEntity.getCity())
                 .setCountryId(museumEntity.getCountry() == null ? "" : museumEntity.getCountry().getId().toString())
-                .setCountryName(museumEntity.getCountry() == null? "" : museumEntity.getCountry().getName())
+                .setCountryName(museumEntity.getCountry() == null ? "" : museumEntity.getCountry().getName())
                 .build();
 
         return MuseumResponse.newBuilder()

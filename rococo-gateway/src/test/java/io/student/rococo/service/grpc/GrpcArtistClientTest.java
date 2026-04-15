@@ -311,4 +311,85 @@ class GrpcArtistClientTest {
 
         verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
     }
+
+    @Test
+    void getArtistsByName() {
+        final ArtistResponse leonardo = ArtistResponse.newBuilder()
+                .setId(leonardoId.toString())
+                .setName(leonardoName)
+                .setBiography(leonardoBiography)
+                .build();
+
+        final ArtistsResponse response = ArtistsResponse.newBuilder()
+                .addArtists(leonardo)
+                .setTotalElements(1)
+                .build();
+
+        when(stub.getArtistsByName(any(ArtistNameRequest.class))).thenReturn(response);
+
+        PageRequest pageable = PageRequest.of(0, 10);
+
+        Page<ArtistJson> result = client.getArtistsByName(leonardoName, pageable);
+
+        assertNotNull(result);
+        assertEquals(1, result.getContent().size());
+        assertEquals(1, result.getTotalElements());
+        assertEquals(leonardoId, result.getContent().get(0).id());
+        assertEquals(leonardoName, result.getContent().get(0).name());
+        assertEquals(leonardoBiography, result.getContent().get(0).biography());
+
+        ArgumentCaptor<ArtistNameRequest> requestCaptor = ArgumentCaptor.forClass(ArtistNameRequest.class);
+        verify(stub).getArtistsByName(requestCaptor.capture());
+
+        ArtistNameRequest request = requestCaptor.getValue();
+        assertEquals(leonardoName, request.getName());
+        assertEquals(0, request.getPageable().getPage());
+        assertEquals(10, request.getPageable().getSize());
+
+        ArgumentCaptor<EventJson> eventCaptor = ArgumentCaptor.forClass(EventJson.class);
+        verify(kafkaTemplate).send(eq("events"), eventCaptor.capture());
+
+        EventJson event = eventCaptor.getValue();
+        assertNotNull(event.date());
+        assertEquals(GET, event.eventType());
+        assertEquals("Get artists by name: " + leonardoName, event.description());
+        assertNull(event.entityId());
+        assertEquals(username, event.username());
+    }
+
+    @Test
+    void getArtistsByNameShouldThrowBadRequestWhenNameIsNull() {
+        ResponseStatusException exception =
+                assertThrows(ResponseStatusException.class, () -> client.getArtistsByName(null, PageRequest.of(0, 10)));
+
+        assertEquals(400, exception.getStatusCode().value());
+        assertEquals("Artist name is required", exception.getReason());
+
+        verifyNoInteractions(stub);
+        verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
+    }
+
+    @Test
+    void getArtistsByNameShouldThrowBadRequestWhenNameIsBlank() {
+        ResponseStatusException exception =
+                assertThrows(ResponseStatusException.class, () -> client.getArtistsByName("   ", PageRequest.of(0, 10)));
+
+        assertEquals(400, exception.getStatusCode().value());
+        assertEquals("Artist name is required", exception.getReason());
+
+        verifyNoInteractions(stub);
+        verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
+    }
+
+    @Test
+    void getArtistsByNameShouldThrowGrpcStatusException() {
+        when(stub.getArtistsByName(any(ArtistNameRequest.class)))
+                .thenThrow(new StatusRuntimeException(Status.INTERNAL));
+
+        PageRequest pageable = PageRequest.of(0, 10);
+
+        assertThrows(GrpcStatusException.class, () -> client.getArtistsByName(leonardoName, pageable));
+
+        verify(kafkaTemplate, never()).send(anyString(), any(EventJson.class));
+    }
 }

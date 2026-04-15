@@ -13,6 +13,7 @@ service PaintingService{
   rpc AllPaintings(PageableRequest) returns (PaintingsResponse);
   rpc FindPaintingById(IdRequest) returns (PaintingResponse);
   rpc FindPaintingByArtist(PaintingsByArtistRequest) returns (PaintingsResponse);
+  rpc FindPaintingsByName(PaintingTitleRequest) returns (PaintingsResponse);
   rpc CreatePainting(CreatePaintingRequest) returns (PaintingResponse);
   rpc UpdatePainting(UpdatePaintingRequest) returns (PaintingResponse);
 }
@@ -28,6 +29,11 @@ message CreatePaintingRequest{
   bytes content = 3;
   ArtistRequest artist = 4;
   MuseumRequest museum = 5;
+}
+
+message PaintingTitleRequest{
+  string title = 1;
+  PageableRequest pageable = 2;
 }
 
 message UpdatePaintingRequest{
