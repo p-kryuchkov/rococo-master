@@ -8,6 +8,7 @@ import io.student.rococo.grpc.UserResponse;
 import io.student.rococo.grpc.UserdataReadServiceGrpc;
 import io.student.rococo.grpc.UsernameRequest;
 import io.student.rococo.service.db.UserdataDbService;
+import jakarta.annotation.Nonnull;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 import java.util.UUID;
@@ -24,14 +25,14 @@ public class GrpcUserdataPublicService extends UserdataReadServiceGrpc.UserdataR
     }
 
     @Override
-    public void getUserByUsername(UsernameRequest request, StreamObserver<UserResponse> responseObserver) {
+    public void getUserByUsername(@Nonnull UsernameRequest request, @Nonnull StreamObserver<UserResponse> responseObserver) {
         UserDataEntity userEntity = userdataDbService.getByUsername(request.getUsername());
         responseObserver.onNext(userEntityToUserProtoResponse(userEntity));
         responseObserver.onCompleted();
     }
 
     @Override
-    public void updateUser(UpdateUserRequest request, StreamObserver<UserResponse> responseObserver) {
+    public void updateUser(@Nonnull UpdateUserRequest request, @Nonnull StreamObserver<UserResponse> responseObserver) {
         if (!request.hasUsername()) {
             throw new FieldValidationException("Username must not be null");
         }

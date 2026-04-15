@@ -7,6 +7,8 @@ import io.student.rococo.grpc.*;
 import io.student.rococo.model.ArtistJson;
 import io.student.rococo.model.EventJson;
 import io.student.rococo.utils.CurrentUserProvider;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,7 +41,8 @@ public class GrpcArtistClient {
         this.currentUserProvider = currentUserProvider;
     }
 
-    public ArtistJson getArtistById(UUID id) {
+    @Nonnull
+    public ArtistJson getArtistById(@Nonnull UUID id) {
         try {
             if (id == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Artist id is required");
@@ -62,7 +65,8 @@ public class GrpcArtistClient {
         }
     }
 
-    public Page<ArtistJson> getArtistsByName(String name, Pageable pageable) {
+    @Nonnull
+    public Page<ArtistJson> getArtistsByName(@Nonnull String name, @Nonnull Pageable pageable) {
         try {
             if (name == null || name.isBlank()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Artist name is required");
@@ -89,7 +93,8 @@ public class GrpcArtistClient {
         }
     }
 
-    public Page<ArtistJson> getAllArtists(Pageable pageable) {
+    @Nonnull
+    public Page<ArtistJson> getAllArtists(@Nonnull Pageable pageable) {
         try {
             PageableRequest pageRequest = springPageableToGrpcPageableRequest(pageable);
             ArtistsResponse response = stub.allArtists(pageRequest);
@@ -110,7 +115,8 @@ public class GrpcArtistClient {
         }
     }
 
-    public ArtistJson createArtist(ArtistJson artist) {
+    @Nonnull
+    public ArtistJson createArtist(@Nonnull ArtistJson artist) {
         try {
             CreateArtistRequest.Builder builder = CreateArtistRequest.newBuilder()
                     .setName(artist.name())
@@ -133,7 +139,8 @@ public class GrpcArtistClient {
         }
     }
 
-    public ArtistJson updateArtist(ArtistJson artist) {
+    @Nonnull
+    public ArtistJson updateArtist(@Nonnull ArtistJson artist) {
         try {
             if (artist.id() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Artist id is required");

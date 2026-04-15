@@ -1,11 +1,13 @@
 package io.student.rococo.utils;
 
 import io.student.rococo.exception.FieldValidationException;
+import jakarta.annotation.Nonnull;
 
 import java.util.UUID;
 
 public class DbUtils {
-    public static UUID parseUuid(String id) {
+    @Nonnull
+    public static UUID parseUuid(@Nonnull String id) {
         try {
             return UUID.fromString(id);
         } catch (Exception e) {

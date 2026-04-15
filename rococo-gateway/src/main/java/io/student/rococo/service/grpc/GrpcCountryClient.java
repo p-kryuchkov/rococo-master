@@ -8,6 +8,7 @@ import io.student.rococo.grpc.PageableRequest;
 import io.student.rococo.model.CountryJson;
 import io.student.rococo.model.EventJson;
 import io.student.rococo.utils.CurrentUserProvider;
+import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.data.domain.Page;
@@ -33,7 +34,8 @@ public class GrpcCountryClient {
 
     private final CurrentUserProvider currentUserProvider;
 
-    public Page<CountryJson> getAllCountries(Pageable pageable) {
+    @Nonnull
+    public Page<CountryJson> getAllCountries(@Nonnull Pageable pageable) {
         try {
             PageableRequest request = springPageableToGrpcPageableRequest(pageable);
             CountriesResponse response = stub.allCountries(request);

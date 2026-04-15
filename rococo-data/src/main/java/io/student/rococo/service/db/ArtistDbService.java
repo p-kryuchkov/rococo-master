@@ -4,6 +4,8 @@ import io.student.rococo.data.entity.ArtistEntity;
 import io.student.rococo.data.repository.ArtistRepository;
 import io.student.rococo.exception.ArtistNotFoundException;
 import io.student.rococo.exception.FieldValidationException;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.EntityExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,7 +27,8 @@ public class ArtistDbService {
         this.artistRepository = artistRepository;
     }
 
-    public ArtistEntity getById(String id) {
+    @Nonnull
+    public ArtistEntity getById(@Nonnull String id) {
         UUID uuid = parseUuid(id);
         return artistRepository.findById(uuid)
                 .orElseThrow(() ->
@@ -33,17 +36,20 @@ public class ArtistDbService {
                 );
     }
 
-    public Page<ArtistEntity> getByName(String name, Pageable pageable) {
+    @Nonnull
+    public Page<ArtistEntity> getByName(@Nonnull String name, @Nonnull Pageable pageable) {
         validateName(name);
         return artistRepository.findAllByNameContainingIgnoreCase(name.trim(), pageable);
     }
 
-    public Page<ArtistEntity> getAll(Pageable pageable) {
+    @Nonnull
+    public Page<ArtistEntity> getAll(@Nonnull Pageable pageable) {
         return artistRepository.findAll(pageable);
     }
 
     @Transactional
-    public ArtistEntity create(String name, String biography, byte[] photo) {
+    @Nonnull
+    public ArtistEntity create(@Nonnull String name, @Nullable String biography, @Nullable byte[] photo) {
         validateName(name);
         validateBiography(biography);
         artistRepository.getByName(name)
@@ -65,7 +71,8 @@ public class ArtistDbService {
     }
 
     @Transactional
-    public ArtistEntity update(String id, String name, String biography, byte[] photo) {
+    @Nonnull
+    public ArtistEntity update(@Nonnull String id, @Nullable String name, @Nullable String biography, @Nullable byte[] photo) {
         UUID uuid = parseUuid(id);
 
         ArtistEntity entity = artistRepository.findById(uuid)

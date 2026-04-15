@@ -10,6 +10,7 @@ import io.student.rococo.grpc.UsernameRequest;
 import io.student.rococo.model.EventJson;
 import io.student.rococo.model.UserJson;
 import io.student.rococo.utils.CurrentUserProvider;
+import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,8 @@ public class GrpcUserdataClient {
 
     private final CurrentUserProvider currentUserProvider;
 
-    public UserJson getUserByUsername(String username) {
+    @Nonnull
+    public UserJson getUserByUsername(@Nonnull String username) {
         try {
             if (username == null || username.isBlank()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username is required");
@@ -59,7 +61,8 @@ public class GrpcUserdataClient {
         }
     }
 
-    public UserJson updateUser(UserJson user) {
+    @Nonnull
+    public UserJson updateUser(@Nonnull UserJson user) {
         try {
             String username = user.username();
             if (username == null || username.isBlank()) {
