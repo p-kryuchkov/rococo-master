@@ -8,6 +8,8 @@ import io.student.rococo.model.EventJson;
 import io.student.rococo.model.GeoJson;
 import io.student.rococo.model.MuseumJson;
 import io.student.rococo.utils.CurrentUserProvider;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.data.domain.Page;
@@ -37,7 +39,8 @@ public class GrpcMuseumClient {
 
     private final CurrentUserProvider currentUserProvider;
 
-    public Page<MuseumJson> getAllMuseums(Pageable pageable) {
+    @Nonnull
+    public Page<MuseumJson> getAllMuseums(@Nonnull Pageable pageable) {
         try {
             PageableRequest request = springPageableToGrpcPageableRequest(pageable);
             MuseumsResponse response = stub.allMuseums(request);
@@ -57,7 +60,8 @@ public class GrpcMuseumClient {
         }
     }
 
-    public Page<MuseumJson> getMuseumsByTitle(String title, Pageable pageable) {
+    @Nonnull
+    public Page<MuseumJson> getMuseumsByTitle(@Nonnull String title, @Nonnull Pageable pageable) {
         try {
             if (title == null || title.isBlank()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Museum name is required");
@@ -85,7 +89,8 @@ public class GrpcMuseumClient {
         }
     }
 
-    public MuseumJson getMuseumById(UUID id) {
+    @Nonnull
+    public MuseumJson getMuseumById(@Nonnull UUID id) {
         try {
             if (id == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Museum id is required");
@@ -109,7 +114,8 @@ public class GrpcMuseumClient {
         }
     }
 
-    public MuseumJson createMuseum(MuseumJson museumJson) {
+    @Nonnull
+    public MuseumJson createMuseum(@Nonnull MuseumJson museumJson) {
         try {
             CreateMuseumRequest.Builder builder = CreateMuseumRequest.newBuilder()
                     .setTitle(museumJson.title() == null ? "" : museumJson.title())
@@ -139,7 +145,8 @@ public class GrpcMuseumClient {
         }
     }
 
-    public MuseumJson updateMuseum(MuseumJson museumJson) {
+    @Nonnull
+    public MuseumJson updateMuseum(@Nonnull MuseumJson museumJson) {
         try {
             if (museumJson.id() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Museum id is required");

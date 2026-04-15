@@ -2,12 +2,14 @@ package io.student.rococo.utils;
 
 import io.student.rococo.grpc.PageableRequest;
 import io.student.rococo.grpc.SortDirection;
+import jakarta.annotation.Nonnull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 
 public class GrpcUtils {
-    public static PageableRequest springPageableToGrpcPageableRequest(Pageable pageable) {
+    @Nonnull
+    public static PageableRequest springPageableToGrpcPageableRequest(@Nonnull Pageable pageable) {
         PageableRequest.Builder builder = PageableRequest.newBuilder()
                 .setPage(pageable.getPageNumber())
                 .setSize(pageable.getPageSize());

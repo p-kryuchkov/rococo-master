@@ -8,6 +8,7 @@ import io.student.rococo.grpc.CountriesServiceGrpc;
 import io.student.rococo.grpc.CountryResponse;
 import io.student.rococo.grpc.PageableRequest;
 import io.student.rococo.service.db.CountryDbService;
+import jakarta.annotation.Nonnull;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,7 +28,7 @@ public class GrpcCountryService extends CountriesServiceGrpc.CountriesServiceImp
     }
 
     @Override
-    public void allCountries(PageableRequest request, StreamObserver<CountriesResponse> responseObserver) {
+    public void allCountries(@Nonnull PageableRequest request, @Nonnull StreamObserver<CountriesResponse> responseObserver) {
         PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request, 20);
         Page<CountryEntity> result = countryDbService.getAll(pageRequest);
 

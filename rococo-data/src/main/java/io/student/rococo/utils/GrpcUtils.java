@@ -2,15 +2,18 @@ package io.student.rococo.utils;
 
 import io.student.rococo.grpc.PageableRequest;
 import io.student.rococo.grpc.SortDirection;
+import jakarta.annotation.Nonnull;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 public class GrpcUtils {
-    public static PageRequest grpcPageableRequestToSpringPageRequest(PageableRequest request) {
+    @Nonnull
+    public static PageRequest grpcPageableRequestToSpringPageRequest(@Nonnull PageableRequest request) {
         return grpcPageableRequestToSpringPageRequest(request, 20);
     }
 
-    public static PageRequest grpcPageableRequestToSpringPageRequest(PageableRequest request, int sizeDefault) {
+    @Nonnull
+    public static PageRequest grpcPageableRequestToSpringPageRequest(@Nonnull PageableRequest request, int sizeDefault) {
         final int page = request.hasPage() ? request.getPage() : 0;
         final int size = request.hasSize() ? request.getSize() : sizeDefault;
 

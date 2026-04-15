@@ -2,6 +2,7 @@ package io.student.rococo.controller;
 
 import io.student.rococo.model.UserJson;
 import io.student.rococo.service.grpc.GrpcUserdataClient;
+import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -17,13 +18,15 @@ public class UserController {
         this.userdataClient = userdataClient;
     }
 
+    @Nonnull
     @GetMapping
-    public UserJson getCurrentUser(@AuthenticationPrincipal Jwt principal) {
+    public UserJson getCurrentUser(@AuthenticationPrincipal @Nonnull Jwt principal) {
         return userdataClient.getUserByUsername(principal.getClaim("sub"));
     }
 
+    @Nonnull
     @PatchMapping
-    public UserJson updateUser(@RequestBody UserJson user) {
+    public UserJson updateUser(@RequestBody @Nonnull UserJson user) {
         return userdataClient.updateUser(user);
     }
 }

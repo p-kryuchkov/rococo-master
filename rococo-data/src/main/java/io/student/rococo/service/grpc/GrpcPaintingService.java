@@ -5,6 +5,7 @@ import io.grpc.stub.StreamObserver;
 import io.student.rococo.data.entity.PaintingEntity;
 import io.student.rococo.grpc.*;
 import io.student.rococo.service.db.PaintingDbService;
+import jakarta.annotation.Nonnull;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,7 +24,7 @@ public class GrpcPaintingService extends PaintingServiceGrpc.PaintingServiceImpl
     }
 
     @Override
-    public void findPaintingsByName(PaintingTitleRequest request, StreamObserver<PaintingsResponse> responseObserver) {
+    public void findPaintingsByName(@Nonnull PaintingTitleRequest request, @Nonnull StreamObserver<PaintingsResponse> responseObserver) {
         PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request.getPageable());
         Page<PaintingEntity> result = paintingDbService.getByTitle(request.getTitle(), pageRequest);
 
@@ -38,7 +39,7 @@ public class GrpcPaintingService extends PaintingServiceGrpc.PaintingServiceImpl
     }
 
     @Override
-    public void allPaintings(PageableRequest request, StreamObserver<PaintingsResponse> responseObserver) {
+    public void allPaintings(@Nonnull PageableRequest request, @Nonnull StreamObserver<PaintingsResponse> responseObserver) {
         PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request);
         Page<PaintingEntity> result = paintingDbService.getAll(pageRequest);
         responseObserver.onNext(PaintingsResponse.newBuilder()
@@ -52,14 +53,14 @@ public class GrpcPaintingService extends PaintingServiceGrpc.PaintingServiceImpl
     }
 
     @Override
-    public void findPaintingById(IdRequest request, StreamObserver<PaintingResponse> responseObserver) {
+    public void findPaintingById(@Nonnull IdRequest request, @Nonnull StreamObserver<PaintingResponse> responseObserver) {
         PaintingEntity entity = paintingDbService.getById(request.getId());
         responseObserver.onNext(PaintingResponse.newBuilder(paintingEntityToPaintingProtoResponse(entity)).build());
         responseObserver.onCompleted();
     }
 
     @Override
-    public void findPaintingByArtist(PaintingsByArtistRequest request, StreamObserver<PaintingsResponse> responseObserver) {
+    public void findPaintingByArtist(@Nonnull PaintingsByArtistRequest request, @Nonnull StreamObserver<PaintingsResponse> responseObserver) {
         PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request.getPageable());
 
         Page<PaintingEntity> result = paintingDbService.getByArtistId(
@@ -78,7 +79,7 @@ public class GrpcPaintingService extends PaintingServiceGrpc.PaintingServiceImpl
     }
 
     @Override
-    public void createPainting(CreatePaintingRequest request, StreamObserver<PaintingResponse> responseObserver) {
+    public void createPainting(@Nonnull CreatePaintingRequest request, @Nonnull StreamObserver<PaintingResponse> responseObserver) {
         byte[] content = request.getContent().isEmpty() ? null : request.getContent().toByteArray();
         String artistId = request.hasArtist() ? request.getArtist().getId() : null;
         String museumId = null;
@@ -98,7 +99,7 @@ public class GrpcPaintingService extends PaintingServiceGrpc.PaintingServiceImpl
     }
 
     @Override
-    public void updatePainting(UpdatePaintingRequest request, StreamObserver<PaintingResponse> responseObserver) {
+    public void updatePainting(@Nonnull UpdatePaintingRequest request, @Nonnull StreamObserver<PaintingResponse> responseObserver) {
         String title = request.hasTitle() ? request.getTitle() : null;
         String description = request.hasDescription() ? request.getDescription() : null;
         byte[] content = request.hasContent() ? request.getContent().toByteArray() : null;
@@ -118,7 +119,8 @@ public class GrpcPaintingService extends PaintingServiceGrpc.PaintingServiceImpl
         responseObserver.onCompleted();
     }
 
-    private static PaintingResponse paintingEntityToPaintingProtoResponse(PaintingEntity paintingEntity) {
+    @Nonnull
+    private static PaintingResponse paintingEntityToPaintingProtoResponse(@Nonnull PaintingEntity paintingEntity) {
         MuseumResponse museumResponse = paintingEntity.getMuseum() == null
                 ? MuseumResponse.getDefaultInstance()
                 : MuseumResponse.newBuilder(GrpcMuseumService.museumEntityToMuseumProtoResponse(paintingEntity.getMuseum()))

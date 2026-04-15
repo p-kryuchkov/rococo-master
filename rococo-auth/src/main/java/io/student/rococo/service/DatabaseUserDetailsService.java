@@ -1,6 +1,7 @@
 package io.student.rococo.service;
 
 import io.student.rococo.data.repository.UserRepository;
+import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -22,7 +23,8 @@ public class DatabaseUserDetailsService implements UserDetailsService {
 
   @Override
   @Transactional(readOnly = true)
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+  @Nonnull
+  public UserDetails loadUserByUsername(@Nonnull String username) throws UsernameNotFoundException {
     return userRepository.findByUsername(username)
         .map(ue -> new User(
             ue.getUsername(),

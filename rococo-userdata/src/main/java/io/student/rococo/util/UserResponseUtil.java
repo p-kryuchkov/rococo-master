@@ -3,9 +3,11 @@ package io.student.rococo.util;
 import com.google.protobuf.ByteString;
 import io.student.rococo.data.entity.UserDataEntity;
 import io.student.rococo.grpc.UserResponse;
+import jakarta.annotation.Nonnull;
 
 public class UserResponseUtil {
-    public static UserResponse userEntityToUserProtoResponse(UserDataEntity userEntity) {
+    @Nonnull
+    public static UserResponse userEntityToUserProtoResponse(@Nonnull UserDataEntity userEntity) {
         return UserResponse.newBuilder()
                 .setId(userEntity.getId().toString())
                 .setUsername(userEntity.getUsername())

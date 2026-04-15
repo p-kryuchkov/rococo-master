@@ -5,6 +5,7 @@ import io.grpc.stub.StreamObserver;
 import io.student.rococo.data.entity.MuseumEntity;
 import io.student.rococo.grpc.*;
 import io.student.rococo.service.db.MuseumDbService;
+import jakarta.annotation.Nonnull;
 import net.devh.boot.grpc.server.service.GrpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,7 +24,7 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
     }
 
     @Override
-    public void allMuseums(PageableRequest request, StreamObserver<MuseumsResponse> responseObserver) {
+    public void allMuseums(@Nonnull PageableRequest request, @Nonnull StreamObserver<MuseumsResponse> responseObserver) {
         PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request);
         Page<MuseumEntity> result = museumDbService.getAll(pageRequest);
 
@@ -41,7 +42,7 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
     }
 
     @Override
-    public void findMuseumsByName(MuseumTitleRequest request, StreamObserver<MuseumsResponse> responseObserver) {
+    public void findMuseumsByName(@Nonnull MuseumTitleRequest request, @Nonnull StreamObserver<MuseumsResponse> responseObserver) {
         PageRequest pageRequest = grpcPageableRequestToSpringPageRequest(request.getPageable());
         Page<MuseumEntity> result = museumDbService.getByTitle(request.getTitle(), pageRequest);
 
@@ -59,14 +60,14 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
     }
 
     @Override
-    public void findMuseumById(IdRequest request, StreamObserver<MuseumResponse> responseObserver) {
+    public void findMuseumById(@Nonnull IdRequest request, @Nonnull StreamObserver<MuseumResponse> responseObserver) {
         MuseumEntity entity = museumDbService.getById(request.getId());
         responseObserver.onNext(museumEntityToMuseumProtoResponse(entity));
         responseObserver.onCompleted();
     }
 
     @Override
-    public void createMuseum(CreateMuseumRequest request, StreamObserver<MuseumResponse> responseObserver) {
+    public void createMuseum(@Nonnull CreateMuseumRequest request, @Nonnull StreamObserver<MuseumResponse> responseObserver) {
         byte[] photo = request.getPhoto().isEmpty() ? null : request.getPhoto().toByteArray();
 
         MuseumEntity created = museumDbService.create(
@@ -82,7 +83,7 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
     }
 
     @Override
-    public void updateMuseum(UpdateMuseumRequest request, StreamObserver<MuseumResponse> responseObserver) {
+    public void updateMuseum(@Nonnull UpdateMuseumRequest request, @Nonnull StreamObserver<MuseumResponse> responseObserver) {
         var geo = request.hasGeo() ? request.getGeo() : null;
 
         MuseumEntity updated = museumDbService.update(
@@ -98,7 +99,8 @@ public class GrpcMuseumService extends MuseumServiceGrpc.MuseumServiceImplBase {
         responseObserver.onCompleted();
     }
 
-    public static MuseumResponse museumEntityToMuseumProtoResponse(MuseumEntity museumEntity) {
+    @Nonnull
+    public static MuseumResponse museumEntityToMuseumProtoResponse(@Nonnull MuseumEntity museumEntity) {
         Geo geo = Geo.newBuilder()
                 .setCity(museumEntity.getCity() == null ? "" : museumEntity.getCity())
                 .setCountryId(museumEntity.getCountry() == null ? "" : museumEntity.getCountry().getId().toString())

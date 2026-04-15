@@ -4,6 +4,8 @@ import io.student.rococo.data.entity.UserDataEntity;
 import io.student.rococo.data.repository.UserRepository;
 import io.student.rococo.exception.FieldValidationException;
 import io.student.rococo.exception.UserNotFoundException;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,14 +18,15 @@ public class UserdataDbService {
         this.userRepository = userRepository;
     }
 
+    @Nonnull
     @Transactional(readOnly = true)
-    public UserDataEntity getByUsername(String username) {
+    public UserDataEntity getByUsername(@Nonnull String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found by username: " + username));
     }
 
     @Transactional
-    public void createUser(String username, String firstname, String lastname, byte[] avatar) {
+    public void createUser(@Nonnull String username, @Nullable String firstname, @Nullable String lastname, @Nullable byte[] avatar) {
 
         if (username == null) {
             throw new FieldValidationException("Username must not be null");
@@ -46,7 +49,8 @@ public class UserdataDbService {
     }
 
     @Transactional
-    public UserDataEntity updateUser(String username, String firstname, String lastname, byte[] avatar) {
+    @Nonnull
+    public UserDataEntity updateUser(@Nonnull String username, @Nullable String firstname, @Nullable String lastname, @Nullable byte[] avatar) {
         UserDataEntity userEntity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found by username: " + username));
         if (!firstname.isBlank()) {

@@ -7,6 +7,8 @@ import io.student.rococo.grpc.*;
 import io.student.rococo.model.EventJson;
 import io.student.rococo.model.PaintingJson;
 import io.student.rococo.utils.CurrentUserProvider;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.data.domain.Page;
@@ -36,7 +38,8 @@ public class GrpcPaintingClient {
 
     private final CurrentUserProvider currentUserProvider;
 
-    public Page<PaintingJson> getAllPaintings(Pageable pageable) {
+    @Nonnull
+    public Page<PaintingJson> getAllPaintings(@Nonnull Pageable pageable) {
         try {
             PageableRequest req = springPageableToGrpcPageableRequest(pageable);
             PaintingsResponse resp = stub.allPaintings(req);
@@ -56,7 +59,8 @@ public class GrpcPaintingClient {
         }
     }
 
-    public PaintingJson getPaintingById(UUID id) {
+    @Nonnull
+    public PaintingJson getPaintingById(@Nonnull UUID id) {
         try {
             if (id == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Painting id is required");
@@ -80,7 +84,8 @@ public class GrpcPaintingClient {
         }
     }
 
-    public Page<PaintingJson> getPaintingsByArtist(UUID artistId, Pageable pageable) {
+    @Nonnull
+    public Page<PaintingJson> getPaintingsByArtist(@Nonnull UUID artistId, @Nonnull Pageable pageable) {
         try {
             if (artistId == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Artist id is required");
@@ -111,7 +116,8 @@ public class GrpcPaintingClient {
         }
     }
 
-    public Page<PaintingJson> getPaintingsByTitle(String title, Pageable pageable) {
+    @Nonnull
+    public Page<PaintingJson> getPaintingsByTitle(@Nonnull String title, @Nonnull Pageable pageable) {
         try {
             if (title == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Painting title is required");
@@ -142,7 +148,8 @@ public class GrpcPaintingClient {
         }
     }
 
-    public PaintingJson createPainting(PaintingJson paintingJson) {
+    @Nonnull
+    public PaintingJson createPainting(@Nonnull PaintingJson paintingJson) {
         try {
             if (paintingJson == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Painting payload is required");
@@ -183,7 +190,8 @@ public class GrpcPaintingClient {
         }
     }
 
-    public PaintingJson updatePainting(PaintingJson paintingJson) {
+    @Nonnull
+    public PaintingJson updatePainting(@Nonnull PaintingJson paintingJson) {
         try {
             if (paintingJson.id() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Painting id is required");

@@ -2,6 +2,7 @@ package io.student.rococo.controller;
 
 import io.student.rococo.model.CountryJson;
 import io.student.rococo.service.grpc.GrpcCountryClient;
+import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +21,9 @@ public class CountryController {
         this.countryClient = countryClient;
     }
 
+    @Nonnull
     @GetMapping
-    public Page<CountryJson> getAllCountries(@PageableDefault Pageable pageable) {
+    public Page<CountryJson> getAllCountries(@PageableDefault @Nonnull Pageable pageable) {
         return countryClient.getAllCountries(pageable);
     }
 }
